@@ -1914,3 +1914,326 @@ html, body {
   border-color: var(--primary-light);
   background: var(--bg-card-hover);
 }
+
+
+/* ==========================================================================
+   UltraReal Liquid Glass, 3D Engine & Mobile Dock Styles
+   ========================================================================== */
+
+/* 1. UltraReal Liquid Glass & Prismatic Bevels */
+.liquid-glass,
+.hero-banner,
+.book-card,
+.genre-3d-card,
+.player-page-card,
+.paywall-card,
+.settings-card,
+.admin-card,
+.reader-container,
+.modal-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.065) 0%, rgba(255, 255, 255, 0.015) 100%) !important;
+  backdrop-filter: blur(28px) saturate(190%) contrast(106%) brightness(108%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%) contrast(106%) brightness(108%);
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  box-shadow: 
+    0 24px 48px -12px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.45),
+    inset 1px 0 1px 0 rgba(147, 197, 253, 0.2),
+    inset 0 -1.5px 1px 0 rgba(0, 0, 0, 0.45),
+    inset -1px 0 1px 0 rgba(244, 114, 182, 0.12) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Diagonal Specular Lens Flare Overlay */
+.liquid-glass::before,
+.hero-banner::before,
+.player-page-card::before,
+.genre-3d-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.02) 40%, transparent 80%);
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 2. Semi-Length Minimalist Glass Dividers */
+.glass-divider {
+  width: 65%;
+  height: 1px;
+  margin: 32px auto;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.18) 50%, transparent 100%);
+  position: relative;
+}
+.glass-divider::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 25%;
+  width: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.45), transparent);
+}
+
+[data-theme="light"] .glass-divider {
+  background: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.12) 50%, transparent 100%);
+}
+[data-theme="light"] .glass-divider::after {
+  background: linear-gradient(90deg, transparent, rgba(2, 132, 199, 0.35), transparent);
+}
+
+/* 3. 3D Floating Category Cards (Wildberries 3D Style) */
+.genres-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+@media (max-width: 600px) {
+  .genres-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+.genre-3d-card {
+  border-radius: 20px !important;
+  padding: 16px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 185px;
+  cursor: pointer;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.3s ease;
+  user-select: none;
+}
+
+.genre-3d-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  border-color: rgba(56, 189, 248, 0.45) !important;
+  box-shadow: 
+    0 28px 56px -12px rgba(0, 0, 0, 0.65),
+    0 0 25px rgba(56, 189, 248, 0.25),
+    inset 0 2px 1.5px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -2px 1.5px 0 rgba(0, 0, 0, 0.5) !important;
+}
+
+.genre-3d-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+  z-index: 2;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.genre-3d-box {
+  width: 100%;
+  height: 115px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  position: relative;
+}
+
+.genre-3d-visual {
+  width: 100%;
+  height: 100%;
+  max-width: 140px;
+  max-height: 110px;
+  object-fit: contain;
+  transition: transform 0.35s ease;
+}
+
+.genre-3d-card:hover .genre-3d-visual {
+  transform: scale(1.06);
+}
+
+/* 3D Floating Keyframes */
+@keyframes float3D {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(1.2deg);
+  }
+}
+
+.floating-obj {
+  animation: float3D 4.5s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+.floating-obj-sub {
+  animation: float3D 3.5s ease-in-out infinite reverse;
+  transform-origin: center center;
+}
+
+/* 4. Floating Liquid Glass Mobile Dock (iOS 26 Style) */
+#mobile-nav {
+  position: fixed;
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(440px, calc(100% - 32px));
+  height: 64px;
+  border-radius: 32px;
+  background: linear-gradient(135deg, rgba(16, 23, 36, 0.84) 0%, rgba(9, 13, 22, 0.92) 100%);
+  backdrop-filter: blur(32px) saturate(200%) brightness(110%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%) brightness(110%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 24px 50px -12px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1.5px 1.5px 0 rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 6px;
+  z-index: 1000;
+  isolation: isolate;
+}
+
+[data-theme="light"] #mobile-nav {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.88) 0%, rgba(241, 245, 249, 0.92) 100%);
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 
+    0 20px 40px -10px rgba(0, 0, 0, 0.15),
+    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.9);
+}
+
+.nav-pill-indicator {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 6px;
+  width: calc((100% - 12px) / 5);
+  border-radius: 26px;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.28) 0%, rgba(99, 102, 241, 0.18) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  box-shadow: 
+    0 4px 16px rgba(56, 189, 248, 0.35),
+    inset 0 1px 1px rgba(255, 255, 255, 0.5);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.mobile-nav-item {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.25s ease, transform 0.2s ease;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.mobile-nav-item:active {
+  transform: scale(0.94);
+}
+
+.mobile-nav-item.active {
+  color: var(--text-main);
+}
+
+.mobile-nav-item .nav-svg-icon {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  transition: stroke 0.25s ease, transform 0.25s ease;
+}
+
+.mobile-nav-item.active .nav-svg-icon {
+  stroke: var(--primary-light);
+  transform: translateY(-1px);
+}
+
+/* 5. Minimalist Glass Back Button */
+.btn-back-glass {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  margin-bottom: 20px;
+}
+
+.btn-back-glass:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: var(--primary-light);
+  transform: translateX(-3px);
+  color: var(--primary-light);
+}
+
+.btn-back-glass:active {
+  transform: scale(0.97);
+}
+
+/* 6. Glass Toast Notification */
+.glass-toast {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-30px);
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.94) 0%, rgba(30, 41, 59, 0.96) 100%);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  color: #F8FAFC;
+  padding: 10px 20px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* 7. Vector SVG icon styles for sidebar */
+.sidebar-nav .nav-svg-icon {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  margin-right: 12px;
+  display: inline-block;
+  vertical-align: middle;
+}

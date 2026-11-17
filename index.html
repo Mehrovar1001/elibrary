@@ -30,28 +30,28 @@
     </div>
 
     <nav class="sidebar-nav">
-      <div class="nav-section-title" data-i18n="navMenu">МЕНЮ</div>
-      <button class="nav-link active" onclick="navigate('home')">
-        <span class="icon">🏠</span>
+      <div class="nav-section-title" data-i18n="navMenu">НАВИГАЦИЯ</div>
+      <button class="nav-link active" data-screen="home" onclick="navigate('home')">
+        <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9.5z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         <span data-i18n="navHome">Главная</span>
       </button>
-      <button class="nav-link" onclick="navigate('genres')">
-        <span class="icon">📂</span>
-        <span data-i18n="navGenres">Жанры</span>
+      <button class="nav-link" data-screen="genres" onclick="navigate('genres')">
+        <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/></svg>
+        <span data-i18n="navGenres">Направления</span>
       </button>
-      <button class="nav-link" onclick="navigate('bookmarks')">
-        <span class="icon">🔖</span>
-        <span data-i18n="navBookmarks">Закладки</span>
+      <button class="nav-link" data-screen="bookmarks" onclick="navigate('bookmarks')">
+        <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        <span data-i18n="navBookmarks">Избранное</span>
       </button>
-      <button class="nav-link" onclick="navigate('stats')">
-        <span class="icon">📊</span>
-        <span data-i18n="navStats">Статистика</span>
+      <button class="nav-link" data-screen="stats" onclick="navigate('stats')">
+        <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span data-i18n="navStats">Аналитика</span>
       </button>
 
-      <div class="nav-section-title" data-i18n="navPreferences">НАСТРОЙКИ</div>
-      <button class="nav-link" onclick="navigate('settings')">
-        <span class="icon">⚙️</span>
-        <span data-i18n="navSettings">Настройки и Профиль</span>
+      <div class="nav-section-title" data-i18n="navPreferences">СИСТЕМА</div>
+      <button class="nav-link" data-screen="settings" onclick="navigate('settings')">
+        <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span data-i18n="navSettings">Профиль</span>
       </button>
     </nav>
 
@@ -106,30 +106,34 @@
         <!-- Hero Banner -->
         <div class="hero-banner">
           <div class="hero-content">
-            <span class="hero-tag" data-i18n="heroTag">✨ Цифровая библиотека</span>
-            <h1 class="hero-title" data-i18n="heroTitle">Читайте и слушайте в любом месте</h1>
-            <p class="hero-desc" data-i18n="heroDesc">Адаптировано для компьютеров Mac и смартфонов. Прямое воспроизведение аудиокниг через Google Drive и персональная библиотека.</p>
+            <span class="hero-tag" data-i18n="heroTag">✨ АКАДЕМИЧЕСКИЙ ФОНД</span>
+            <h1 class="hero-title" data-i18n="heroTitle">Научные монографии, труды и лекторий</h1>
+            <p class="hero-desc" data-i18n="heroDesc">Единая исследовательская среда. Авторизованный доступ к первоисточникам и аудиоматериалам.</p>
             <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-              <button class="btn-primary" onclick="navigate('genres')" data-i18n="exploreGenres">Выбрать жанр</button>
-              <button class="btn-icon" style="width: auto; padding: 0 16px; border-radius: var(--radius-md); font-size: 13px;" onclick="navigate('settings')">Настройки и Профиль →</button>
+              <button class="btn-primary" onclick="navigate('genres')" data-i18n="exploreGenres">Отрасли знания</button>
+              <button class="btn-back-glass" style="margin-bottom:0;" onclick="navigate('settings')">Профиль исследователя →</button>
             </div>
           </div>
         </div>
 
-        <!-- Genres Quick Filter -->
+        <div class="glass-divider"></div>
+
+        <!-- Academic Disciplines 3D Cards -->
         <div class="section-header">
           <div>
-            <h2 class="section-title">📂 <span data-i18n="categoriesTitle">Категории</span></h2>
-            <p class="section-subtitle" data-i18n="categoriesSubtitle">Выберите категорию для быстрого поиска</p>
+            <h2 class="section-title"><span data-i18n="categoriesTitle">Отраслевые направления</span></h2>
+            <p class="section-subtitle" data-i18n="categoriesSubtitle">Классификатор академических дисциплин</p>
           </div>
         </div>
         <div class="genres-grid" id="home-genres-grid"></div>
 
+        <div class="glass-divider"></div>
+
         <!-- Books Library Section -->
         <div class="section-header" style="margin-top: 16px;">
           <div>
-            <h2 class="section-title">📚 <span data-i18n="allBooksTitle">Книги в библиотеке</span></h2>
-            <p class="section-subtitle" id="books-count-subtitle">0 книг доступно</p>
+            <h2 class="section-title"><span data-i18n="allBooksTitle">Академический каталог</span></h2>
+            <p class="section-subtitle" id="books-count-subtitle">0 изданий доступно</p>
           </div>
         </div>
 
@@ -168,7 +172,7 @@
     <!-- Page: BOOK DETAIL -->
     <section class="screen" id="screen-book-detail">
       <div class="page-container">
-        <button class="btn-icon" onclick="navigate('home')" style="margin-bottom: 16px;">← Назад</button>
+        <button class="btn-back-glass" onclick="navigate('home')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> <span>Назад в каталог</span></button>
         
         <div class="book-detail-wrapper" id="book-detail-content">
           <!-- Dynamically populated by app.js -->
@@ -180,7 +184,7 @@
     <section class="screen" id="screen-reader">
       <div class="page-container">
         <div class="reader-header">
-          <button class="btn-icon" onclick="backToDetail()">←</button>
+          <button class="btn-back-glass" onclick="backToDetail()" style="margin-bottom:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> <span>Назад</span></button>
           <div style="text-align: center;">
             <div id="reader-title" style="font-weight: 700; font-size: 15px;"></div>
             <div id="reader-author" style="font-size: 12px; color: var(--text-muted);"></div>
@@ -236,7 +240,7 @@
     <!-- Page: AUDIO PLAYER (100% Native Google Drive Player) -->
     <section class="screen" id="screen-player">
       <div class="page-container">
-        <button class="btn-icon" onclick="backToDetail()" style="margin-bottom: 16px;">← Назад к книге</button>
+        <button class="btn-back-glass" onclick="backToDetail()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> <span>Назад к изданию</span></button>
         
         <div class="player-page-card" style="max-width: 640px; margin: 0 auto; text-align: center;">
           <!-- Book Cover -->
@@ -417,7 +421,7 @@
       <div class="page-container">
         <div class="section-header">
           <div>
-            <button class="btn-icon" onclick="navigate('settings')" style="margin-bottom: 12px;">← Вернуться в настройки</button>
+            <button class="btn-back-glass" onclick="navigate('settings')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> <span>Назад в Профиль</span></button>
             <h2 class="section-title">👑 <span data-i18n="adminTitle">Панель администратора</span></h2>
             <p class="section-subtitle">Полный контроль над книгами, аудиофайлами Google Drive и пользователями системы</p>
           </div>
@@ -626,27 +630,28 @@
   </main>
 </div>
 
-<!-- Mobile Bottom Navigation Bar (No admin link - accessible purely via Settings!) -->
+<!-- Mobile Bottom Navigation Bar (Floating Liquid Glass Dock) -->
 <nav id="mobile-nav">
-  <button class="mobile-nav-item active" onclick="navigate('home')">
-    <span class="nav-icon">🏠</span>
+  <div class="nav-pill-indicator"></div>
+  <button class="mobile-nav-item active" data-screen="home" onclick="navigate('home')">
+    <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9.5z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     <span data-i18n="navHome">Главная</span>
   </button>
-  <button class="mobile-nav-item" onclick="navigate('genres')">
-    <span class="nav-icon">📂</span>
-    <span data-i18n="navGenres">Жанры</span>
+  <button class="mobile-nav-item" data-screen="genres" onclick="navigate('genres')">
+    <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/></svg>
+    <span data-i18n="navGenres">Самтҳо</span>
   </button>
-  <button class="mobile-nav-item" onclick="navigate('bookmarks')">
-    <span class="nav-icon">🔖</span>
-    <span data-i18n="navBookmarks">Закладки</span>
+  <button class="mobile-nav-item" data-screen="bookmarks" onclick="navigate('bookmarks')">
+    <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+    <span data-i18n="navBookmarks">Захираҳо</span>
   </button>
-  <button class="mobile-nav-item" onclick="navigate('stats')">
-    <span class="nav-icon">📊</span>
-    <span data-i18n="navStats">Статистика</span>
+  <button class="mobile-nav-item" data-screen="stats" onclick="navigate('stats')">
+    <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <span data-i18n="navStats">Таҳлил</span>
   </button>
-  <button class="mobile-nav-item" onclick="navigate('settings')">
-    <span class="nav-icon">⚙️</span>
-    <span data-i18n="navSettings">Профиль</span>
+  <button class="mobile-nav-item" data-screen="settings" onclick="navigate('settings')">
+    <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <span data-i18n="navSettings">Профил</span>
   </button>
 </nav>
 

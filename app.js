@@ -28,128 +28,128 @@ const GUEST_AUDIO_LIMIT_SECS = 240; // 4 minutes preview for guests
 const GUEST_TEXT_LIMIT_CHARS = 450; // ~1-2 pages preview for guests
 
 const GENRES = [
-  { id: 'history',    emoji: '🏛️', name: { ru: 'История',      tj: 'Таърих',        en: 'History' } },
-  { id: 'poetry',     emoji: '📜', name: { ru: 'Поэзия',       tj: 'Шеър',          en: 'Poetry' } },
-  { id: 'philosophy', emoji: '🗿', name: { ru: 'Философия',    tj: 'Фалсафа',       en: 'Philosophy' } },
-  { id: 'education',  emoji: '🎓', name: { ru: 'Образование',  tj: 'Маориф',        en: 'Education' } },
-  { id: 'business',   emoji: '💼', name: { ru: 'Бизнес',       tj: 'Бизнес',        en: 'Business' } },
-  { id: 'math',       emoji: '🧮', name: { ru: 'Математика',   tj: 'Математика',    en: 'Mathematics' } },
-  { id: 'science',    emoji: '🔬', name: { ru: 'Наука',        tj: 'Илм',           en: 'Science' } },
-  { id: 'english',    emoji: '🇬🇧', name: { ru: 'Английский',   tj: 'Забони англисӣ',en: 'English' } },
-  { id: 'biography',  emoji: '👤', name: { ru: 'Биография',   tj: 'Тарҷимаиҳол',   en: 'Biography' } },
-  { id: 'art',        emoji: '🎨', name: { ru: 'Искусство',    tj: 'Санъат',        en: 'Art' } }
+  { id: 'history',    name: { ru: 'История и Археология',      tj: 'Таърих ва Бостоншиносӣ',        en: 'History & Archaeology' } },
+  { id: 'science',    name: { ru: 'Фундаментальная Наука',     tj: 'Илми Бунёдӣ',                   en: 'Fundamental Science' } },
+  { id: 'business',   name: { ru: 'Стратегия и Экономика',     tj: 'Стратегия ва Иқтисод',          en: 'Strategy & Economics' } },
+  { id: 'technology', name: { ru: 'Информационные Технологии', tj: 'Технологияҳои Иттилоотӣ',       en: 'Information Tech & AI' } },
+  { id: 'psychology', name: { ru: 'Когнитивистика',            tj: 'Когнитивистика ва Равоншиносӣ', en: 'Cognitive Science' } },
+  { id: 'philosophy', name: { ru: 'Философия и Логика',        tj: 'Фалсафа ва Мантиқ',             en: 'Philosophy & Logic' } },
+  { id: 'education',  name: { ru: 'Педагогика и Академика',    tj: 'Педагогика ва Академика',       en: 'Pedagogy & Education' } },
+  { id: 'poetry',     name: { ru: 'Классические Труды',        tj: 'Осор ва Адабиёти Классикӣ',     en: 'Classical Literature' } },
+  { id: 'math',       name: { ru: 'Математика и Анализ',       tj: 'Математика ва Таҳлил',          en: 'Mathematics & Analysis' } },
+  { id: 'art',        name: { ru: 'Астрофизика и Космос',      tj: 'Астрофизика ва Кайҳоншиносӣ',   en: 'Astrophysics & Space' } }
 ];
 
 const AVATAR_PRESETS = ['👑', '🦁', '🦉', '🚀', '📚', '🎧', '⚡', '🌟'];
 
 const I18N = {
   ru: {
-    navMenu: "МЕНЮ",
+    navMenu: "НАВИГАЦИЯ",
     navHome: "Главная",
-    navGenres: "Жанры",
-    navBookmarks: "Закладки",
-    navStats: "Статистика",
-    navPreferences: "НАСТРОЙКИ",
-    navSettings: "Настройки и Профиль",
-    searchPlaceholder: "Поиск книг, авторов, жанров...",
-    heroTag: "✨ Цифровая библиотека",
-    heroTitle: "Читайте и слушайте в любом месте",
-    heroDesc: "Адаптировано для компьютеров Mac и смартфонов. Прямое воспроизведение аудиокниг через Google Drive и персональная библиотека.",
-    exploreGenres: "Выбрать жанр",
-    categoriesTitle: "Категории",
-    categoriesSubtitle: "Выберите категорию для быстрого поиска",
-    allBooksTitle: "Книги в библиотеке",
-    emptyLibTitle: "Библиотека пуста",
-    emptyLibDesc: "Все старые книги удалены. Добавьте свои первые книги и аудиокниги с Google Drive через удобную панель управления в Настройках!",
-    genresCatalog: "Каталог жанров",
-    genresCatalogSub: "Исследуйте книги по тематическим разделам",
-    adminTitle: "Панель администратора",
-    formTitle: "Название книги *",
-    formAuthor: "Автор *",
-    formGenre: "Жанр / Категория *",
-    formCover: "Обложка (эмодзи или ссылка на изображение)",
-    formSynopsis: "Краткое описание / О книге",
-    formText: "Текст книги (для чтения)",
+    navGenres: "Направления",
+    navBookmarks: "Избранное",
+    navStats: "Аналитика",
+    navPreferences: "СИСТЕМА",
+    navSettings: "Профиль",
+    searchPlaceholder: "Поиск публикаций, монографий, авторов...",
+    heroTag: "✨ АКАДЕМИЧЕСКИЙ ФОНД",
+    heroTitle: "Научные монографии, труды и лекторий",
+    heroDesc: "Единая исследовательская среда. Авторизованный доступ к первоисточникам и аудиоматериалам.",
+    exploreGenres: "Отрасли знания",
+    categoriesTitle: "Отраслевые направления",
+    categoriesSubtitle: "Классификатор академических дисциплин",
+    allBooksTitle: "Академический каталог",
+    emptyLibTitle: "Каталог формируется",
+    emptyLibDesc: "Новые монографии и лекционные курсы добавляются через панель управления в Профиле.",
+    genresCatalog: "Классификатор дисциплин",
+    genresCatalogSub: "Тематический реестр исследовательских направлений",
+    adminTitle: "Панель управления фондом",
+    formTitle: "Наименование труда *",
+    formAuthor: "Автор / Исследователь *",
+    formGenre: "Отрасль знания *",
+    formCover: "Изображение титула",
+    formSynopsis: "Аннотация издания",
+    formText: "Текст монографии",
     cancelBtn: "Отмена",
-    saveBookBtn: "💾 Сохранить книгу",
-    bookmarksTitle: "Мои закладки",
-    bookmarksSubtitle: "Сохранённые цитаты и страницы",
-    statsTitle: "Статистика библиотеки",
-    statsSubtitle: "Активность и статистика вашей библиотеки",
-    settingsTitle: "Настройки и Профиль",
-    settingsSubtitle: "Управление вашим аккаунтом, безопасность и параметры чтения"
+    saveBookBtn: "Внести в реестр",
+    bookmarksTitle: "Избранные материалы",
+    bookmarksSubtitle: "Сохранённые фрагменты и цитаты",
+    statsTitle: "Аналитика фонда",
+    statsSubtitle: "Метрики чтения и исследовательской активности",
+    settingsTitle: "Профиль исследователя",
+    settingsSubtitle: "Учетная запись, безопасность и параметры отображения"
   },
   tj: {
-    navMenu: "МЕНЮ",
+    navMenu: "ПАЙМОИШ",
     navHome: "Асосӣ",
-    navGenres: "Жанрҳо",
-    navBookmarks: "Хатчӯбҳо",
-    navStats: "Омор",
-    navPreferences: "ТАНЗИМОТ",
-    navSettings: "Танзимот ва Профил",
-    searchPlaceholder: "Ҷустуҷӯи китобҳо, муаллифон...",
-    heroTag: "✨ Китобхонаи рақамӣ",
-    heroTitle: "Дар ҳар ҷо бихонед ва гӯш кунед",
-    heroDesc: "Барои компютерҳои Mac ва телефонҳои мобилӣ мутобиқ карда шудааст. Пахши мустақими китобҳои аудиоӣ тавассути Google Drive.",
-    exploreGenres: "Интихоби жанр",
-    categoriesTitle: "Категорияҳо",
-    categoriesSubtitle: "Барои ҷустуҷӯи зуд категорияро интихоб кунед",
-    allBooksTitle: "Китобҳо дар китобхона",
-    emptyLibTitle: "Китобхона холӣ аст",
-    emptyLibDesc: "Ҳамаи китобҳои кӯҳна тоза карда шуданд. Китобҳои нави худро тавассути танзимот илова кунед!",
-    genresCatalog: "Каталоги жанрҳо",
-    genresCatalogSub: "Китобҳоро аз рӯи фаслҳо пайдо кунед",
-    adminTitle: "Панели идоракунӣ",
-    formTitle: "Номи китоб *",
-    formAuthor: "Муаллиф *",
-    formGenre: "Жанр / Категория *",
-    formCover: "Муқова (эмодзӣ ё пайванди акс)",
-    formSynopsis: "Дар бораи китоб",
-    formText: "Матни китоб (барои хондан)",
+    navGenres: "Самтҳои илмӣ",
+    navBookmarks: "Маводи интихобӣ",
+    navStats: "Таҳлил ва омор",
+    navPreferences: "НИЗОМ",
+    navSettings: "Профил",
+    searchPlaceholder: "Ҷустуҷӯи асарҳо, рисолаҳо, муаллифон...",
+    heroTag: "✨ ФОНДИ АКАДЕМӢ",
+    heroTitle: "Асарҳои илмӣ, пажӯҳишҳо ва лексияҳо",
+    heroDesc: "Муҳити ягонаи таҳқиқотӣ. Дастрасии мукаммал ба сарчашмаҳои илмӣ ва маводи савтӣ.",
+    exploreGenres: "Самтҳои илм",
+    categoriesTitle: "Самтҳои илм",
+    categoriesSubtitle: "Таснифоти соҳаҳои дониш",
+    allBooksTitle: "Феҳристи нашрияҳо",
+    emptyLibTitle: "Феҳрист дар ҳоли такмил аст",
+    emptyLibDesc: "Асарҳои нави илмӣ тавассути панели идоракунӣ дар бахши Профил ворид карда мешаванд.",
+    genresCatalog: "Таснифоти соҳаҳо",
+    genresCatalogSub: "Феҳристи мавзӯии самтҳои илмӣ",
+    adminTitle: "Идоракунии фонди илмӣ",
+    formTitle: "Номи асар *",
+    formAuthor: "Муаллиф / Пажӯҳишгар *",
+    formGenre: "Самти илм *",
+    formCover: "Тасвири муқова",
+    formSynopsis: "Мухтасари асар",
+    formText: "Матни комили рисола",
     cancelBtn: "Бекор кардан",
-    saveBookBtn: "💾 Сабти китоб",
-    bookmarksTitle: "Хатчӯбҳои ман",
-    bookmarksSubtitle: "Порчаҳои захирашуда",
-    statsTitle: "Омори китобхона",
-    statsSubtitle: "Фаъолият ва омори китобхонаи шумо",
-    settingsTitle: "Танзимот ва Профил",
-    settingsSubtitle: "Идоракунии аккаунт ва намуди зоҳирӣ"
+    saveBookBtn: "Сабт дар феҳрист",
+    bookmarksTitle: "Маводи интихобӣ",
+    bookmarksSubtitle: "Иқтибосҳо ва саҳифаҳои сабтшуда",
+    statsTitle: "Омори таҳқиқотӣ",
+    statsSubtitle: "Нишондиҳандаҳои мутолиа ва фаъолият",
+    settingsTitle: "Профили пажӯҳишгар",
+    settingsSubtitle: "Танзимоти ҳисоб, амният ва намоиш"
   },
   en: {
-    navMenu: "MENU",
-    navHome: "Home",
-    navGenres: "Genres",
-    navBookmarks: "Bookmarks",
-    navStats: "Statistics",
-    navPreferences: "PREFERENCES",
-    navSettings: "Settings & Profile",
-    searchPlaceholder: "Search books, authors, genres...",
-    heroTag: "✨ Digital Library",
-    heroTitle: "Read & Listen Anywhere",
-    heroDesc: "Optimized for Mac computers and smartphones. Direct Google Drive audio playback and custom personal library.",
-    exploreGenres: "Explore Genres",
-    categoriesTitle: "Categories",
-    categoriesSubtitle: "Select a genre to discover titles",
-    allBooksTitle: "Library Catalog",
-    emptyLibTitle: "Library is empty",
-    emptyLibDesc: "All sample books have been removed. Add your custom books via Settings Admin Panel!",
-    genresCatalog: "Genres Catalog",
-    genresCatalogSub: "Explore titles grouped by genre",
-    adminTitle: "Admin Panel",
-    formTitle: "Book Title *",
-    formAuthor: "Author *",
-    formGenre: "Genre / Category *",
-    formCover: "Cover (emoji or image link)",
-    formSynopsis: "Synopsis / About the book",
-    formText: "Book Text (for reading)",
+    navMenu: "NAVIGATION",
+    navHome: "Main",
+    navGenres: "Disciplines",
+    navBookmarks: "Saved Items",
+    navStats: "Analytics",
+    navPreferences: "SYSTEM",
+    navSettings: "Profile",
+    searchPlaceholder: "Search publications, monographs, authors...",
+    heroTag: "✨ ACADEMIC ARCHIVE",
+    heroTitle: "Scientific Works, Papers & Lectures",
+    heroDesc: "Unified research environment. Authorized access to primary sources and audio lectures.",
+    exploreGenres: "Academic Fields",
+    categoriesTitle: "Fields of Study",
+    categoriesSubtitle: "Classification of academic disciplines",
+    allBooksTitle: "Academic Catalog",
+    emptyLibTitle: "Catalog is Being Formed",
+    emptyLibDesc: "Publications and lecture recordings can be managed via the Profile admin portal.",
+    genresCatalog: "Academic Disciplines",
+    genresCatalogSub: "Thematic directory of scientific fields",
+    adminTitle: "Fund Management",
+    formTitle: "Title of Work *",
+    formAuthor: "Author / Researcher *",
+    formGenre: "Discipline *",
+    formCover: "Cover Image",
+    formSynopsis: "Abstract",
+    formText: "Monograph Text",
     cancelBtn: "Cancel",
-    saveBookBtn: "💾 Save Book",
-    bookmarksTitle: "My Bookmarks",
-    bookmarksSubtitle: "Saved passages and notes",
-    statsTitle: "Library Statistics",
-    statsSubtitle: "Your library activity & stats",
-    settingsTitle: "Settings & Profile",
-    settingsSubtitle: "Account management, security & reader options"
+    saveBookBtn: "Save to Catalog",
+    bookmarksTitle: "Saved Works",
+    bookmarksSubtitle: "Saved passages and citations",
+    statsTitle: "Fund Analytics",
+    statsSubtitle: "Reading metrics and research activity",
+    settingsTitle: "Researcher Profile",
+    settingsSubtitle: "Account credentials, security, and display options"
   }
 };
 
@@ -797,17 +797,23 @@ function navigate(screenName) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // Update Topbar Title according to section
+  // Push history state for native Back gesture on phone / browser
+  if (!window._isPoppingState) {
+    try {
+      history.pushState({ screen: screenName, bookId: state.currentBook ? state.currentBook.id : null }, '', '#' + screenName);
+    } catch(e) {}
+  }
+
   const PAGE_TITLES = {
-    'home': 'Главная',
-    'genres': 'Каталог жанров',
-    'bookmarks': 'Мои закладки',
-    'stats': 'Статистика',
-    'settings': 'Настройки и Профиль',
-    'admin': 'Панель администратора',
-    'book-detail': 'О книге',
-    'reader': 'Чтение',
-    'player': 'Аудиоплеер'
+    'home': 'eLibrary PRO',
+    'genres': 'Отрасли знания',
+    'bookmarks': 'Избранные труды',
+    'stats': 'Аналитика фонда',
+    'settings': 'Профиль исследователя',
+    'admin': 'Управление фондом',
+    'book-detail': 'Издание',
+    'reader': 'Чтение труда',
+    'player': 'Аудиолекторий'
   };
   const titleEl = document.getElementById('page-title');
   if (titleEl) {
@@ -829,13 +835,35 @@ function navigate(screenName) {
 
 function updateNavState(screenName) {
   document.querySelectorAll('#sidebar .nav-link').forEach(l => l.classList.remove('active'));
-  const sidebarMatch = document.querySelector(`#sidebar button[onclick*="'${screenName}'"]`);
+  const sidebarMatch = document.querySelector(`#sidebar button[data-screen="${screenName}"]`) || document.querySelector(`#sidebar button[onclick*="'${screenName}'"]`);
   if (sidebarMatch) sidebarMatch.classList.add('active');
 
-  document.querySelectorAll('#mobile-nav .mobile-nav-item').forEach(m => m.classList.remove('active'));
-  const mobileMatch = document.querySelector(`#mobile-nav button[onclick*="'${screenName}'"]`);
-  if (mobileMatch) mobileMatch.classList.add('active');
+  const mobileItems = Array.from(document.querySelectorAll('#mobile-nav .mobile-nav-item'));
+  mobileItems.forEach(m => m.classList.remove('active'));
+  const activeIdx = mobileItems.findIndex(m => (m.getAttribute('data-screen') === screenName) || m.getAttribute('onclick')?.includes(`'${screenName}'`));
+  if (activeIdx !== -1) {
+    mobileItems[activeIdx].classList.add('active');
+    const pill = document.querySelector('.nav-pill-indicator');
+    if (pill) {
+      pill.style.transform = `translateX(${activeIdx * 100}%)`;
+    }
+  }
 }
+
+// Browser Back & Forward event handler
+window.addEventListener('popstate', (e) => {
+  window._isPoppingState = true;
+  if (e.state && e.state.screen) {
+    if (e.state.bookId) {
+      const b = state.books.find(x => x.id === e.state.bookId);
+      if (b) state.currentBook = b;
+    }
+    navigate(e.state.screen);
+  } else {
+    navigate('home');
+  }
+  window._isPoppingState = false;
+});
 
 function backToDetail() {
   if (state.currentBook) navigate('book-detail');
@@ -905,14 +933,281 @@ function renderTopbarAuth() {
   }
 }
 
+
+/* ==========================================================================
+   Volumetric 3D Floating Objects (Wildberries 3D Category Aesthetic)
+   ========================================================================== */
+function getGenre3DVisual(genreId) {
+  switch (genreId) {
+    case 'history':
+      return `<svg class="genre-3d-visual" viewBox="0 0 160 160" fill="none">
+        <defs>
+          <linearGradient id="col-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#F1F5F9"/><stop offset="50%" stop-color="#94A3B8"/><stop offset="100%" stop-color="#475569"/>
+          </linearGradient>
+          <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FDE047"/><stop offset="50%" stop-color="#CA8A04"/><stop offset="100%" stop-color="#854D0E"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="80" cy="142" rx="48" ry="9" fill="rgba(0,0,0,0.35)"/>
+        <g class="floating-obj">
+          <rect x="44" y="122" width="72" height="14" rx="4" fill="url(#col-grad)"/>
+          <path d="M52 46 L50 120 L110 120 L108 46 Z" fill="url(#col-grad)"/>
+          <line x1="64" y1="46" x2="63" y2="120" stroke="rgba(255,255,255,0.45)" stroke-width="2"/>
+          <line x1="76" y1="46" x2="75" y2="120" stroke="rgba(0,0,0,0.25)" stroke-width="2"/>
+          <line x1="88" y1="46" x2="89" y2="120" stroke="rgba(255,255,255,0.45)" stroke-width="2"/>
+          <rect x="38" y="32" width="84" height="14" rx="3" fill="url(#col-grad)"/>
+          <circle cx="48" cy="42" r="7" fill="url(#gold-grad)"/>
+          <circle cx="112" cy="42" r="7" fill="url(#gold-grad)"/>
+          <rect x="70" y="60" width="62" height="16" rx="8" transform="rotate(-18 70 60)" fill="url(#gold-grad)"/>
+        </g>
+      </svg>`;
+
+    case 'science':
+      return `<svg class="genre-3d-visual" viewBox="0 0 160 160" fill="none">
+        <defs>
+          <linearGradient id="chr-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FFFFFF"/><stop offset="40%" stop-color="#94A3B8"/><stop offset="100%" stop-color="#1E293B"/>
+          </linearGradient>
+          <linearGradient id="em-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#6EE7B7"/><stop offset="100%" stop-color="#059669"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="80" cy="142" rx="46" ry="9" fill="rgba(0,0,0,0.35)"/>
+        <g class="floating-obj">
+          <path d="M48 136 C48 116 112 116 112 136 Z" fill="url(#chr-grad)"/>
+          <rect x="44" y="132" width="72" height="10" rx="4" fill="#64748B"/>
+          <path d="M60 126 C60 76 96 66 96 46" stroke="url(#chr-grad)" stroke-width="12" stroke-linecap="round" fill="none"/>
+          <rect x="74" y="24" width="22" height="40" rx="6" transform="rotate(22 74 24)" fill="url(#chr-grad)"/>
+          <ellipse cx="82" cy="74" rx="32" ry="12" stroke="url(#em-grad)" stroke-width="3" stroke-dasharray="6 4" transform="rotate(-30 82 74)"/>
+          <circle cx="60" cy="86" r="6" fill="#34D399"/>
+          <circle cx="104" cy="62" r="6" fill="#6EE7B7"/>
+        </g>
+      </svg>`;
+
+    case 'business':
+      return `<svg class="genre-3d-visual" viewBox="0 0 160 160" fill="none">
+        <defs>
+          <linearGradient id="amb-f1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FDE68A"/><stop offset="100%" stop-color="#F59E0B"/>
+          </linearGradient>
+          <linearGradient id="amb-f2" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#D97706"/><stop offset="100%" stop-color="#78350F"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="80" cy="138" rx="44" ry="9" fill="rgba(0,0,0,0.35)"/>
+        <g class="floating-obj">
+          <polygon points="80,24 116,56 80,72" fill="url(#amb-f1)"/>
+          <polygon points="80,24 44,56 80,72" fill="#FBBF24"/>
+          <polygon points="44,56 80,24 32,48" fill="#FDE68A"/>
+          <polygon points="116,56 80,24 128,48" fill="#D97706"/>
+          <polygon points="80,126 44,56 80,72" fill="url(#amb-f2)"/>
+          <polygon points="80,126 116,56 80,72" fill="#B45309"/>
+          <line x1="80" y1="24" x2="80" y2="126" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
+          <path d="M32 110 Q70 80 125 40" stroke="#38BDF8" stroke-width="6" stroke-linecap="round" fill="none"/>
+          <polygon points="135,32 118,36 127,49" fill="#38BDF8"/>
+        </g>
+      </svg>`;
+
+    case 'technology':
+      return `<svg class="genre-3d-visual" viewBox="0 0 160 160" fill="none">
+        <defs>
+          <linearGradient id="chip-bd" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1E293B"/><stop offset="100%" stop-color="#020617"/>
+          </linearGradient>
+          <linearGradient id="cyan-sp" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="80" cy="140" rx="48" ry="9" fill="rgba(0,0,0,0.35)"/>
+        <g class="floating-obj">
+          <polygon points="80,50 136,80 80,110 24,80" fill="url(#chip-bd)" stroke="#38BDF8" stroke-width="1.5"/>
+          <polygon points="24,80 80,110 80,120 24,90" fill="#0F172A"/>
+          <polygon points="136,80 80,110 80,120 136,90" fill="#020617"/>
+          <line x1="42" y1="89" x2="36" y2="94" stroke="#FBBF24" stroke-width="3" stroke-linecap="round"/>
+          <line x1="58" y1="98" x2="52" y2="103" stroke="#FBBF24" stroke-width="3" stroke-linecap="round"/>
+          <line x1="102" y1="98" x2="108" y2="103" stroke="#FBBF24" stroke-width="3" stroke-linecap="round"/>
+          <line x1="118" y1="89" x2="124" y2="94" stroke="#FBBF24" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="80" cy="80" r="16" fill="url(#cyan-sp)"/>
+          <circle cx="75" cy="75" r="4" fill="#FFFFFF" opacity="0.8"/>
+        </g>
+      </svg>`;
+
+    case 'psychology':
+      return `<svg class="genre-3d-visual" viewBox="0 0 160 160" fill="none">
+        <defs>
+          <linearGradient id="purp-gl" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#E879F9"/><stop offset="50%" stop-color="#A855F7"/><stop offset="100%" stop-color="#581C87"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="80" cy="140" rx="44" ry="9" fill="rgba(0,0,0,0.35)"/>
+        <g class="floating-obj">
+          <path d="M78 44 C60 44 44 58 44 80 C44 94 52 108 66 114 C72 116 78 114 78 108 Z" fill="url(#purp-gl)" opacity="0.85" stroke="#F0ABFC" stroke-width="1.5"/>
+          <path d="M82 44 C100 44 116 58 116 80 C116 94 108 108 94 114 C88 116 82 114 82 108 Z" fill="url(#purp-gl)" opacity="0.95" stroke="#F0ABFC" stroke-width="1.5"/>
+          <circle cx="58" cy="62" r="4" fill="#FFFFFF"/>
+          <circle cx="102" cy="62" r="4" fill="#FFFFFF"/>
+          <circle cx="80" cy="80" r="5" fill="#FDF4FF"/>
+          <line x1="58" y1="62" x2="80" y2="80" stroke="#F472B6" stroke-width="1.5" stroke-dasharray="3 3"/>
+          <line x1="102" y1="62" x2="80" y2="80" stroke="#F472B6" stroke-width="1.5" stroke-dasharray="3 3"/>
+        </g>
+      </svg>`;
+
+    case 'philosophy':
+      return `<svg class="genre-3d-visual" viewBox="0 0 160 160" fill="none">
+        <defs>
+          <linearGradient id="stn-gr" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#F1F5F9"/><stop offset="50%" stop-color="#94A3B8"/><stop offset="100%" stop-color="#475569"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="80" cy="142" rx="46" ry="9" fill="rgba(0,0,0,0.35)"/>
+        <g class="floating-obj">
+          <rect x="52" y="120" width="56" height="16" rx="4" fill="url(#stn-gr)"/>
+          <path d="M58 114 C58 96 64 90 68 84 C64 80 62 70 62 60 C62 42 70 34 80 34 C90 34 98 42 98 60 C98 70 96 80 92 84 C96 90 102 96 102 114 Z" fill="url(#stn-gr)" stroke="#E2E8F0" stroke-width="1.5"/>
+          <ellipse cx="80" cy="62" rx="36" ry="12" stroke="#FBBF24" stroke-width="2.5" stroke-dasharray="8 4" transform="rotate(-15 80 62)"/>
+        </g>
+      </svg>`;
+
+    case 'education':
+      return `<svg class="genre-3d-visual" viewBox="0 0 160 160" fill="none">
+        <defs>
+          <linearGradient id="cap-dk" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#334155"/><stop offset="100%" stop-color="#0F172A"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="80" cy="140" rx="46" ry="9" fill="rgba(0,0,0,0.35)"/>
+        <g class="floating-obj">
+          <ellipse cx="80" cy="88" rx="34" ry="16" fill="#0F172A"/>
+          <path d="M46 88 L46 98 C46 110 114 110 114 98 L114 88 Z" fill="url(#cap-dk)"/>
+          <polygon points="80,42 138,62 80,82 22,62" fill="url(#cap-dk)" stroke="#64748B" stroke-width="1.5"/>
+          <circle cx="80" cy="62" r="5" fill="#F59E0B"/>
+          <path d="M80 62 Q108 68 114 94" stroke="#F59E0B" stroke-width="2.5" fill="none"/>
+          <rect x="52" y="114" width="56" height="14" rx="7" fill="#FEF3C7" stroke="#CA8A04" stroke-width="1.5"/>
+          <rect x="74" y="112" width="8" height="18" rx="2" fill="#DC2626"/>
+        </g>
+      </svg>`;
+
+    case 'poetry':
+      return `<svg class="genre-3d-visual" viewBox="0 0 160 160" fill="none">
+        <defs>
+          <linearGradient id="bk-lth" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1E3A8A"/><stop offset="100%" stop-color="#0F172A"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="80" cy="140" rx="48" ry="9" fill="rgba(0,0,0,0.35)"/>
+        <g class="floating-obj">
+          <path d="M26 94 C48 90 74 96 80 102 C86 96 112 90 134 94 L138 102 C116 98 86 104 80 110 C74 104 44 98 22 102 Z" fill="url(#bk-lth)" stroke="#38BDF8" stroke-width="1"/>
+          <path d="M30 62 C50 64 74 72 80 84 L80 100 C74 94 48 88 28 88 Z" fill="#FEF3C7"/>
+          <path d="M130 62 C110 64 86 72 80 84 L80 100 C86 94 112 88 132 88 Z" fill="#FDF6B2"/>
+          <path d="M80 78 Q84 104 74 122 Q78 126 84 118 Q86 102 80 78" fill="#F59E0B"/>
+          <path d="M100 36 C108 44 116 66 112 86 C108 80 106 68 100 62 C96 66 94 72 90 78 C94 56 96 42 100 36 Z" fill="#FBBF24"/>
+        </g>
+      </svg>`;
+
+    case 'math':
+      return `<svg class="genre-3d-visual" viewBox="0 0 160 160" fill="none">
+        <defs>
+          <linearGradient id="mth-b1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#60A5FA"/><stop offset="100%" stop-color="#1D4ED8"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="80" cy="140" rx="44" ry="9" fill="rgba(0,0,0,0.35)"/>
+        <g class="floating-obj">
+          <polygon points="80,36 108,56 98,88 62,88 52,56" fill="url(#mth-b1)" stroke="#93C5FD" stroke-width="1.5"/>
+          <polygon points="80,36 108,56 128,48 114,24" fill="#3B82F6" opacity="0.9"/>
+          <polygon points="108,56 98,88 126,98 136,74" fill="#1E3A8A"/>
+          <polygon points="98,88 62,88 70,120 90,120" fill="#1E40AF"/>
+          <polygon points="62,88 52,56 24,74 34,98" fill="#1E3A8A"/>
+          <polygon points="52,56 80,36 46,24 32,48" fill="#3B82F6" opacity="0.9"/>
+          <text x="80" y="72" font-family="system-ui, sans-serif" font-size="26" font-weight="800" fill="#FFFFFF" text-anchor="middle">∑</text>
+        </g>
+      </svg>`;
+
+    case 'art':
+    default:
+      return `<svg class="genre-3d-visual" viewBox="0 0 160 160" fill="none">
+        <defs>
+          <linearGradient id="pln-gr" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#F472B6"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#312E81"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="80" cy="142" rx="48" ry="9" fill="rgba(0,0,0,0.35)"/>
+        <g class="floating-obj">
+          <circle cx="80" cy="76" r="32" fill="url(#pln-gr)"/>
+          <ellipse cx="80" cy="76" rx="58" ry="16" stroke="rgba(244,114,182,0.85)" stroke-width="5" transform="rotate(-18 80 76)"/>
+          <ellipse cx="80" cy="76" rx="50" ry="12" stroke="rgba(192,132,252,0.5)" stroke-width="2" transform="rotate(-18 80 76)"/>
+        </g>
+      </svg>`;
+  }
+}
+
+/* ==========================================================================
+   Continuous Reading Progress Autosave & Restore Engine
+   ========================================================================== */
+function saveReadingProgress() {
+  if (!state.currentBook) return;
+  const scrollPos = window.scrollY || document.documentElement.scrollTop;
+  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+  const progressPercent = maxScroll > 0 ? Math.min(100, Math.round((scrollPos / maxScroll) * 100)) : 0;
+
+  const progressData = {
+    bookId: state.currentBook.id,
+    bookTitle: state.currentBook.title,
+    scrollPos,
+    progressPercent,
+    savedAt: Date.now()
+  };
+
+  try {
+    const all = JSON.parse(localStorage.getItem('elibrary_reading_progress') || '{}');
+    all[state.currentBook.id] = progressData;
+    localStorage.setItem('elibrary_reading_progress', JSON.stringify(all));
+  } catch (e) {}
+}
+
+function restoreReadingProgress(bookId) {
+  try {
+    const all = JSON.parse(localStorage.getItem('elibrary_reading_progress') || '{}');
+    const saved = all[bookId];
+    if (saved && saved.scrollPos > 40) {
+      setTimeout(() => {
+        window.scrollTo({ top: saved.scrollPos, behavior: 'smooth' });
+        showGlassToast(`✓ Прогресс чтения восстановлен (${saved.progressPercent}%)`);
+      }, 300);
+    }
+  } catch (e) {}
+}
+
+function showGlassToast(message) {
+  let toast = document.getElementById('glass-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'glass-toast';
+    toast.className = 'glass-toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.classList.add('visible');
+  setTimeout(() => {
+    toast.classList.remove('visible');
+  }, 2600);
+}
+
+// Scroll listener for autosave
+window.addEventListener('scroll', () => {
+  if (state.activeScreen === 'reader') {
+    saveReadingProgress();
+  }
+}, { passive: true });
+
 function renderHome() {
   const genreGrid = document.getElementById('home-genres-grid');
   if (genreGrid) {
-    genreGrid.innerHTML = GENRES.slice(0, 6).map(g => `
-      <div class="genre-card ${state.selectedGenre === g.id ? 'active' : ''}" onclick="filterByGenre('${g.id}')">
-        <div class="genre-emoji">${g.emoji}</div>
-        <div class="genre-name">${escapeHtml(g.name[state.currentLang] || g.name.ru)}</div>
-        <div class="genre-count">${getBookCountForGenre(g.id)} книг</div>
+    genreGrid.innerHTML = GENRES.map(g => `
+      <div class="genre-3d-card ${state.selectedGenre === g.id ? 'active' : ''}" onclick="filterByGenre('${g.id}')">
+        <div class="genre-3d-title">${escapeHtml(g.name[state.currentLang] || g.name.ru)}</div>
+        <div class="genre-3d-box">
+          ${getGenre3DVisual(g.id)}
+        </div>
       </div>
     `).join('');
   }
@@ -993,10 +1288,11 @@ function renderGenresScreen() {
   const fullGrid = document.getElementById('full-genres-grid');
   if (fullGrid) {
     fullGrid.innerHTML = GENRES.map(g => `
-      <div class="genre-card ${state.selectedGenre === g.id ? 'active' : ''}" onclick="selectGenreTab('${g.id}')">
-        <div class="genre-emoji">${g.emoji}</div>
-        <div class="genre-name">${escapeHtml(g.name[state.currentLang] || g.name.ru)}</div>
-        <div class="genre-count">${getBookCountForGenre(g.id)} книг</div>
+      <div class="genre-3d-card ${state.selectedGenre === g.id ? 'active' : ''}" onclick="selectGenreTab('${g.id}')">
+        <div class="genre-3d-title">${escapeHtml(g.name[state.currentLang] || g.name.ru)}</div>
+        <div class="genre-3d-box">
+          ${getGenre3DVisual(g.id)}
+        </div>
       </div>
     `).join('');
   }
@@ -1096,6 +1392,9 @@ function renderBookDetail() {
    ========================================================================== */
 function openReader() {
   navigate('reader');
+  if (state.currentBook) {
+    restoreReadingProgress(state.currentBook.id);
+  }
 }
 
 function renderReader() {
