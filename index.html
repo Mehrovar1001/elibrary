@@ -48,17 +48,10 @@
         <span data-i18n="navStats">Статистика</span>
       </button>
 
-      <div class="nav-section-title" data-i18n="navManagement">УПРАВЛЕНИЕ</div>
-      <!-- Visible Admin Panel -->
-      <button class="nav-link" id="sidebar-admin-link" onclick="navigate('admin')">
-        <span class="icon">⚙️</span>
-        <span data-i18n="navAdmin">Админ-панель</span>
-      </button>
-
       <div class="nav-section-title" data-i18n="navPreferences">НАСТРОЙКИ</div>
       <button class="nav-link" onclick="navigate('settings')">
-        <span class="icon">🎨</span>
-        <span data-i18n="navSettings">Настройки</span>
+        <span class="icon">⚙️</span>
+        <span data-i18n="navSettings">Настройки и Профиль</span>
       </button>
     </nav>
 
@@ -95,10 +88,15 @@
       </div>
 
       <div class="topbar-actions">
-        <button class="btn-primary" onclick="openAddBookModal()">
-          <span>➕</span>
-          <span data-i18n="addBookBtn">Добавить книгу</span>
-        </button>
+        <!-- Daily Streak Badge (Psychological Habit Trigger) -->
+        <div class="streak-badge" id="topbar-streak" title="Дней чтения подряд">
+          🔥 <span id="streak-days">1</span> дн.
+        </div>
+
+        <!-- Auth / Profile Container -->
+        <div id="topbar-auth-container">
+          <!-- Dynamically populated: Login Button or User Profile Badge -->
+        </div>
       </div>
     </header>
 
@@ -113,7 +111,7 @@
             <p class="hero-desc" data-i18n="heroDesc">Адаптировано для компьютеров Mac и смартфонов. Прямое воспроизведение аудиокниг через Google Drive и персональная библиотека.</p>
             <div style="display: flex; gap: 12px; flex-wrap: wrap;">
               <button class="btn-primary" onclick="navigate('genres')" data-i18n="exploreGenres">Выбрать жанр</button>
-              <button class="btn-icon" style="width: auto; padding: 0 16px; border-radius: var(--radius-md); font-size: 13px;" onclick="navigate('admin')" data-i18n="goToAdmin">Панель управления →</button>
+              <button class="btn-icon" style="width: auto; padding: 0 16px; border-radius: var(--radius-md); font-size: 13px;" onclick="navigate('settings')">Настройки и Профиль →</button>
             </div>
           </div>
         </div>
@@ -133,9 +131,6 @@
             <h2 class="section-title">📚 <span data-i18n="allBooksTitle">Книги в библиотеке</span></h2>
             <p class="section-subtitle" id="books-count-subtitle">0 книг доступно</p>
           </div>
-          <div style="display: flex; gap: 8px;">
-            <button class="btn-icon" onclick="openAddBookModal()" title="Добавить книгу">➕</button>
-          </div>
         </div>
 
         <!-- Books Grid Container -->
@@ -145,9 +140,9 @@
         <div class="empty-state" id="home-empty-state" style="display: none;">
           <div class="empty-icon">📖</div>
           <h3 class="empty-title" data-i18n="emptyLibTitle">Библиотека пуста</h3>
-          <p class="empty-desc" data-i18n="emptyLibDesc">Все старые книги удалены. Добавьте свои первые книги и аудиокниги с Google Drive через удобную панель управления!</p>
-          <button class="btn-primary" onclick="openAddBookModal()" style="margin: 0 auto;">
-            <span>➕</span> <span data-i18n="addFirstBook">Добавить первую книгу</span>
+          <p class="empty-desc" data-i18n="emptyLibDesc">Все старые книги удалены. Добавьте свои первые книги и аудиокниги с Google Drive через удобную панель управления в Настройках!</p>
+          <button class="btn-primary" onclick="navigate('settings')" style="margin: 0 auto;">
+            <span>⚙️</span> <span>Перейти в Настройки</span>
           </button>
         </div>
       </div>
@@ -193,12 +188,47 @@
           <div class="reader-controls">
             <button class="btn-icon" onclick="changeFontSize(-2)" title="Уменьшить шрифт">A-</button>
             <button class="btn-icon" onclick="changeFontSize(2)" title="Увеличить шрифт">A+</button>
+            <button class="btn-icon" id="reader-share-btn" onclick="openQuoteShareModal()" title="Поделиться цитатой">📤</button>
             <button class="btn-icon" id="reader-bookmark-btn" onclick="toggleCurrentBookmark()" title="Закладка">🔖</button>
           </div>
         </div>
 
         <div class="reader-container">
+          <!-- Text Body Container -->
           <div class="reader-content" id="reader-content-body"></div>
+
+          <!-- Freemium Paywall (Shown if user is not logged in) -->
+          <div id="reader-paywall-box" class="paywall-card" style="display: none;">
+            <div class="paywall-icon">🔒</div>
+            <h3 class="paywall-title">Ознакомительный фрагмент (Превью)</h3>
+            <p class="paywall-desc">
+              Вы прочитали бесплатные первые страницы. Войдите через Google или по Email бесплатно, чтобы получить полный доступ ко всей книге и пройти тест по материалу!
+            </p>
+            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+              <button class="btn-google" style="max-width: 240px;" onclick="triggerGoogleSignIn()">
+                <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+                <span>Войти через Google</span>
+              </button>
+              <button class="btn-primary" onclick="openAuthModal()">Войти по Email</button>
+            </div>
+          </div>
+
+          <!-- Interactive Test / Quiz Section -->
+          <div id="reader-quiz-container" class="quiz-section" style="display: none;">
+            <div class="quiz-header">
+              <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981; margin-bottom: 8px;">🎯 Проверка знаний</span>
+              <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 6px;">Тест по прочитанному материалу</h3>
+              <p style="font-size: 13px; color: var(--text-muted);">Ответьте на вопросы, чтобы закрепить понимание темы и получить сертификат!</p>
+            </div>
+            
+            <div id="quiz-questions-list"></div>
+
+            <div id="quiz-result-banner" class="quiz-score-banner" style="display: none;">
+              <h4 style="font-size: 18px; font-weight: 800; margin-bottom: 8px;" id="quiz-score-text">Вы набрали 100%!</h4>
+              <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Поздравляем! Материал успешно усвоен.</p>
+              <button class="btn-primary" onclick="generateCertificate()" style="margin: 0 auto;">🏆 Получить сертификат читателя</button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -215,6 +245,7 @@
           
           <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 16px;">
             <span class="badge" id="player-badge-type">Google Drive Audio</span>
+            <span class="audio-preview-badge" id="player-audio-preview-badge" style="display: none;">⏳ Превью (до 4:00)</span>
           </div>
 
           <!-- Timeline -->
@@ -259,153 +290,6 @@
             <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">
               💡 Если поток блокируется политиками Google Drive, режим «Google Drive Плеер» проигрывает аудио прямо внутри страницы.
             </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Page: ADMIN PANEL (Directly accessible & secure) -->
-    <section class="screen" id="screen-admin">
-      <div class="page-container">
-        <div class="section-header">
-          <div>
-            <h2 class="section-title">⚙️ <span data-i18n="adminTitle">Панель управления</span></h2>
-            <p class="section-subtitle" data-i18n="adminSubtitle">Управление библиотекой, добавление книг и аудиокниг Google Drive</p>
-          </div>
-          <button class="btn-primary" onclick="openAddBookModal()">
-            <span>➕</span> <span data-i18n="adminNewBook">Новая книга</span>
-          </button>
-        </div>
-
-        <div class="admin-card">
-          <!-- Admin Tabs -->
-          <div class="admin-tabs">
-            <button class="admin-tab active" id="adm-tab-books" onclick="switchAdminTab('books')" data-i18n="adminTabBooks">📚 Книги в базе</button>
-            <button class="admin-tab" id="adm-tab-add" onclick="switchAdminTab('add')" data-i18n="adminTabAdd">➕ Добавить / Редактировать</button>
-            <button class="admin-tab" id="adm-tab-backup" onclick="switchAdminTab('backup')" data-i18n="adminTabBackup">💾 Бэкап и Безопасность</button>
-          </div>
-
-          <!-- Admin Sub-tab 1: Books List -->
-          <div id="adm-content-books">
-            <div style="overflow-x: auto;">
-              <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
-                <thead>
-                  <tr style="border-bottom: 2px solid var(--border); color: var(--text-muted);">
-                    <th style="padding: 10px 8px;">Обложка</th>
-                    <th style="padding: 10px 8px;">Название</th>
-                    <th style="padding: 10px 8px;">Автор</th>
-                    <th style="padding: 10px 8px;">Жанр</th>
-                    <th style="padding: 10px 8px;">Аудио (Google Drive)</th>
-                    <th style="padding: 10px 8px; text-align: right;">Действия</th>
-                  </tr>
-                </thead>
-                <tbody id="admin-books-table-body">
-                  <!-- Populated by app.js -->
-                </tbody>
-              </table>
-            </div>
-            <div id="admin-empty-books" style="padding: 40px; text-align: center; color: var(--text-muted);">
-              В каталоге пока нет книг. Нажмите «Новая книга» выше.
-            </div>
-          </div>
-
-          <!-- Admin Sub-tab 2: Add / Edit Form -->
-          <div id="adm-content-add" style="display: none;">
-            <form id="book-form" onsubmit="handleSaveBook(event)">
-              <input type="hidden" id="form-book-id" value="">
-              
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label" data-i18n="formTitle">Название книги *</label>
-                  <input type="text" class="form-input" id="form-title" required placeholder="Например: Мастер и Маргарита">
-                </div>
-                <div class="form-group">
-                  <label class="form-label" data-i18n="formAuthor">Автор *</label>
-                  <input type="text" class="form-input" id="form-author" required placeholder="Например: Михаил Булгаков">
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label" data-i18n="formGenre">Жанр / Категория *</label>
-                  <select class="form-select" id="form-genre" required>
-                    <option value="history">🏛️ История</option>
-                    <option value="poetry">📜 Поэзия</option>
-                    <option value="philosophy">🗿 Философия</option>
-                    <option value="education">🎓 Образование</option>
-                    <option value="business">💼 Бизнес</option>
-                    <option value="math">🧮 Математика</option>
-                    <option value="science">🔬 Наука</option>
-                    <option value="english">🇬🇧 Английский язык</option>
-                    <option value="biography">👤 Биография</option>
-                    <option value="art">🎨 Искусство</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label class="form-label" data-i18n="formCover">Обложка (эмодзи или прямая ссылка на картинку)</label>
-                  <input type="text" class="form-input" id="form-cover" placeholder="📖 или https://example.com/cover.jpg">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" data-i18n="formSynopsis">Краткое описание / О книге</label>
-                <textarea class="form-textarea" id="form-synopsis" rows="3" placeholder="Аннотация к произведению..."></textarea>
-              </div>
-
-              <!-- Google Drive Audio Integration -->
-              <div class="form-group" style="background: rgba(56, 189, 248, 0.05); padding: 16px; border-radius: var(--radius-md); border: 1px solid rgba(56, 189, 248, 0.2);">
-                <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
-                  <span>🎧 Аудиокнига (Ссылка Google Drive или прямая ссылка)</span>
-                  <span class="badge" style="background: var(--primary-glow); color: var(--primary-light);">Google Drive Ready</span>
-                </label>
-                <input type="text" class="form-input" id="form-audio-url" placeholder="https://drive.google.com/file/d/1A2B3C.../view?usp=sharing">
-                <div class="form-hint">
-                  ✓ Поддерживает любые ссылки Google Drive (файл должен иметь доступ «Все, у кого есть ссылка»).<br>
-                  Также поддерживаются Dropbox, прямые MP3, AAC, M4A файлы.
-                </div>
-                <div style="margin-top: 10px; display: flex; gap: 8px; align-items: center;">
-                  <button type="button" class="btn-icon" style="width: auto; padding: 6px 14px; font-size: 12px; border-radius: var(--radius-sm);" onclick="testAudioInput()">
-                    Проверить аудио
-                  </button>
-                  <span id="audio-test-status" style="font-size: 12px; color: var(--text-muted);"></span>
-                </div>
-              </div>
-
-              <!-- Book Text Content -->
-              <div class="form-group">
-                <label class="form-label" data-i18n="formText">Текст книги (для чтения)</label>
-                <textarea class="form-textarea" id="form-text" rows="8" placeholder="Вставьте полный текст книги или главы..."></textarea>
-              </div>
-
-              <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
-                <button type="button" class="btn-icon" style="width: auto; padding: 8px 16px; border-radius: var(--radius-md);" onclick="switchAdminTab('books')" data-i18n="cancelBtn">Отмена</button>
-                <button type="submit" class="btn-primary" data-i18n="saveBookBtn">💾 Сохранить книгу</button>
-              </div>
-            </form>
-          </div>
-
-          <!-- Admin Sub-tab 3: Backup, Security & Reset -->
-          <div id="adm-content-backup" style="display: none;">
-            <h3 style="font-size: 16px; margin-bottom: 12px;">Резервное копирование и безопасность</h3>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
-              Вы можете сохранить всю вашу базу книг в файл JSON или загрузить сохранённую библиотеку на любом другом устройстве.
-            </p>
-
-            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 30px;">
-              <button class="btn-primary" onclick="exportLibraryJSON()">📥 Экспортировать библиотеку (JSON)</button>
-              <label class="btn-primary" style="background: var(--bg-surface-elevated); cursor: pointer;">
-                📤 Импортировать JSON
-                <input type="file" accept=".json" onchange="importLibraryJSON(event)" style="display: none;">
-              </label>
-            </div>
-
-            <div style="border-top: 1px solid var(--border); padding-top: 20px;">
-              <h4 style="color: var(--danger); font-size: 15px; margin-bottom: 8px;">Опасная зона</h4>
-              <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 12px;">Удаление всех книг из локального хранилища браузера.</p>
-              <button class="btn-icon" style="width: auto; padding: 8px 16px; border-radius: var(--radius-md); border-color: var(--danger); color: var(--danger);" onclick="confirmClearAllBooks()">
-                🗑️ Очистить все книги
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -459,50 +343,246 @@
       </div>
     </section>
 
-    <!-- Page: SETTINGS -->
+    <!-- Page: SETTINGS & USER PROFILE (Admin entry point resides here!) -->
     <section class="screen" id="screen-settings">
       <div class="page-container">
         <div class="section-header">
           <div>
-            <h2 class="section-title">⚙️ <span data-i18n="settingsTitle">Настройки</span></h2>
-            <p class="section-subtitle" data-i18n="settingsSubtitle">Тема оформления, язык и параметры чтения</p>
+            <h2 class="section-title">⚙️ <span data-i18n="settingsTitle">Настройки и Профиль</span></h2>
+            <p class="section-subtitle" data-i18n="settingsSubtitle">Управление вашим аккаунтом, безопасность и параметры чтения</p>
           </div>
         </div>
 
-        <div class="admin-card" style="max-width: 600px;">
-          <div class="form-group">
-            <label class="form-label">Тема приложения</label>
-            <div style="display: flex; gap: 10px;">
-              <button class="btn-primary" id="btn-theme-dark" onclick="setAppTheme('dark')">🌙 Тёмная тема</button>
-              <button class="btn-primary" id="btn-theme-light" style="background: var(--bg-surface-elevated); color: var(--text-main);" onclick="setAppTheme('light')">☀️ Светлая тема</button>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+          <!-- User Account Card -->
+          <div class="admin-card" id="settings-user-card">
+            <!-- Dynamically rendered: Guest prompt or Logged-in profile info -->
+          </div>
+
+          <!-- Admin Portal Card (VISIBLE ONLY TO ADMINS) -->
+          <div class="admin-card" id="settings-admin-card" style="display: none; border-color: var(--primary-light); background: linear-gradient(145deg, rgba(2, 132, 199, 0.1), var(--bg-surface));">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+              <span style="font-size: 28px;">👑</span>
+              <div>
+                <h3 style="font-size: 17px; font-weight: 800; color: var(--primary-light);">Панель администратора</h3>
+                <span class="badge" style="background: var(--primary); color: #fff;">Доступ разрешён (Admin)</span>
+              </div>
             </div>
-          </div>
-
-          <div class="form-group" style="margin-top: 20px;">
-            <label class="form-label">Язык интерфейса</label>
-            <select class="form-select" id="settings-lang-select" onchange="changeLanguage(this.value)">
-              <option value="ru">Русский</option>
-              <option value="tj">Тоҷикӣ</option>
-              <option value="en">English</option>
-            </select>
-          </div>
-
-          <div class="form-group" style="margin-top: 20px;">
-            <label class="form-label">Размер шрифта для чтения</label>
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <button class="btn-icon" onclick="changeFontSize(-2)">A-</button>
-              <span id="settings-font-size" style="font-size: 14px; font-weight: 600; min-width: 60px; text-align: center;">17px</span>
-              <button class="btn-icon" onclick="changeFontSize(2)">A+</button>
-            </div>
-          </div>
-
-          <div style="margin-top: 24px; border-top: 1px solid var(--border); padding-top: 16px;">
-            <h4 style="font-size: 14px;">О программе eLibrary</h4>
-            <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
-              Версия: 2.0.0 Pro PWA<br>
-              Полная совместимость с macOS, Windows, iOS, Android.<br>
-              Интеграция аудио потоков через Google Drive.
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 18px; line-height: 1.5;">
+              Вы вошли с правами администратора. Вам доступно добавление книг с Google Drive, создание аккаунтов пользователей и управление ролями.
             </p>
+            <button class="btn-primary" style="width: 100%; justify-content: center;" onclick="navigate('admin')">
+              Управление библиотекой и пользователями →
+            </button>
+          </div>
+
+          <!-- General Preferences -->
+          <div class="admin-card">
+            <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px;">Внешний вид и чтение</h3>
+            <div class="form-group">
+              <label class="form-label">Тема оформления</label>
+              <div style="display: flex; gap: 10px;">
+                <button class="btn-primary" id="btn-theme-dark" onclick="setAppTheme('dark')">🌙 Тёмная</button>
+                <button class="btn-primary" id="btn-theme-light" style="background: var(--bg-surface-elevated); color: var(--text-main);" onclick="setAppTheme('light')">☀️ Светлая</button>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 16px;">
+              <label class="form-label">Язык интерфейса</label>
+              <select class="form-select" id="settings-lang-select" onchange="changeLanguage(this.value)">
+                <option value="ru">Русский</option>
+                <option value="tj">Тоҷикӣ</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-top: 16px;">
+              <label class="form-label">Размер шрифта для чтения</label>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <button class="btn-icon" onclick="changeFontSize(-2)">A-</button>
+                <span id="settings-font-size" style="font-size: 14px; font-weight: 600; min-width: 60px; text-align: center;">17px</span>
+                <button class="btn-icon" onclick="changeFontSize(2)">A+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Page: ADMIN PANEL (Accessed exclusively via Settings when authorized) -->
+    <section class="screen" id="screen-admin">
+      <div class="page-container">
+        <div class="section-header">
+          <div>
+            <button class="btn-icon" onclick="navigate('settings')" style="margin-bottom: 12px;">← Вернуться в настройки</button>
+            <h2 class="section-title">👑 <span data-i18n="adminTitle">Панель администратора</span></h2>
+            <p class="section-subtitle">Полный контроль над книгами, аудиофайлами Google Drive и пользователями системы</p>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <!-- Admin Tabs -->
+          <div class="admin-tabs">
+            <button class="admin-tab active" id="adm-tab-books" onclick="switchAdminTab('books')">📚 Каталог книг</button>
+            <button class="admin-tab" id="adm-tab-add" onclick="switchAdminTab('add')">➕ Добавить книгу & Тест</button>
+            <button class="admin-tab" id="adm-tab-users" onclick="switchAdminTab('users')">👥 Пользователи и Роли</button>
+            <button class="admin-tab" id="adm-tab-backup" onclick="switchAdminTab('backup')">💾 Резервная копия</button>
+          </div>
+
+          <!-- Admin Sub-tab 1: Books List -->
+          <div id="adm-content-books">
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+                <thead>
+                  <tr style="border-bottom: 2px solid var(--border); color: var(--text-muted);">
+                    <th style="padding: 10px 8px;">Обложка</th>
+                    <th style="padding: 10px 8px;">Название</th>
+                    <th style="padding: 10px 8px;">Автор</th>
+                    <th style="padding: 10px 8px;">Жанр</th>
+                    <th style="padding: 10px 8px;">Аудио (Google Drive)</th>
+                    <th style="padding: 10px 8px; text-align: right;">Действия</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-books-table-body">
+                  <!-- Populated by app.js -->
+                </tbody>
+              </table>
+            </div>
+            <div id="admin-empty-books" style="padding: 40px; text-align: center; color: var(--text-muted);">
+              В каталоге пока нет книг. Нажмите «Добавить книгу» выше.
+            </div>
+          </div>
+
+          <!-- Admin Sub-tab 2: Add / Edit Form (with Quiz Editor) -->
+          <div id="adm-content-add" style="display: none;">
+            <form id="book-form" onsubmit="handleSaveBook(event)">
+              <input type="hidden" id="form-book-id" value="">
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" data-i18n="formTitle">Название книги *</label>
+                  <input type="text" class="form-input" id="form-title" required placeholder="Например: Мастер и Маргарита">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" data-i18n="formAuthor">Автор *</label>
+                  <input type="text" class="form-input" id="form-author" required placeholder="Например: Михаил Булгаков">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" data-i18n="formGenre">Жанр / Категория *</label>
+                  <select class="form-select" id="form-genre" required>
+                    <option value="history">🏛️ История</option>
+                    <option value="poetry">📜 Поэзия</option>
+                    <option value="philosophy">🗿 Философия</option>
+                    <option value="education">🎓 Образование</option>
+                    <option value="business">💼 Бизнес</option>
+                    <option value="math">🧮 Математика</option>
+                    <option value="science">🔬 Наука</option>
+                    <option value="english">🇬🇧 Английский язык</option>
+                    <option value="biography">👤 Биография</option>
+                    <option value="art">🎨 Искусство</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" data-i18n="formCover">Обложка (эмодзи или прямая ссылка на картинку)</label>
+                  <input type="text" class="form-input" id="form-cover" placeholder="📖 или https://example.com/cover.jpg">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="formSynopsis">Краткое описание / О книге</label>
+                <textarea class="form-textarea" id="form-synopsis" rows="3" placeholder="Аннотация к произведению..."></textarea>
+              </div>
+
+              <!-- Google Drive Audio Integration -->
+              <div class="form-group" style="background: rgba(56, 189, 248, 0.05); padding: 16px; border-radius: var(--radius-md); border: 1px solid rgba(56, 189, 248, 0.2);">
+                <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                  <span>🎧 Аудиокнига (Ссылка Google Drive или прямая ссылка)</span>
+                  <span class="badge" style="background: var(--primary-glow); color: var(--primary-light);">Google Drive Ready</span>
+                </label>
+                <input type="text" class="form-input" id="form-audio-url" placeholder="https://drive.google.com/file/d/1A2B3C.../view?usp=sharing">
+                <div class="form-hint">
+                  ✓ Поддерживает любые ссылки Google Drive (файл должен иметь доступ «Все, у кого есть ссылка»).
+                </div>
+                <div style="margin-top: 10px; display: flex; gap: 8px; align-items: center;">
+                  <button type="button" class="btn-icon" style="width: auto; padding: 6px 14px; font-size: 12px; border-radius: var(--radius-sm);" onclick="testAudioInput()">
+                    Проверить аудио
+                  </button>
+                  <span id="audio-test-status" style="font-size: 12px; color: var(--text-muted);"></span>
+                </div>
+              </div>
+
+              <!-- Book Text Content -->
+              <div class="form-group">
+                <label class="form-label" data-i18n="formText">Текст книги (для чтения)</label>
+                <textarea class="form-textarea" id="form-text" rows="8" placeholder="Вставьте полный текст книги или главы..."></textarea>
+              </div>
+
+              <!-- Quiz Questions Editor -->
+              <div class="form-group" style="background: rgba(16, 185, 129, 0.05); padding: 16px; border-radius: var(--radius-md); border: 1px solid rgba(16, 185, 129, 0.2);">
+                <label class="form-label" style="color: #10b981;">🎯 Вопросы для теста в конце книги (Формат JSON или авто-тест)</label>
+                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">
+                  Если оставить пустым, система автоматически создаст тест на проверку понимания ключевых мыслей.
+                </p>
+                <textarea class="form-textarea" id="form-quiz-json" rows="4" placeholder='[{"q":"Какой главный вывод главы?","options":["Ответ А","Ответ Б","Ответ В"],"answer":0}]'></textarea>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                <button type="button" class="btn-icon" style="width: auto; padding: 8px 16px; border-radius: var(--radius-md);" onclick="switchAdminTab('books')" data-i18n="cancelBtn">Отмена</button>
+                <button type="submit" class="btn-primary" data-i18n="saveBookBtn">💾 Сохранить книгу</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Admin Sub-tab 3: User & Roles Management -->
+          <div id="adm-content-users" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h3 style="font-size: 16px; font-weight: 700;">Пользователи системы и управление ролями</h3>
+              <button class="btn-primary" style="font-size: 12px; padding: 6px 14px;" onclick="openCreateUserModal()">➕ Создать пользователя</button>
+            </div>
+
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+                <thead>
+                  <tr style="border-bottom: 2px solid var(--border); color: var(--text-muted);">
+                    <th style="padding: 10px 8px;">Аватар</th>
+                    <th style="padding: 10px 8px;">Имя</th>
+                    <th style="padding: 10px 8px;">Email</th>
+                    <th style="padding: 10px 8px;">Роль</th>
+                    <th style="padding: 10px 8px; text-align: right;">Действия</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-users-table-body">
+                  <!-- Populated by app.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Admin Sub-tab 4: Backup & Reset -->
+          <div id="adm-content-backup" style="display: none;">
+            <h3 style="font-size: 16px; margin-bottom: 12px;">Резервное копирование и безопасность</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
+              Экспортируйте базу книг в файл JSON для бэкапа или переноса на другие устройства.
+            </p>
+
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 30px;">
+              <button class="btn-primary" onclick="exportLibraryJSON()">📥 Экспортировать библиотеку (JSON)</button>
+              <label class="btn-primary" style="background: var(--bg-surface-elevated); cursor: pointer;">
+                📤 Импортировать JSON
+                <input type="file" accept=".json" onchange="importLibraryJSON(event)" style="display: none;">
+              </label>
+            </div>
+
+            <div style="border-top: 1px solid var(--border); padding-top: 20px;">
+              <h4 style="color: var(--danger); font-size: 15px; margin-bottom: 8px;">Опасная зона</h4>
+              <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 12px;">Удаление всех книг из локального хранилища браузера.</p>
+              <button class="btn-icon" style="width: auto; padding: 8px 16px; border-radius: var(--radius-md); border-color: var(--danger); color: var(--danger);" onclick="confirmClearAllBooks()">
+                🗑️ Очистить все книги
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -528,7 +608,7 @@
   </main>
 </div>
 
-<!-- Mobile Bottom Navigation Bar -->
+<!-- Mobile Bottom Navigation Bar (No admin link - accessible purely via Settings!) -->
 <nav id="mobile-nav">
   <button class="mobile-nav-item active" onclick="navigate('home')">
     <span class="nav-icon">🏠</span>
@@ -542,15 +622,209 @@
     <span class="nav-icon">🔖</span>
     <span data-i18n="navBookmarks">Закладки</span>
   </button>
-  <button class="mobile-nav-item" onclick="navigate('admin')">
-    <span class="nav-icon">⚙️</span>
-    <span data-i18n="navAdmin">Админ</span>
+  <button class="mobile-nav-item" onclick="navigate('stats')">
+    <span class="nav-icon">📊</span>
+    <span data-i18n="navStats">Статистика</span>
   </button>
   <button class="mobile-nav-item" onclick="navigate('settings')">
-    <span class="nav-icon">🎨</span>
-    <span data-i18n="navSettings">Опции</span>
+    <span class="nav-icon">⚙️</span>
+    <span data-i18n="navSettings">Профиль</span>
   </button>
 </nav>
+
+<!-- MODALS -->
+
+<!-- 1. Authentication Modal (Google Sign In & Email) -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal-box">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 style="font-size: 18px; font-weight: 800;">Вход в eLibrary</h3>
+      <button class="btn-icon" onclick="closeAuthModal()">✕</button>
+    </div>
+
+    <!-- Official Google One-Click Sign In -->
+    <button class="btn-google" onclick="triggerGoogleSignIn()">
+      <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+      <span>Продолжить с Google</span>
+    </button>
+
+    <div class="auth-divider">
+      <span>или по Email</span>
+    </div>
+
+    <!-- Auth Tabs: Login vs Register -->
+    <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+      <button class="admin-tab active" id="auth-tab-login" onclick="switchAuthTab('login')">Вход</button>
+      <button class="admin-tab" id="auth-tab-reg" onclick="switchAuthTab('reg')">Регистрация</button>
+    </div>
+
+    <form id="auth-form" onsubmit="handleAuthSubmit(event)">
+      <div class="form-group" id="auth-name-group" style="display: none;">
+        <label class="form-label">Ваше имя</label>
+        <input type="text" class="form-input" id="auth-name" placeholder="Например: Иван">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="auth-email" required placeholder="name@example.com">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Пароль</label>
+        <input type="password" class="form-input" id="auth-password" required placeholder="••••••••">
+      </div>
+
+      <div id="auth-error-hint" style="color: var(--danger); font-size: 12px; margin-bottom: 12px; display: none;"></div>
+
+      <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 12px;" id="auth-submit-btn">
+        Войти в аккаунт
+      </button>
+
+      <!-- Admin test credentials hint -->
+      <div style="margin-top: 14px; padding: 10px; background: var(--bg-card); border-radius: var(--radius-sm); font-size: 11px; color: var(--text-muted);">
+        👑 <b>Администратор</b>: <code>admin@elibrary.com</code> / <code>10012002</code>
+        <button type="button" style="background:none; border:none; color:var(--primary-light); cursor:pointer; text-decoration:underline; margin-left:4px;" onclick="fillAdminCredentials()">Подставить</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 2. Profile & Avatar Edit Modal -->
+<div class="modal-overlay" id="profile-modal">
+  <div class="modal-box">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 style="font-size: 18px; font-weight: 800;">Редактирование профиля</h3>
+      <button class="btn-icon" onclick="closeProfileModal()">✕</button>
+    </div>
+
+    <form onsubmit="handleSaveProfile(event)">
+      <div class="form-group">
+        <label class="form-label">Выберите иконку профиля (Аватар)</label>
+        <div class="avatar-grid" id="avatar-presets-grid">
+          <!-- Populated by app.js with emoji / icons -->
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Или укажите ссылку на своё фото</label>
+        <input type="text" class="form-input" id="profile-custom-avatar" placeholder="https://example.com/avatar.jpg">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Ваше отображаемое имя</label>
+        <input type="text" class="form-input" id="profile-name" required>
+      </div>
+
+      <div class="form-group" style="border-top: 1px solid var(--border); padding-top: 14px;">
+        <label class="form-label">Сменить пароль (необязательно)</label>
+        <input type="password" class="form-input" id="profile-new-password" placeholder="Новый пароль">
+      </div>
+
+      <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 16px;">
+        💾 Сохранить изменения
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- 3. Create User Modal (by Admin) -->
+<div class="modal-overlay" id="create-user-modal">
+  <div class="modal-box">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 style="font-size: 18px; font-weight: 800;">Создать пользователя</h3>
+      <button class="btn-icon" onclick="closeCreateUserModal()">✕</button>
+    </div>
+
+    <form onsubmit="handleAdminCreateUser(event)">
+      <div class="form-group">
+        <label class="form-label">Имя</label>
+        <input type="text" class="form-input" id="admin-new-user-name" required placeholder="Имя читателя">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="admin-new-user-email" required placeholder="email@example.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Пароль</label>
+        <input type="password" class="form-input" id="admin-new-user-password" required placeholder="Минимум 6 символов">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Роль в системе</label>
+        <select class="form-select" id="admin-new-user-role">
+          <option value="reader">📖 Читатель (Только чтение)</option>
+          <option value="admin">👑 Администратор (Полный доступ к панели)</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 16px;">
+        Создать аккаунт
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- 4. Certificate of Completion Modal -->
+<div class="modal-overlay" id="certificate-modal">
+  <div class="modal-box" style="max-width: 640px;">
+    <div style="text-align: right; margin-bottom: 8px;">
+      <button class="btn-icon" onclick="closeCertificateModal()">✕</button>
+    </div>
+    
+    <div class="certificate-frame" id="certificate-print-area">
+      <div class="cert-header">🏆 СЕРТИФИКАТ УСПЕХА eLibrary</div>
+      <h2 class="cert-title">Подтверждение усвоения знаний</h2>
+      <p style="font-size: 14px; color: #64748b; margin-bottom: 8px;">Настоящим подтверждается, что читатель</p>
+      <div class="cert-name" id="cert-user-name">Мехровар</div>
+      <p style="font-size: 14px; color: #475569; line-height: 1.6; margin-bottom: 20px;">
+        успешно изучил материал произведения <br>
+        <b style="color: #0284c7; font-size: 16px;" id="cert-book-title">«Законы победителей»</b><br>
+        и сдал итоговый тест на <b style="color: #10b981;" id="cert-score-percent">100%</b>!
+      </p>
+      <div style="display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 12px;">
+        <span>Дата: <span id="cert-date">17.11.2026</span></span>
+        <span>Верифицировано: eLibrary Digital Network</span>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 12px; justify-content: center; margin-top: 20px;">
+      <button class="btn-primary" onclick="shareCertificate()">📤 Поделиться сертификатом</button>
+      <button class="btn-icon" style="width: auto; padding: 0 16px; border-radius: var(--radius-md);" onclick="closeCertificateModal()">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<!-- 5. Quote Share Card Modal (Viral Stories Generator) -->
+<div class="modal-overlay" id="quote-modal">
+  <div class="modal-box" style="max-width: 480px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 style="font-size: 16px; font-weight: 800;">Открытка с цитатой для соцсетей</h3>
+      <button class="btn-icon" onclick="closeQuoteModal()">✕</button>
+    </div>
+
+    <!-- The card preview -->
+    <div id="quote-card-preview" style="background: linear-gradient(145deg, #09203f, #1e3c72); border-radius: 18px; padding: 32px 24px; color: #fff; box-shadow: var(--shadow-md); position: relative; overflow: hidden;">
+      <div style="font-size: 36px; line-height: 1; opacity: 0.3; margin-bottom: 8px;">“</div>
+      <p id="quote-card-text" style="font-size: 16px; line-height: 1.6; font-style: italic; font-family: Georgia, serif; margin-bottom: 20px;">
+        Цитата из книги...
+      </p>
+      <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 14px;">
+        <div>
+          <div style="font-size: 13px; font-weight: 700;" id="quote-card-author">Автор</div>
+          <div style="font-size: 11px; opacity: 0.7;" id="quote-card-title">Книга</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <img src="icons/icon-192.png" style="width: 22px; height: 22px; border-radius: 6px;">
+          <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px;">eLibrary</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 12px; margin-top: 20px;">
+      <button class="btn-primary" style="flex: 1; justify-content: center;" onclick="copyQuoteText()">📋 Скопировать текст</button>
+      <button class="btn-icon" style="width: auto; padding: 0 16px; border-radius: var(--radius-md);" onclick="closeQuoteModal()">Готово</button>
+    </div>
+  </div>
+</div>
 
 <!-- Hidden Global Audio Element -->
 <audio id="global-audio" preload="auto"></audio>
