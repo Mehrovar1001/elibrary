@@ -360,12 +360,6 @@ function switchAuthTab(mode) {
   document.getElementById('auth-submit-btn').textContent = (mode === 'reg') ? 'Зарегистрироваться' : 'Войти в аккаунт';
 }
 
-function fillAdminCredentials() {
-  document.getElementById('auth-email').value = 'admin@elibrary.com';
-  document.getElementById('auth-password').value = '10012002';
-  switchAuthTab('login');
-}
-
 function handleAuthSubmit(e) {
   e.preventDefault();
   const email = document.getElementById('auth-email').value.trim().toLowerCase();
