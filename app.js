@@ -603,28 +603,10 @@ function playAudioBook(book) {
   state.activeAudioBook = book;
   const sources = resolveAudioSources(book.audioUrl);
 
-  const embedSection = document.getElementById('gdrive-embed-section');
   const embedIframe = document.getElementById('gdrive-embed-iframe');
-
-  if (sources.isGDrive) {
-    embedSection.style.display = 'block';
-    if (embedIframe) embedIframe.src = sources.embedUrl;
-  } else {
-    embedSection.style.display = 'none';
-    if (embedIframe) embedIframe.src = '';
+  if (embedIframe) {
+    embedIframe.src = sources.embedUrl || sources.streamUrl;
   }
-
-  globalAudio.src = sources.streamUrl;
-  globalAudio.playbackRate = state.playbackSpeed;
-  globalAudio.load();
-
-  globalAudio.play().then(() => {
-    state.isPlaying = true;
-    updatePlayPauseButtons();
-  }).catch(() => {
-    state.isPlaying = false;
-    updatePlayPauseButtons();
-  });
 
   showMiniPlayer(book);
   navigate('player');
@@ -750,13 +732,10 @@ function showMiniPlayer(book) {
   title.textContent = book.title;
   author.textContent = book.author;
 
-  if (book.cover && book.cover.startsWith('http')) {
-    thumb.innerHTML = `<img src="${escapeHtml(book.cover)}" alt="cover" style="width:100%;height:100%;object-fit:cover;">`;
-  } else if (book.cover && book.cover.length <= 4) {
-    thumb.textContent = book.cover;
-  } else {
-    thumb.innerHTML = `<img src="icons/icon-192.png" alt="cover" style="width:100%;height:100%;object-fit:cover;">`;
-  }
+  const coverSrc = (book.cover && (book.cover.startsWith('data:image') || book.cover.startsWith('http') || book.cover.startsWith('icons/')))
+    ? book.cover
+    : 'icons/icon-192.png';
+  thumb.innerHTML = `<img src="${escapeHtml(coverSrc)}" alt="cover" style="width:100%;height:100%;object-fit:cover;border-radius:6px;" onerror="this.onerror=null;this.src='icons/icon-192.png';">`;
 
   mini.classList.add('visible');
 }
@@ -970,11 +949,11 @@ function createBookCardHtml(book) {
   const genreName = genreObj ? (genreObj.name[state.currentLang] || genreObj.name.ru) : (book.genre || '');
   const hasAudio = !!book.audioUrl;
 
-  const coverHtml = (book.cover && book.cover.startsWith('http'))
-    ? `<img src="${escapeHtml(book.cover)}" class="book-cover-img" alt="${escapeHtml(book.title)}">`
-    : (book.cover && book.cover.length <= 4)
-      ? `<span class="book-cover-emoji">${escapeHtml(book.cover)}</span>`
-      : `<img src="icons/icon-192.png" class="book-cover-img" style="padding:16px;object-fit:contain" alt="${escapeHtml(book.title)}">`;
+  const coverSrc = (book.cover && (book.cover.startsWith('data:image') || book.cover.startsWith('http') || book.cover.startsWith('icons/')))
+    ? book.cover
+    : 'icons/icon-512.png';
+
+  const coverHtml = `<img src="${escapeHtml(coverSrc)}" class="book-cover-img" alt="${escapeHtml(book.title)}" onerror="this.onerror=null;this.src='icons/icon-512.png';">`;
 
   return `
     <div class="book-card" onclick="openBookDetail('${book.id}')">
@@ -1062,11 +1041,10 @@ function renderBookDetail() {
   const hasAudio = !!b.audioUrl;
   const hasText = !!b.text;
 
-  const coverHtml = (b.cover && b.cover.startsWith('http'))
-    ? `<img src="${escapeHtml(b.cover)}" alt="${escapeHtml(b.title)}">`
-    : (b.cover && b.cover.length <= 4)
-      ? `<span>${escapeHtml(b.cover)}</span>`
-      : `<img src="icons/icon-512.png" alt="${escapeHtml(b.title)}" style="width:100%;height:100%;object-fit:cover">`;
+  const coverSrc = (b.cover && (b.cover.startsWith('data:image') || b.cover.startsWith('http') || b.cover.startsWith('icons/')))
+    ? b.cover
+    : 'icons/icon-512.png';
+  const coverHtml = `<img src="${escapeHtml(coverSrc)}" alt="${escapeHtml(b.title)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" onerror="this.onerror=null;this.src='icons/icon-512.png';">`;
 
   const isAdmin = state.currentUser && state.currentUser.role === 'admin';
 
@@ -1397,23 +1375,26 @@ function renderFullPlayerScreen() {
   const titleEl = document.getElementById('player-title');
   const authorEl = document.getElementById('player-author');
   const coverBox = document.getElementById('player-cover-box');
-  const badgeType = document.getElementById('player-badge-type');
+  const embedIframe = document.getElementById('gdrive-embed-iframe');
 
   if (titleEl) titleEl.textContent = b.title;
   if (authorEl) authorEl.textContent = b.author;
 
+  const coverSrc = (b.cover && (b.cover.startsWith('data:image') || b.cover.startsWith('http') || b.cover.startsWith('icons/')))
+    ? b.cover
+    : 'icons/icon-512.png';
+
   if (coverBox) {
-    if (b.cover && b.cover.startsWith('http')) {
-      coverBox.innerHTML = `<img src="${escapeHtml(b.cover)}" alt="cover">`;
-    } else if (b.cover && b.cover.length <= 4) {
-      coverBox.textContent = b.cover;
-    } else {
-      coverBox.innerHTML = `<img src="icons/icon-512.png" alt="cover" style="width:100%;height:100%;object-fit:cover">`;
-    }
+    coverBox.innerHTML = `<img src="${escapeHtml(coverSrc)}" alt="${escapeHtml(b.title)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" onerror="this.onerror=null;this.src='icons/icon-512.png';">`;
   }
 
   const sources = resolveAudioSources(b.audioUrl);
-  if (badgeType) badgeType.textContent = sources.isGDrive ? 'Google Drive Audio' : 'Аудиопоток';
+  if (embedIframe) {
+    const targetUrl = sources.embedUrl || sources.streamUrl || '';
+    if (embedIframe.src !== targetUrl && targetUrl) {
+      embedIframe.src = targetUrl;
+    }
+  }
 
   updatePlayPauseButtons();
   updateAudioUI();
@@ -1547,9 +1528,14 @@ function renderAdminBooksTable() {
     const genreName = genreObj ? (genreObj.name[state.currentLang] || genreObj.name.ru) : b.genre;
     const isGDrive = b.audioUrl && (b.audioUrl.includes('drive.google.com') || b.audioUrl.includes('docs.google.com'));
 
+    const coverSrc = (b.cover && (b.cover.startsWith('data:image') || b.cover.startsWith('http') || b.cover.startsWith('icons/')))
+      ? b.cover
+      : 'icons/icon-192.png';
+    const coverThumb = `<img src="${escapeHtml(coverSrc)}" onerror="this.onerror=null;this.src='icons/icon-192.png';" style="width: 28px; height: 38px; object-fit: cover; border-radius: 4px; display: inline-block; vertical-align: middle;">`;
+
     return `
       <tr style="border-bottom: 1px solid var(--border);">
-        <td style="padding: 10px 8px; font-size: 20px;">${escapeHtml(b.cover || '📖')}</td>
+        <td style="padding: 10px 8px;">${coverThumb}</td>
         <td style="padding: 10px 8px; font-weight: 600;">${escapeHtml(b.title)}</td>
         <td style="padding: 10px 8px; color: var(--text-muted);">${escapeHtml(b.author)}</td>
         <td style="padding: 10px 8px;"><span class="badge" style="font-size: 11px;">${escapeHtml(genreName)}</span></td>
@@ -1653,6 +1639,110 @@ function deleteUser(userId) {
   renderAdminUsersTable();
 }
 
+/* ==========================================================================
+   Book Cover Upload & Image Compression (Local file, no URL needed)
+   ========================================================================== */
+function handleCoverFileSelected(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const rawData = e.target.result;
+    compressImage(rawData, 400, 560, 0.85, function(compressedData) {
+      setUploadedCover(compressedData);
+    });
+  };
+  reader.readAsDataURL(file);
+}
+
+function setUploadedCover(dataUrl) {
+  const hiddenInput = document.getElementById('form-cover-data');
+  const emptyBox = document.getElementById('cover-dropzone-empty');
+  const filledBox = document.getElementById('cover-dropzone-filled');
+  const previewImg = document.getElementById('cover-preview-img');
+
+  if (hiddenInput) hiddenInput.value = dataUrl;
+  if (previewImg) previewImg.src = dataUrl;
+  if (emptyBox) emptyBox.style.display = 'none';
+  if (filledBox) filledBox.style.display = 'flex';
+}
+
+function clearUploadedCover() {
+  const hiddenInput = document.getElementById('form-cover-data');
+  const fileInput = document.getElementById('form-cover-file');
+  const emptyBox = document.getElementById('cover-dropzone-empty');
+  const filledBox = document.getElementById('cover-dropzone-filled');
+  const previewImg = document.getElementById('cover-preview-img');
+
+  if (hiddenInput) hiddenInput.value = '';
+  if (fileInput) fileInput.value = '';
+  if (previewImg) previewImg.src = '';
+  if (emptyBox) emptyBox.style.display = 'block';
+  if (filledBox) filledBox.style.display = 'none';
+}
+
+function compressImage(srcData, maxWidth, maxHeight, quality, callback) {
+  const img = new Image();
+  img.onload = function() {
+    let width = img.width;
+    let height = img.height;
+
+    if (width > maxWidth) {
+      height = Math.round((height * maxWidth) / width);
+      width = maxWidth;
+    }
+    if (height > maxHeight) {
+      width = Math.round((width * maxHeight) / height);
+      height = maxHeight;
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, width, height);
+
+    try {
+      const compressed = canvas.toDataURL('image/jpeg', quality || 0.85);
+      callback(compressed);
+    } catch (e) {
+      callback(srcData);
+    }
+  };
+  img.onerror = function() {
+    callback(srcData);
+  };
+  img.src = srcData;
+}
+
+function resetBookForm() {
+  const idEl = document.getElementById('form-book-id');
+  if (idEl) idEl.value = '';
+  const titleEl = document.getElementById('form-title');
+  if (titleEl) titleEl.value = '';
+  const authorEl = document.getElementById('form-author');
+  if (authorEl) authorEl.value = '';
+  const genreEl = document.getElementById('form-genre');
+  if (genreEl) genreEl.value = 'history';
+  clearUploadedCover();
+  const synEl = document.getElementById('form-synopsis');
+  if (synEl) synEl.value = '';
+  const audEl = document.getElementById('form-audio-url');
+  if (audEl) audEl.value = '';
+  const txtEl = document.getElementById('form-text');
+  if (txtEl) txtEl.value = '';
+  const quizEl = document.getElementById('form-quiz-json');
+  if (quizEl) quizEl.value = '';
+  const testStatus = document.getElementById('audio-test-status');
+  if (testStatus) testStatus.textContent = '';
+}
+
+function openAddBookTab() {
+  resetBookForm();
+  switchAdminTab('add');
+}
+
 function editBookInAdmin(bookId) {
   const book = state.books.find(b => b.id === bookId);
   if (!book) return;
@@ -1661,12 +1751,19 @@ function editBookInAdmin(bookId) {
   document.getElementById('form-title').value = book.title || '';
   document.getElementById('form-author').value = book.author || '';
   document.getElementById('form-genre').value = book.genre || 'history';
-  document.getElementById('form-cover').value = book.cover || '';
+  
+  if (book.cover && (book.cover.startsWith('data:image') || book.cover.startsWith('http') || book.cover.startsWith('icons/'))) {
+    setUploadedCover(book.cover);
+  } else {
+    clearUploadedCover();
+  }
+
   document.getElementById('form-synopsis').value = book.synopsis || '';
   document.getElementById('form-audio-url').value = book.audioUrl || '';
   document.getElementById('form-text').value = book.text || '';
   document.getElementById('form-quiz-json').value = book.quiz ? JSON.stringify(book.quiz, null, 2) : '';
-  document.getElementById('audio-test-status').textContent = '';
+  const testStatus = document.getElementById('audio-test-status');
+  if (testStatus) testStatus.textContent = '';
 
   navigate('admin');
   switchAdminTab('add');
@@ -1679,7 +1776,8 @@ function handleSaveBook(event) {
   const title = document.getElementById('form-title').value.trim();
   const author = document.getElementById('form-author').value.trim();
   const genre = document.getElementById('form-genre').value;
-  const cover = document.getElementById('form-cover').value.trim() || '📖';
+  const coverHidden = document.getElementById('form-cover-data');
+  const cover = (coverHidden && coverHidden.value.trim()) ? coverHidden.value.trim() : 'icons/icon-512.png';
   const synopsis = document.getElementById('form-synopsis').value.trim();
   const audioUrl = sanitizeUrl(document.getElementById('form-audio-url').value.trim());
   const text = document.getElementById('form-text').value.trim();

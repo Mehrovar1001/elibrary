@@ -1897,3 +1897,20 @@ html, body {
   font-weight: 700;
   color: var(--text-main);
 }
+
+/* Book Cover Dropzone */
+.cover-dropzone {
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--input-bg);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 85px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cover-dropzone:hover {
+  border-color: var(--primary-light);
+  background: var(--bg-card-hover);
+}

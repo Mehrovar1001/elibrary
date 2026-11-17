@@ -233,64 +233,32 @@
       </div>
     </section>
 
-    <!-- Page: AUDIO PLAYER -->
+    <!-- Page: AUDIO PLAYER (100% Native Google Drive Player) -->
     <section class="screen" id="screen-player">
       <div class="page-container">
         <button class="btn-icon" onclick="backToDetail()" style="margin-bottom: 16px;">← Назад к книге</button>
         
-        <div class="player-page-card">
-          <div class="player-cover-large" id="player-cover-box"><img src="icons/icon-512.png" alt="eLibrary Cover" style="width: 100%; height: 100%; object-fit: cover;"></div>
-          <h2 class="player-title" id="player-title">Название аудиокниги</h2>
-          <p class="player-author" id="player-author">Автор</p>
+        <div class="player-page-card" style="max-width: 640px; margin: 0 auto; text-align: center;">
+          <!-- Book Cover -->
+          <div class="player-cover-large" id="player-cover-box" style="width: 170px; height: 230px; border-radius: var(--radius-md); margin: 0 auto 20px;">
+            <img src="icons/icon-512.png" alt="Cover" style="width: 100%; height: 100%; object-fit: cover;">
+          </div>
           
-          <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 16px;">
-            <span class="badge" id="player-badge-type">Google Drive Audio</span>
-            <span class="audio-preview-badge" id="player-audio-preview-badge" style="display: none;">⏳ Превью (до 4:00)</span>
+          <h2 class="player-title" id="player-title" style="font-size: 22px; margin-bottom: 4px;">Название аудиокниги</h2>
+          <p class="player-author" id="player-author" style="font-size: 14px; color: var(--primary-light); margin-bottom: 14px;">Автор</p>
+          
+          <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 20px;">
+            <span class="badge badge-admin" style="padding: 5px 12px; font-size: 12px;">⚡ Google Drive Player (100% совместимость)</span>
           </div>
 
-          <!-- Timeline -->
-          <div class="audio-timeline-wrap">
-            <div class="timeline-bar" id="timeline-bar" onclick="seekAudio(event)">
-              <div class="timeline-progress" id="timeline-progress">
-                <div class="timeline-handle"></div>
-              </div>
-            </div>
-            <div class="timeline-times">
-              <span id="player-current-time">0:00</span>
-              <span id="player-duration-time">--:--</span>
-            </div>
+          <!-- Seamless In-App Google Drive Player Iframe -->
+          <div class="gdrive-player-box" id="gdrive-player-wrapper" style="width: 100%; height: 140px; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-strong); background: #000000; box-shadow: var(--shadow-md);">
+            <iframe id="gdrive-embed-iframe" src="" allow="autoplay" style="width: 100%; height: 100%; border: none;"></iframe>
           </div>
 
-          <!-- Controls -->
-          <div class="player-controls-row">
-            <button class="ctrl-btn" onclick="skipAudio(-15)" title="Назад 15 сек">⏮ -15s</button>
-            <button class="play-pause-btn" id="player-play-btn" onclick="toggleAudioPlay()">▶</button>
-            <button class="ctrl-btn" onclick="skipAudio(15)" title="Вперёд 15 сек">+15s ⏭</button>
-          </div>
-
-          <!-- Speed pills -->
-          <div class="playback-speed-selector">
-            <span class="speed-pill" onclick="setSpeed(0.75)">0.75x</span>
-            <span class="speed-pill active" onclick="setSpeed(1.0)">1.0x</span>
-            <span class="speed-pill" onclick="setSpeed(1.25)">1.25x</span>
-            <span class="speed-pill" onclick="setSpeed(1.5)">1.5x</span>
-            <span class="speed-pill" onclick="setSpeed(2.0)">2.0x</span>
-          </div>
-
-          <!-- Google Drive In-App Embed Fallback Player -->
-          <div class="gdrive-embed-container" id="gdrive-embed-section" style="display: none;">
-            <div class="gdrive-tabs">
-              <button class="gdrive-tab-btn active" id="tab-html5-btn" onclick="switchPlayerMode('html5')">HTML5 Плеер</button>
-              <button class="gdrive-tab-btn" id="tab-embed-btn" onclick="switchPlayerMode('embed')">Google Drive Плеер (100% совместимость)</button>
-            </div>
-            
-            <div class="gdrive-iframe-wrapper" id="gdrive-iframe-box" style="display: none;">
-              <iframe id="gdrive-embed-iframe" src="" allow="autoplay"></iframe>
-            </div>
-            <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">
-              💡 Если поток блокируется политиками Google Drive, режим «Google Drive Плеер» проигрывает аудио прямо внутри страницы.
-            </p>
-          </div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 14px; line-height: 1.5;">
+            ✓ Официальный встроенный плеер Google Drive. Работает со 100% гарантией без CORS-ошибок и сетевых блокировок.
+          </p>
         </div>
       </div>
     </section>
@@ -459,7 +427,7 @@
           <!-- Admin Tabs -->
           <div class="admin-tabs">
             <button class="admin-tab active" id="adm-tab-books" onclick="switchAdminTab('books')">📚 Каталог книг</button>
-            <button class="admin-tab" id="adm-tab-add" onclick="switchAdminTab('add')">➕ Добавить книгу & Тест</button>
+            <button class="admin-tab" id="adm-tab-add" onclick="openAddBookTab()">➕ Добавить книгу & Тест</button>
             <button class="admin-tab" id="adm-tab-users" onclick="switchAdminTab('users')">👥 Пользователи и Роли</button>
             <button class="admin-tab" id="adm-tab-backup" onclick="switchAdminTab('backup')">💾 Резервная копия</button>
           </div>
@@ -521,8 +489,23 @@
                   </select>
                 </div>
                 <div class="form-group">
-                  <label class="form-label" data-i18n="formCover">Обложка (эмодзи или прямая ссылка на картинку)</label>
-                  <input type="text" class="form-input" id="form-cover" placeholder="📖 или https://example.com/cover.jpg">
+                  <label class="form-label">🖼️ Загрузить обложку книги (Файл с устройства)</label>
+                  <input type="hidden" id="form-cover-data" value="">
+                  <div class="cover-dropzone" id="cover-dropzone" onclick="document.getElementById('form-cover-file').click()">
+                    <div id="cover-dropzone-empty" style="text-align: center; padding: 14px;">
+                      <span style="font-size: 26px; display: block; margin-bottom: 4px;">📁</span>
+                      <span style="font-size: 13px; font-weight: 600; color: var(--primary-light);">Нажмите, чтобы выбрать файл обложки</span>
+                      <p style="font-size: 11px; color: var(--text-sub); margin-top: 2px;">PNG, JPG, WebP с вашего Mac или телефона</p>
+                    </div>
+                    <div id="cover-dropzone-filled" style="display: none; align-items: center; gap: 14px; padding: 10px; width: 100%;">
+                      <img id="cover-preview-img" src="" alt="preview" style="width: 50px; height: 68px; object-fit: cover; border-radius: 6px; box-shadow: var(--shadow-sm); border: 1px solid var(--border);">
+                      <div>
+                        <div style="font-size: 13px; font-weight: 700; color: var(--success);">✓ Обложка загружена</div>
+                        <button type="button" class="btn-secondary" style="height: 28px; padding: 0 10px; font-size: 11px; border-radius: 6px; margin-top: 6px;" onclick="event.stopPropagation(); clearUploadedCover()">Заменить фото</button>
+                      </div>
+                    </div>
+                  </div>
+                  <input type="file" id="form-cover-file" accept="image/*" onchange="handleCoverFileSelected(event)" style="display: none;">
                 </div>
               </div>
 
