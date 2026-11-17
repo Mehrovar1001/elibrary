@@ -1,0 +1,30 @@
+{
+  "name": "eLibrary — Цифровая библиотека & Аудиоплеер",
+  "short_name": "eLibrary",
+  "description": "Электронная библиотека книг и аудиокниг с поддержкой Google Drive, адаптацией для Mac и мобильных устройств.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#090f15",
+  "theme_color": "#090f15",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["books", "education", "entertainment", "productivity"]
+}

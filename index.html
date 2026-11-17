@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="eLibrary — современная электронная библиотека и аудиоплеер с поддержкой Google Drive, адаптацией для Mac, ПК и смартфонов.">
+  <title>eLibrary — Цифровая библиотека & Аудиоплеер</title>
+
+  <!-- PWA & Mobile Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#080d14">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="eLibrary">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="icons/favicon.png">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app-layout">
+  <!-- Desktop / Mac Sidebar Navigation -->
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-icon">📚</div>
+      <div class="brand-name">eLibrary</div>
+      <span class="brand-badge">PRO</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-title" data-i18n="navMenu">МЕНЮ</div>
+      <button class="nav-link active" onclick="navigate('home')">
+        <span class="icon">🏠</span>
+        <span data-i18n="navHome">Главная</span>
+      </button>
+      <button class="nav-link" onclick="navigate('genres')">
+        <span class="icon">📂</span>
+        <span data-i18n="navGenres">Жанры</span>
+      </button>
+      <button class="nav-link" onclick="navigate('bookmarks')">
+        <span class="icon">🔖</span>
+        <span data-i18n="navBookmarks">Закладки</span>
+      </button>
+      <button class="nav-link" onclick="navigate('stats')">
+        <span class="icon">📊</span>
+        <span data-i18n="navStats">Статистика</span>
+      </button>
+
+      <div class="nav-section-title" data-i18n="navManagement">УПРАВЛЕНИЕ</div>
+      <!-- Visible Admin Panel -->
+      <button class="nav-link" id="sidebar-admin-link" onclick="navigate('admin')">
+        <span class="icon">⚙️</span>
+        <span data-i18n="navAdmin">Админ-панель</span>
+      </button>
+
+      <div class="nav-section-title" data-i18n="navPreferences">НАСТРОЙКИ</div>
+      <button class="nav-link" onclick="navigate('settings')">
+        <span class="icon">🎨</span>
+        <span data-i18n="navSettings">Настройки</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div style="display: flex; gap: 8px; align-items: center; justify-content: space-between;">
+        <button class="btn-icon" onclick="toggleTheme()" title="Переключить тему">
+          <span id="theme-toggle-icon">☀️</span>
+        </button>
+        <select class="form-select" id="lang-select" onchange="changeLanguage(this.value)" style="padding: 6px 10px; font-size: 12px; width: auto;">
+          <option value="ru">Русский</option>
+          <option value="tj">Тоҷикӣ</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+      <p style="font-size: 11px; color: var(--text-sub); text-align: center; margin-top: 4px;">eLibrary Pro v2.0</p>
+    </div>
+  </aside>
+
+  <!-- Main Workspace -->
+  <main id="main-content">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle-btn" onclick="openMobileMenu()">☰</button>
+        <div class="topbar-title" id="page-title">eLibrary</div>
+      </div>
+
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" id="search-input" placeholder="Поиск книг, авторов..." oninput="handleSearch(this.value)" data-i18n-placeholder="searchPlaceholder">
+      </div>
+
+      <div class="topbar-actions">
+        <button class="btn-primary" onclick="openAddBookModal()">
+          <span>➕</span>
+          <span data-i18n="addBookBtn">Добавить книгу</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Page: HOME -->
+    <section class="screen active" id="screen-home">
+      <div class="page-container">
+        <!-- Hero Banner -->
+        <div class="hero-banner">
+          <div class="hero-content">
+            <span class="hero-tag" data-i18n="heroTag">✨ Цифровая библиотека</span>
+            <h1 class="hero-title" data-i18n="heroTitle">Читайте и слушайте в любом месте</h1>
+            <p class="hero-desc" data-i18n="heroDesc">Адаптировано для компьютеров Mac и смартфонов. Прямое воспроизведение аудиокниг через Google Drive и персональная библиотека.</p>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+              <button class="btn-primary" onclick="navigate('genres')" data-i18n="exploreGenres">Выбрать жанр</button>
+              <button class="btn-icon" style="width: auto; padding: 0 16px; border-radius: var(--radius-md); font-size: 13px;" onclick="navigate('admin')" data-i18n="goToAdmin">Панель управления →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Genres Quick Filter -->
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">📂 <span data-i18n="categoriesTitle">Категории</span></h2>
+            <p class="section-subtitle" data-i18n="categoriesSubtitle">Выберите категорию для быстрого поиска</p>
+          </div>
+        </div>
+        <div class="genres-grid" id="home-genres-grid"></div>
+
+        <!-- Books Library Section -->
+        <div class="section-header" style="margin-top: 16px;">
+          <div>
+            <h2 class="section-title">📚 <span data-i18n="allBooksTitle">Книги в библиотеке</span></h2>
+            <p class="section-subtitle" id="books-count-subtitle">0 книг доступно</p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-icon" onclick="openAddBookModal()" title="Добавить книгу">➕</button>
+          </div>
+        </div>
+
+        <!-- Books Grid Container -->
+        <div class="books-grid" id="home-books-grid"></div>
+
+        <!-- Empty State Container (displayed when 0 books exist) -->
+        <div class="empty-state" id="home-empty-state" style="display: none;">
+          <div class="empty-icon">📖</div>
+          <h3 class="empty-title" data-i18n="emptyLibTitle">Библиотека пуста</h3>
+          <p class="empty-desc" data-i18n="emptyLibDesc">Все старые книги удалены. Добавьте свои первые книги и аудиокниги с Google Drive через удобную панель управления!</p>
+          <button class="btn-primary" onclick="openAddBookModal()" style="margin: 0 auto;">
+            <span>➕</span> <span data-i18n="addFirstBook">Добавить первую книгу</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Page: GENRES -->
+    <section class="screen" id="screen-genres">
+      <div class="page-container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">📂 <span data-i18n="genresCatalog">Каталог жанров</span></h2>
+            <p class="section-subtitle" data-i18n="genresCatalogSub">Исследуйте книги по тематическим разделам</p>
+          </div>
+        </div>
+        <div class="genres-grid" id="full-genres-grid"></div>
+        <div class="section-header" style="margin-top: 24px;">
+          <h3 class="section-title" id="genre-view-title">Все книги</h3>
+        </div>
+        <div class="books-grid" id="genre-books-grid"></div>
+      </div>
+    </section>
+
+    <!-- Page: BOOK DETAIL -->
+    <section class="screen" id="screen-book-detail">
+      <div class="page-container">
+        <button class="btn-icon" onclick="navigate('home')" style="margin-bottom: 16px;">← Назад</button>
+        
+        <div class="book-detail-wrapper" id="book-detail-content">
+          <!-- Dynamically populated by app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Page: TEXT READER -->
+    <section class="screen" id="screen-reader">
+      <div class="page-container">
+        <div class="reader-header">
+          <button class="btn-icon" onclick="backToDetail()">←</button>
+          <div style="text-align: center;">
+            <div id="reader-title" style="font-weight: 700; font-size: 15px;"></div>
+            <div id="reader-author" style="font-size: 12px; color: var(--text-muted);"></div>
+          </div>
+          <div class="reader-controls">
+            <button class="btn-icon" onclick="changeFontSize(-2)" title="Уменьшить шрифт">A-</button>
+            <button class="btn-icon" onclick="changeFontSize(2)" title="Увеличить шрифт">A+</button>
+            <button class="btn-icon" id="reader-bookmark-btn" onclick="toggleCurrentBookmark()" title="Закладка">🔖</button>
+          </div>
+        </div>
+
+        <div class="reader-container">
+          <div class="reader-content" id="reader-content-body"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Page: AUDIO PLAYER -->
+    <section class="screen" id="screen-player">
+      <div class="page-container">
+        <button class="btn-icon" onclick="backToDetail()" style="margin-bottom: 16px;">← Назад к книге</button>
+        
+        <div class="player-page-card">
+          <div class="player-cover-large" id="player-cover-box">🎧</div>
+          <h2 class="player-title" id="player-title">Название аудиокниги</h2>
+          <p class="player-author" id="player-author">Автор</p>
+          
+          <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 16px;">
+            <span class="badge" id="player-badge-type">Google Drive Audio</span>
+          </div>
+
+          <!-- Timeline -->
+          <div class="audio-timeline-wrap">
+            <div class="timeline-bar" id="timeline-bar" onclick="seekAudio(event)">
+              <div class="timeline-progress" id="timeline-progress">
+                <div class="timeline-handle"></div>
+              </div>
+            </div>
+            <div class="timeline-times">
+              <span id="player-current-time">0:00</span>
+              <span id="player-duration-time">--:--</span>
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div class="player-controls-row">
+            <button class="ctrl-btn" onclick="skipAudio(-15)" title="Назад 15 сек">⏮ -15s</button>
+            <button class="play-pause-btn" id="player-play-btn" onclick="toggleAudioPlay()">▶</button>
+            <button class="ctrl-btn" onclick="skipAudio(15)" title="Вперёд 15 сек">+15s ⏭</button>
+          </div>
+
+          <!-- Speed pills -->
+          <div class="playback-speed-selector">
+            <span class="speed-pill" onclick="setSpeed(0.75)">0.75x</span>
+            <span class="speed-pill active" onclick="setSpeed(1.0)">1.0x</span>
+            <span class="speed-pill" onclick="setSpeed(1.25)">1.25x</span>
+            <span class="speed-pill" onclick="setSpeed(1.5)">1.5x</span>
+            <span class="speed-pill" onclick="setSpeed(2.0)">2.0x</span>
+          </div>
+
+          <!-- Google Drive In-App Embed Fallback Player -->
+          <div class="gdrive-embed-container" id="gdrive-embed-section" style="display: none;">
+            <div class="gdrive-tabs">
+              <button class="gdrive-tab-btn active" id="tab-html5-btn" onclick="switchPlayerMode('html5')">HTML5 Плеер</button>
+              <button class="gdrive-tab-btn" id="tab-embed-btn" onclick="switchPlayerMode('embed')">Google Drive Плеер (100% совместимость)</button>
+            </div>
+            
+            <div class="gdrive-iframe-wrapper" id="gdrive-iframe-box" style="display: none;">
+              <iframe id="gdrive-embed-iframe" src="" allow="autoplay"></iframe>
+            </div>
+            <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">
+              💡 Если поток блокируется политиками Google Drive, режим «Google Drive Плеер» проигрывает аудио прямо внутри страницы.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Page: ADMIN PANEL (Directly accessible & secure) -->
+    <section class="screen" id="screen-admin">
+      <div class="page-container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">⚙️ <span data-i18n="adminTitle">Панель управления</span></h2>
+            <p class="section-subtitle" data-i18n="adminSubtitle">Управление библиотекой, добавление книг и аудиокниг Google Drive</p>
+          </div>
+          <button class="btn-primary" onclick="openAddBookModal()">
+            <span>➕</span> <span data-i18n="adminNewBook">Новая книга</span>
+          </button>
+        </div>
+
+        <div class="admin-card">
+          <!-- Admin Tabs -->
+          <div class="admin-tabs">
+            <button class="admin-tab active" id="adm-tab-books" onclick="switchAdminTab('books')" data-i18n="adminTabBooks">📚 Книги в базе</button>
+            <button class="admin-tab" id="adm-tab-add" onclick="switchAdminTab('add')" data-i18n="adminTabAdd">➕ Добавить / Редактировать</button>
+            <button class="admin-tab" id="adm-tab-backup" onclick="switchAdminTab('backup')" data-i18n="adminTabBackup">💾 Бэкап и Безопасность</button>
+          </div>
+
+          <!-- Admin Sub-tab 1: Books List -->
+          <div id="adm-content-books">
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+                <thead>
+                  <tr style="border-bottom: 2px solid var(--border); color: var(--text-muted);">
+                    <th style="padding: 10px 8px;">Обложка</th>
+                    <th style="padding: 10px 8px;">Название</th>
+                    <th style="padding: 10px 8px;">Автор</th>
+                    <th style="padding: 10px 8px;">Жанр</th>
+                    <th style="padding: 10px 8px;">Аудио (Google Drive)</th>
+                    <th style="padding: 10px 8px; text-align: right;">Действия</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-books-table-body">
+                  <!-- Populated by app.js -->
+                </tbody>
+              </table>
+            </div>
+            <div id="admin-empty-books" style="padding: 40px; text-align: center; color: var(--text-muted);">
+              В каталоге пока нет книг. Нажмите «Новая книга» выше.
+            </div>
+          </div>
+
+          <!-- Admin Sub-tab 2: Add / Edit Form -->
+          <div id="adm-content-add" style="display: none;">
+            <form id="book-form" onsubmit="handleSaveBook(event)">
+              <input type="hidden" id="form-book-id" value="">
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" data-i18n="formTitle">Название книги *</label>
+                  <input type="text" class="form-input" id="form-title" required placeholder="Например: Мастер и Маргарита">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" data-i18n="formAuthor">Автор *</label>
+                  <input type="text" class="form-input" id="form-author" required placeholder="Например: Михаил Булгаков">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" data-i18n="formGenre">Жанр / Категория *</label>
+                  <select class="form-select" id="form-genre" required>
+                    <option value="history">🏛️ История</option>
+                    <option value="poetry">📜 Поэзия</option>
+                    <option value="philosophy">🗿 Философия</option>
+                    <option value="education">🎓 Образование</option>
+                    <option value="business">💼 Бизнес</option>
+                    <option value="math">🧮 Математика</option>
+                    <option value="science">🔬 Наука</option>
+                    <option value="english">🇬🇧 Английский язык</option>
+                    <option value="biography">👤 Биография</option>
+                    <option value="art">🎨 Искусство</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" data-i18n="formCover">Обложка (эмодзи или прямая ссылка на картинку)</label>
+                  <input type="text" class="form-input" id="form-cover" placeholder="📖 или https://example.com/cover.jpg">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="formSynopsis">Краткое описание / О книге</label>
+                <textarea class="form-textarea" id="form-synopsis" rows="3" placeholder="Аннотация к произведению..."></textarea>
+              </div>
+
+              <!-- Google Drive Audio Integration -->
+              <div class="form-group" style="background: rgba(56, 189, 248, 0.05); padding: 16px; border-radius: var(--radius-md); border: 1px solid rgba(56, 189, 248, 0.2);">
+                <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                  <span>🎧 Аудиокнига (Ссылка Google Drive или прямая ссылка)</span>
+                  <span class="badge" style="background: var(--primary-glow); color: var(--primary-light);">Google Drive Ready</span>
+                </label>
+                <input type="text" class="form-input" id="form-audio-url" placeholder="https://drive.google.com/file/d/1A2B3C.../view?usp=sharing">
+                <div class="form-hint">
+                  ✓ Поддерживает любые ссылки Google Drive (файл должен иметь доступ «Все, у кого есть ссылка»).<br>
+                  Также поддерживаются Dropbox, прямые MP3, AAC, M4A файлы.
+                </div>
+                <div style="margin-top: 10px; display: flex; gap: 8px; align-items: center;">
+                  <button type="button" class="btn-icon" style="width: auto; padding: 6px 14px; font-size: 12px; border-radius: var(--radius-sm);" onclick="testAudioInput()">
+                    Проверить аудио
+                  </button>
+                  <span id="audio-test-status" style="font-size: 12px; color: var(--text-muted);"></span>
+                </div>
+              </div>
+
+              <!-- Book Text Content -->
+              <div class="form-group">
+                <label class="form-label" data-i18n="formText">Текст книги (для чтения)</label>
+                <textarea class="form-textarea" id="form-text" rows="8" placeholder="Вставьте полный текст книги или главы..."></textarea>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                <button type="button" class="btn-icon" style="width: auto; padding: 8px 16px; border-radius: var(--radius-md);" onclick="switchAdminTab('books')" data-i18n="cancelBtn">Отмена</button>
+                <button type="submit" class="btn-primary" data-i18n="saveBookBtn">💾 Сохранить книгу</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Admin Sub-tab 3: Backup, Security & Reset -->
+          <div id="adm-content-backup" style="display: none;">
+            <h3 style="font-size: 16px; margin-bottom: 12px;">Резервное копирование и безопасность</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
+              Вы можете сохранить всю вашу базу книг в файл JSON или загрузить сохранённую библиотеку на любом другом устройстве.
+            </p>
+
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 30px;">
+              <button class="btn-primary" onclick="exportLibraryJSON()">📥 Экспортировать библиотеку (JSON)</button>
+              <label class="btn-primary" style="background: var(--bg-surface-elevated); cursor: pointer;">
+                📤 Импортировать JSON
+                <input type="file" accept=".json" onchange="importLibraryJSON(event)" style="display: none;">
+              </label>
+            </div>
+
+            <div style="border-top: 1px solid var(--border); padding-top: 20px;">
+              <h4 style="color: var(--danger); font-size: 15px; margin-bottom: 8px;">Опасная зона</h4>
+              <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 12px;">Удаление всех книг из локального хранилища браузера.</p>
+              <button class="btn-icon" style="width: auto; padding: 8px 16px; border-radius: var(--radius-md); border-color: var(--danger); color: var(--danger);" onclick="confirmClearAllBooks()">
+                🗑️ Очистить все книги
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Page: BOOKMARKS -->
+    <section class="screen" id="screen-bookmarks">
+      <div class="page-container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">🔖 <span data-i18n="bookmarksTitle">Мои закладки</span></h2>
+            <p class="section-subtitle" data-i18n="bookmarksSubtitle">Сохранённые цитаты и страницы</p>
+          </div>
+        </div>
+        <div id="bookmarks-container" class="books-grid"></div>
+        <div class="empty-state" id="bookmarks-empty-state" style="display: none;">
+          <div class="empty-icon">🔖</div>
+          <h3 class="empty-title">Нет закладок</h3>
+          <p class="empty-desc">Во время чтения книги нажимайте на значок закладки, чтобы сохранить понравившийся фрагмент.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Page: STATS -->
+    <section class="screen" id="screen-stats">
+      <div class="page-container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">📊 <span data-i18n="statsTitle">Статистика библиотеки</span></h2>
+            <p class="section-subtitle" data-i18n="statsSubtitle">Активность и статистика вашей библиотеки</p>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+          <div class="admin-card" style="text-align: center; margin: 0;">
+            <div style="font-size: 32px; font-weight: 800; color: var(--primary-light);" id="stat-total-books">0</div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Всего книг</div>
+          </div>
+          <div class="admin-card" style="text-align: center; margin: 0;">
+            <div style="font-size: 32px; font-weight: 800; color: var(--success);" id="stat-audio-books">0</div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">С аудиокнигами</div>
+          </div>
+          <div class="admin-card" style="text-align: center; margin: 0;">
+            <div style="font-size: 32px; font-weight: 800; color: var(--accent);" id="stat-genres-count">10</div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Категорий</div>
+          </div>
+          <div class="admin-card" style="text-align: center; margin: 0;">
+            <div style="font-size: 32px; font-weight: 800; color: var(--warning);" id="stat-bookmarks-count">0</div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Закладок</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Page: SETTINGS -->
+    <section class="screen" id="screen-settings">
+      <div class="page-container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">⚙️ <span data-i18n="settingsTitle">Настройки</span></h2>
+            <p class="section-subtitle" data-i18n="settingsSubtitle">Тема оформления, язык и параметры чтения</p>
+          </div>
+        </div>
+
+        <div class="admin-card" style="max-width: 600px;">
+          <div class="form-group">
+            <label class="form-label">Тема приложения</label>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn-primary" id="btn-theme-dark" onclick="setAppTheme('dark')">🌙 Тёмная тема</button>
+              <button class="btn-primary" id="btn-theme-light" style="background: var(--bg-surface-elevated); color: var(--text-main);" onclick="setAppTheme('light')">☀️ Светлая тема</button>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 20px;">
+            <label class="form-label">Язык интерфейса</label>
+            <select class="form-select" id="settings-lang-select" onchange="changeLanguage(this.value)">
+              <option value="ru">Русский</option>
+              <option value="tj">Тоҷикӣ</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-top: 20px;">
+            <label class="form-label">Размер шрифта для чтения</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <button class="btn-icon" onclick="changeFontSize(-2)">A-</button>
+              <span id="settings-font-size" style="font-size: 14px; font-weight: 600; min-width: 60px; text-align: center;">17px</span>
+              <button class="btn-icon" onclick="changeFontSize(2)">A+</button>
+            </div>
+          </div>
+
+          <div style="margin-top: 24px; border-top: 1px solid var(--border); padding-top: 16px;">
+            <h4 style="font-size: 14px;">О программе eLibrary</h4>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+              Версия: 2.0.0 Pro PWA<br>
+              Полная совместимость с macOS, Windows, iOS, Android.<br>
+              Интеграция аудио потоков через Google Drive.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Persistent Mini Audio Player Bar (Visible whenever audio is active) -->
+    <div id="mini-player">
+      <div class="mini-progress-line" onclick="seekMiniAudio(event)">
+        <div class="mini-progress-fill" id="mini-progress-fill"></div>
+      </div>
+      <div class="mini-thumb" id="mini-thumb" onclick="openFullPlayer()">🎧</div>
+      <div class="mini-info" onclick="openFullPlayer()">
+        <div class="mini-title" id="mini-title">Аудиокнига</div>
+        <div class="mini-author" id="mini-author">Автор</div>
+      </div>
+      <div class="mini-controls">
+        <button class="mini-btn" onclick="skipAudio(-15)" title="Назад 15с">⏮</button>
+        <button class="play-pause-btn" style="width: 42px; height: 42px; font-size: 18px;" id="mini-play-btn" onclick="toggleAudioPlay()">▶</button>
+        <button class="mini-btn" onclick="skipAudio(15)" title="Вперёд 15с">⏭</button>
+        <button class="mini-btn" onclick="openFullPlayer()" title="Развернуть плеер">⛶</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Mobile Bottom Navigation Bar -->
+<nav id="mobile-nav">
+  <button class="mobile-nav-item active" onclick="navigate('home')">
+    <span class="nav-icon">🏠</span>
+    <span data-i18n="navHome">Главная</span>
+  </button>
+  <button class="mobile-nav-item" onclick="navigate('genres')">
+    <span class="nav-icon">📂</span>
+    <span data-i18n="navGenres">Жанры</span>
+  </button>
+  <button class="mobile-nav-item" onclick="navigate('bookmarks')">
+    <span class="nav-icon">🔖</span>
+    <span data-i18n="navBookmarks">Закладки</span>
+  </button>
+  <button class="mobile-nav-item" onclick="navigate('admin')">
+    <span class="nav-icon">⚙️</span>
+    <span data-i18n="navAdmin">Админ</span>
+  </button>
+  <button class="mobile-nav-item" onclick="navigate('settings')">
+    <span class="nav-icon">🎨</span>
+    <span data-i18n="navSettings">Опции</span>
+  </button>
+</nav>
+
+<!-- Hidden Global Audio Element -->
+<audio id="global-audio" preload="auto"></audio>
+
+<!-- Application Scripts -->
+<script src="app.js"></script>
+
+<!-- PWA Service Worker Registration -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').then((reg) => {
+        console.log('eLibrary ServiceWorker registered successfully:', reg.scope);
+      }).catch((err) => {
+        console.warn('eLibrary ServiceWorker registration failed:', err);
+      });
+    });
+  }
+</script>
+
+</body>
+</html>
