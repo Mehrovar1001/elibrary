@@ -24,7 +24,7 @@
   <!-- Desktop / Mac Sidebar Navigation -->
   <aside id="sidebar">
     <div class="sidebar-header">
-      <div class="brand-icon">📚</div>
+      <div class="brand-icon"><img src="icons/icon-192.png" alt="eLibrary logo"></div>
       <div class="brand-name">eLibrary</div>
       <span class="brand-badge">PRO</span>
     </div>
@@ -83,7 +83,10 @@
     <header class="topbar">
       <div class="topbar-left">
         <button class="menu-toggle-btn" onclick="openMobileMenu()">☰</button>
-        <div class="topbar-title" id="page-title">eLibrary</div>
+        <div class="topbar-title" id="page-title" style="display: flex; align-items: center; gap: 8px;">
+          <img src="icons/icon-192.png" alt="" style="width: 24px; height: 24px; border-radius: 6px; object-fit: cover;">
+          <span>eLibrary</span>
+        </div>
       </div>
 
       <div class="search-bar">
@@ -206,7 +209,7 @@
         <button class="btn-icon" onclick="backToDetail()" style="margin-bottom: 16px;">← Назад к книге</button>
         
         <div class="player-page-card">
-          <div class="player-cover-large" id="player-cover-box">🎧</div>
+          <div class="player-cover-large" id="player-cover-box"><img src="icons/icon-512.png" alt="eLibrary Cover" style="width: 100%; height: 100%; object-fit: cover;"></div>
           <h2 class="player-title" id="player-title">Название аудиокниги</h2>
           <p class="player-author" id="player-author">Автор</p>
           
@@ -510,7 +513,7 @@
       <div class="mini-progress-line" onclick="seekMiniAudio(event)">
         <div class="mini-progress-fill" id="mini-progress-fill"></div>
       </div>
-      <div class="mini-thumb" id="mini-thumb" onclick="openFullPlayer()">🎧</div>
+      <div class="mini-thumb" id="mini-thumb" onclick="openFullPlayer()"><img src="icons/icon-192.png" alt="cover" style="width: 100%; height: 100%; object-fit: cover;"></div>
       <div class="mini-info" onclick="openFullPlayer()">
         <div class="mini-title" id="mini-title">Аудиокнига</div>
         <div class="mini-author" id="mini-author">Автор</div>

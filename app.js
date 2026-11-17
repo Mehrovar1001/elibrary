@@ -544,9 +544,11 @@ function showMiniPlayer(book) {
   author.textContent = book.author;
 
   if (book.cover && book.cover.startsWith('http')) {
-    thumb.innerHTML = `<img src="${escapeHtml(book.cover)}" alt="cover">`;
+    thumb.innerHTML = `<img src="${escapeHtml(book.cover)}" alt="cover" style="width:100%;height:100%;object-fit:cover;">`;
+  } else if (book.cover && book.cover.length <= 4) {
+    thumb.textContent = book.cover;
   } else {
-    thumb.textContent = book.cover || '🎧';
+    thumb.innerHTML = `<img src="icons/icon-192.png" alt="cover" style="width:100%;height:100%;object-fit:cover;">`;
   }
 
   mini.classList.add('visible');
@@ -743,7 +745,9 @@ function createBookCardHtml(book) {
 
   const coverHtml = (book.cover && book.cover.startsWith('http'))
     ? `<img src="${escapeHtml(book.cover)}" class="book-cover-img" alt="${escapeHtml(book.title)}">`
-    : `<span class="book-cover-emoji">${escapeHtml(book.cover || '📖')}</span>`;
+    : (book.cover && book.cover.length <= 4)
+      ? `<span class="book-cover-emoji">${escapeHtml(book.cover)}</span>`
+      : `<img src="icons/icon-192.png" class="book-cover-img" style="padding:16px;object-fit:contain" alt="${escapeHtml(book.title)}">`;
 
   return `
     <div class="book-card" onclick="openBookDetail('${book.id}')">
@@ -853,7 +857,9 @@ function renderBookDetail() {
 
   const coverHtml = (b.cover && b.cover.startsWith('http'))
     ? `<img src="${escapeHtml(b.cover)}" alt="${escapeHtml(b.title)}">`
-    : `<span>${escapeHtml(b.cover || '📖')}</span>`;
+    : (b.cover && b.cover.length <= 4)
+      ? `<span>${escapeHtml(b.cover)}</span>`
+      : `<img src="icons/icon-512.png" alt="${escapeHtml(b.title)}" style="width:100%;height:100%;object-fit:cover">`;
 
   container.innerHTML = `
     <div class="book-detail-hero">
@@ -943,8 +949,10 @@ function renderFullPlayerScreen() {
   if (coverBox) {
     if (b.cover && b.cover.startsWith('http')) {
       coverBox.innerHTML = `<img src="${escapeHtml(b.cover)}" alt="cover">`;
+    } else if (b.cover && b.cover.length <= 4) {
+      coverBox.textContent = b.cover;
     } else {
-      coverBox.textContent = b.cover || '🎧';
+      coverBox.innerHTML = `<img src="icons/icon-512.png" alt="cover" style="width:100%;height:100%;object-fit:cover">`;
     }
   }
 
