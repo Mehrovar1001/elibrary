@@ -818,6 +818,23 @@ function navigate(screenName) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  // Update Topbar Title according to section
+  const PAGE_TITLES = {
+    'home': 'Главная',
+    'genres': 'Каталог жанров',
+    'bookmarks': 'Мои закладки',
+    'stats': 'Статистика',
+    'settings': 'Настройки и Профиль',
+    'admin': 'Панель администратора',
+    'book-detail': 'О книге',
+    'reader': 'Чтение',
+    'player': 'Аудиоплеер'
+  };
+  const titleEl = document.getElementById('page-title');
+  if (titleEl) {
+    titleEl.textContent = PAGE_TITLES[screenName] || 'eLibrary';
+  }
+
   updateNavState(screenName);
 
   if (screenName === 'home') renderHome();
@@ -889,7 +906,7 @@ function renderTopbarAuth() {
 
   if (!state.currentUser) {
     authContainer.innerHTML = `
-      <button class="btn-primary" style="padding: 7px 14px; font-size: 12px;" onclick="openAuthModal()">
+      <button class="btn-primary" style="height: 34px; padding: 0 14px; font-size: 12px;" onclick="openAuthModal()">
         <span>👤</span> <span>Войти</span>
       </button>
     `;
@@ -903,7 +920,7 @@ function renderTopbarAuth() {
       <div class="user-profile-badge" onclick="openProfileModal()" title="Нажмите, чтобы настроить профиль">
         ${avatarHtml}
         <span style="font-size: 13px; font-weight: 600;">${escapeHtml(u.name)}</span>
-        ${u.role === 'admin' ? '<span class="badge" style="font-size:10px; padding:2px 6px; background:var(--primary);">Admin</span>' : ''}
+        ${u.role === 'admin' ? '<span class="badge badge-admin" style="font-size:10px; padding:2px 7px;">Admin</span>' : ''}
       </div>
     `;
   }
@@ -1409,50 +1426,92 @@ function renderSettingsScreen() {
   const userCard = document.getElementById('settings-user-card');
   const adminCard = document.getElementById('settings-admin-card');
 
+  // Sync theme segmented control
+  const segDark = document.getElementById('seg-theme-dark');
+  const segLight = document.getElementById('seg-theme-light');
+  if (segDark && segLight) {
+    segDark.classList.toggle('active', state.theme === 'dark');
+    segLight.classList.toggle('active', state.theme === 'light');
+  }
+
+  // Sync font size
+  const fontEl = document.getElementById('settings-font-size');
+  if (fontEl) fontEl.textContent = `${state.fontSize}px`;
+
+  // Sync language select
+  const langSelect = document.getElementById('settings-lang-select');
+  if (langSelect) langSelect.value = state.currentLang;
+
   if (!state.currentUser) {
     userCard.innerHTML = `
-      <div style="text-align: center; padding: 12px;">
-        <div style="font-size: 40px; margin-bottom: 8px;">👤</div>
-        <h3 style="font-size: 17px; font-weight: 800; margin-bottom: 6px;">Вы вошли как гость</h3>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 18px;">
-          Войдите через Google или по Email бесплатно, чтобы получить полный доступ ко всем книгам и аудиокнигам!
-        </p>
-        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 18px;">
+          <div style="width: 58px; height: 58px; border-radius: 50%; background: var(--bg-card); display: flex; align-items: center; justify-content: center; font-size: 28px; border: 2px solid var(--border); flex-shrink: 0;">
+            👤
+          </div>
+          <div>
+            <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 4px; color: var(--text-main);">Вы вошли как гость</h3>
+            <p style="font-size: 13px; color: var(--text-muted); line-height: 1.4; margin: 0;">
+              Войдите через Google или по Email бесплатно, чтобы читать и слушать все книги без ограничений.
+            </p>
+          </div>
+        </div>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
           <button class="btn-primary" onclick="triggerGoogleSignIn()">Войти через Google</button>
-          <button class="btn-icon" style="width: auto; padding: 0 16px; border-radius: var(--radius-md);" onclick="openAuthModal()">Войти по Email</button>
+          <button class="btn-secondary" onclick="openAuthModal()">Войти по Email</button>
         </div>
       </div>
     `;
-    adminCard.style.display = 'none';
+    if (adminCard) adminCard.style.display = 'none';
   } else {
     const u = state.currentUser;
     const avatarHtml = u.avatar && u.avatar.startsWith('http')
-      ? `<img src="${escapeHtml(u.avatar)}" style="width: 54px; height: 54px; border-radius: 50%; object-fit: cover;">`
-      : `<span style="font-size: 36px;">${escapeHtml(u.avatar || '👤')}</span>`;
+      ? `<img src="${escapeHtml(u.avatar)}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`
+      : `<span style="font-size: 30px;">${escapeHtml(u.avatar || '👤')}</span>`;
 
     userCard.innerHTML = `
-      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
-        <div style="width: 58px; height: 58px; border-radius: 50%; background: var(--bg-card); display: flex; align-items: center; justify-content: center; border: 2px solid var(--border);">
-          ${avatarHtml}
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 18px;">
+          <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--bg-card); display: flex; align-items: center; justify-content: center; border: 2px solid var(--border-strong); flex-shrink: 0; overflow: hidden; box-shadow: var(--shadow-sm);">
+            ${avatarHtml}
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap;">
+              <h3 style="font-size: 19px; font-weight: 800; color: var(--text-main); margin: 0;">${escapeHtml(u.name)}</h3>
+              <span class="badge ${u.role === 'admin' ? 'badge-admin' : 'badge-reader'}">
+                ${u.role === 'admin' ? '👑 Администратор' : '📖 Читатель'}
+              </span>
+            </div>
+            <p style="font-size: 13px; color: var(--text-muted); margin: 0;">${escapeHtml(u.email)}</p>
+          </div>
         </div>
-        <div>
-          <h3 style="font-size: 17px; font-weight: 800;">${escapeHtml(u.name)}</h3>
-          <p style="font-size: 12px; color: var(--text-muted);">${escapeHtml(u.email)}</p>
-          <span class="badge" style="margin-top: 4px; ${u.role === 'admin' ? 'background:var(--primary); color:#fff;' : ''}">
-            ${u.role === 'admin' ? '👑 Администратор' : '📖 Читатель'}
-          </span>
-        </div>
-      </div>
 
-      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-        <button class="btn-primary" style="font-size: 12px; padding: 6px 14px;" onclick="openProfileModal()">Редактировать профиль</button>
-        <button class="btn-icon" style="width: auto; padding: 0 14px; font-size: 12px; border-radius: var(--radius-md); color: var(--danger); border-color: var(--danger);" onclick="logout()">Выйти</button>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+          <button class="btn-secondary" onclick="openProfileModal()">✏️ Редактировать профиль</button>
+          <button class="btn-danger" onclick="logout()">Выйти</button>
+        </div>
       </div>
     `;
 
-    // Only display Admin Card if user has role 'admin'
-    adminCard.style.display = (u.role === 'admin') ? 'block' : 'none';
+    if (adminCard) {
+      adminCard.style.display = (u.role === 'admin') ? 'block' : 'none';
+    }
   }
+}
+
+function setAppTheme(theme) {
+  state.theme = theme;
+  document.documentElement.setAttribute('data-theme', theme);
+  const icon = document.getElementById('theme-toggle-icon');
+  if (icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+
+  const segDark = document.getElementById('seg-theme-dark');
+  const segLight = document.getElementById('seg-theme-light');
+  if (segDark && segLight) {
+    segDark.classList.toggle('active', theme === 'dark');
+    segLight.classList.toggle('active', theme === 'light');
+  }
+  saveSettingsToStorage();
 }
 
 /* ==========================================================================
