@@ -302,7 +302,7 @@ async function pdfShowPage(n, dir) {
     stage.insertBefore(next, current);
     current.classList.remove('is-current');
     current.classList.add('turn-forward');
-    await waitAnimation(current, 520);
+    await waitAnimation(current, 420);
     current.remove();
     next.classList.remove('is-under');
   } else {
@@ -310,7 +310,7 @@ async function pdfShowPage(n, dir) {
     next.classList.add('is-current', 'turn-back');
     stage.appendChild(next);
     current.classList.remove('is-current');
-    await waitAnimation(next, 520);
+    await waitAnimation(next, 420);
     current.remove();
     next.classList.remove('turn-back');
   }
