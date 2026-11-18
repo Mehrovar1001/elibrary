@@ -3177,3 +3177,37 @@ body.focus-reading.focus-controls-hidden .focus-exit-btn { opacity: 0; pointer-e
 }
 .book-page-indicator { white-space: nowrap; }
 .focus-hint-system p { color: var(--text-main); opacity: 0.85; }
+
+/* v11 — player: ⟲15 [▶] 15⟳ on one line, speeds below with 1× in the middle */
+.pl-transport { display: flex; align-items: center; justify-content: center; gap: 28px; margin: 6px 0 20px; }
+.pl-skip-side {
+  position: relative;
+  width: 56px; height: 56px; border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--input-bg); color: var(--primary);
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: transform 0.15s ease, background 0.2s ease;
+}
+.pl-skip-side span {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 800; padding-top: 2px;
+}
+.pl-skip-side:active { transform: scale(0.92); }
+.pl-skip-side:hover { background: var(--primary-soft); }
+.pl-speed-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  padding: 4px;
+  border-radius: 16px;
+  background: var(--input-bg);
+  border: 1px solid var(--border-strong);
+}
+.pl-speed-row .speed-btn {
+  height: 40px; border: 0; border-radius: 12px;
+  background: transparent; color: var(--text-main);
+  font-size: 13.5px; font-weight: 700; cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+.pl-speed-row .speed-btn.active { background: var(--primary); color: #fff; box-shadow: 0 4px 10px rgba(91, 70, 229, 0.3); }
