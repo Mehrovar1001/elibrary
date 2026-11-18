@@ -129,9 +129,15 @@ const api = {
     throwIf(error);
     return data && data[0] ? data[0] : null;
   },
-  async saveProgress(bookId, mode, lang, level) {
+  async saveProgress(bookId, mode, lang, level, extra) {
+    const e = extra || {};
     await sb.from('reading_progress').upsert(
-      { book_id: bookId, mode, lang, level: level || 1, updated_at: new Date().toISOString() },
+      {
+        book_id: bookId, mode, lang, level: level || 1,
+        page: Math.max(1, Number(e.page) || 1),
+        position: Math.max(0, Number(e.position) || 0),
+        updated_at: new Date().toISOString()
+      },
       { onConflict: 'user_id,book_id' }
     );
   },

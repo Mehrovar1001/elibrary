@@ -33,7 +33,7 @@
   </script>
 
   <!-- Content Security Policy: Supabase API, Google Drive viewer, Google/Apple avatars -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://vdohgnxcqdlewwghxnqp.supabase.co wss://vdohgnxcqdlewwghxnqp.supabase.co; img-src 'self' https: data: blob:; media-src 'self' https: blob:; frame-src https://drive.google.com https://docs.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; script-src 'self' 'unsafe-inline'; base-uri 'self'; form-action 'self'; object-src 'none';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://vdohgnxcqdlewwghxnqp.supabase.co wss://vdohgnxcqdlewwghxnqp.supabase.co; worker-src 'self' blob:; img-src 'self' https: data: blob:; media-src 'self' https: blob:; frame-src https://drive.google.com https://docs.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; script-src 'self' 'unsafe-inline'; base-uri 'self'; form-action 'self'; object-src 'none';">
   <meta name="referrer" content="strict-origin-when-cross-origin">
 
   <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon.png">
@@ -44,7 +44,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=7">
+  <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
   <a class="skip-link" href="#main-scroll" data-i18n="skipToContent">Перейти к содержимому</a>
@@ -477,17 +477,20 @@
             <div id="player-lang-chips" class="player-lang-chips"></div>
             <div class="liquid-divider" style="max-width: 220px; margin: 16px auto;"></div>
 
-            <div class="gdrive-player-box" id="gdrive-player-wrapper">
-              <iframe id="gdrive-embed-iframe" src="about:blank" allow="autoplay" title="Audio"></iframe>
-            </div>
-            <div id="player-auth-gate" style="display: none;">
-              <p class="paywall-desc" data-i18n="paywallDesc">Полный текст, аудио и аттестация доступны после бесплатной регистрации.</p>
-              <div class="paywall-actions">
-                <button class="btn-google" onclick="handleGoogleSignIn()"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span data-i18n="continueGoogle">Продолжить с Google</span></button>
-                <button class="btn-apple" onclick="handleAppleSignIn()"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.28-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74s1.78.74 3 .72c1.24-.02 2.02-1.12 2.78-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.39-.92-2.41-3.69zM14.1 5.83c.63-.77 1.06-1.83.94-2.89-.91.04-2.02.61-2.67 1.37-.58.67-1.1 1.76-.96 2.8 1.02.08 2.06-.52 2.69-1.28z"/></svg><span data-i18n="continueApple">Продолжить с Apple</span></button>
-                <button class="btn-primary" onclick="openAuthModal()"><span data-i18n="signIn">Войти</span></button>
+            <div id="native-audio-box" class="native-audio-box">
+              <audio id="native-audio" controls preload="metadata" playsinline></audio>
+              <div class="audio-extra-controls">
+                <button type="button" class="font-btn" onclick="skipAudio(-15)" data-i18n-aria="back15" aria-label="−15">−15</button>
+                <div class="speed-group" role="group" data-i18n-aria="speed" aria-label="Speed">
+                  <button type="button" class="speed-btn" data-rate="0.75" onclick="setPlaybackRate(0.75)">0.75×</button>
+                  <button type="button" class="speed-btn active" data-rate="1" onclick="setPlaybackRate(1)">1×</button>
+                  <button type="button" class="speed-btn" data-rate="1.25" onclick="setPlaybackRate(1.25)">1.25×</button>
+                  <button type="button" class="speed-btn" data-rate="1.5" onclick="setPlaybackRate(1.5)">1.5×</button>
+                </div>
+                <button type="button" class="font-btn" onclick="skipAudio(15)" data-i18n-aria="fwd15" aria-label="+15">+15</button>
               </div>
             </div>
+            <div id="audio-fallback" style="display: none;"></div>
           </div>
         </div>
       </section>
@@ -1037,8 +1040,8 @@
         <div class="mini-author" id="mini-author">Автор</div>
       </div>
       <div class="mini-controls">
-        <button class="btn-icon liquid-glass-btn" onclick="openFullPlayer()" data-i18n-aria="miniPlayerOpen" aria-label="Открыть плеер">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        <button class="btn-icon liquid-glass-btn" id="mini-play-btn" onclick="toggleAudioPlay()" aria-label="Play">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><polygon points="6 4 20 12 6 20 6 4"/></svg>
         </button>
         <button class="btn-icon liquid-glass-btn" onclick="closeMiniPlayer()" data-i18n-aria="miniPlayerClose" aria-label="Закрыть плеер">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
@@ -1373,11 +1376,13 @@
   </script>
   <script src="vendor/supabase-2.45.4.js"></script>
   <script src="vendor/qrcode-1.4.4.js"></script>
-  <script src="js/config.js?v=7"></script>
-  <script src="js/i18n.js?v=7"></script>
-  <script src="js/api.js?v=7"></script>
-  <script src="js/render3d.js?v=7"></script>
-  <script src="js/category-editor.js?v=7"></script>
-  <script src="js/app.js?v=7"></script>
+  <script src="vendor/pdf-3.11.174.min.js"></script>
+  <script src="js/config.js?v=8"></script>
+  <script src="js/i18n.js?v=8"></script>
+  <script src="js/api.js?v=8"></script>
+  <script src="js/render3d.js?v=8"></script>
+  <script src="js/category-editor.js?v=8"></script>
+  <script src="js/media.js?v=8"></script>
+  <script src="js/app.js?v=8"></script>
 </body>
 </html>
