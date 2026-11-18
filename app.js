@@ -1,328 +1,552 @@
-/**
- * eLibrary Pro v2.0 — Core Application Script
- * Features:
- * - Google Sign-In & Email Authentication (Instant access, no codes)
- * - Role-Based Access Control (Admin vs Reader)
- * - Admin Panel accessed exclusively via Settings for authorized Admins
- * - Freemium Paywall (Guests: first 1-3 pages of text, 4-minute audio preview cap)
- * - Full Access for Logged-In Users
- * - Interactive Chapter Quizzes & Knowledge Verification Tests
- * - Shareable Certificate of Completion & Quote Cards for Social Media
- * - Daily Reading Streak (Habit-forming Gamification)
- * - Google Drive Smart Audio Player Engine (Direct Stream + Embed Iframe fallback)
- */
-
 /* ==========================================================================
-   1. State & Constants
+   eLibrary — UltraReal 3D Liquid Glass & Academic Platform Logic
    ========================================================================== */
-const STORAGE_KEYS = {
-  BOOKS: 'elibrary_books_v2',
-  SETTINGS: 'elibrary_settings_v2',
-  BOOKMARKS: 'elibrary_bookmarks_v2',
-  USERS: 'elibrary_users_v2',
-  SESSION: 'elibrary_session_v2',
-  STREAK: 'elibrary_streak_v2'
-};
 
-const GUEST_AUDIO_LIMIT_SECS = 240; // 4 minutes preview for guests
-const GUEST_TEXT_LIMIT_CHARS = 450; // ~1-2 pages preview for guests
-
-const GENRES = [
-  { id: 'history',    name: { ru: 'История и Археология',      tj: 'Таърих ва Бостоншиносӣ',        en: 'History & Archaeology' } },
-  { id: 'science',    name: { ru: 'Фундаментальная Наука',     tj: 'Илми Бунёдӣ',                   en: 'Fundamental Science' } },
-  { id: 'business',   name: { ru: 'Стратегия и Экономика',     tj: 'Стратегия ва Иқтисод',          en: 'Strategy & Economics' } },
-  { id: 'technology', name: { ru: 'Информационные Технологии', tj: 'Технологияҳои Иттилоотӣ',       en: 'Information Tech & AI' } },
-  { id: 'psychology', name: { ru: 'Когнитивистика',            tj: 'Когнитивистика ва Равоншиносӣ', en: 'Cognitive Science' } },
-  { id: 'philosophy', name: { ru: 'Философия и Логика',        tj: 'Фалсафа ва Мантиқ',             en: 'Philosophy & Logic' } },
-  { id: 'education',  name: { ru: 'Педагогика и Академика',    tj: 'Педагогика ва Академика',       en: 'Pedagogy & Education' } },
-  { id: 'poetry',     name: { ru: 'Классические Труды',        tj: 'Осор ва Адабиёти Классикӣ',     en: 'Classical Literature' } },
-  { id: 'math',       name: { ru: 'Математика и Анализ',       tj: 'Математика ва Таҳлил',          en: 'Mathematics & Analysis' } },
-  { id: 'art',        name: { ru: 'Астрофизика и Космос',      tj: 'Астрофизика ва Кайҳоншиносӣ',   en: 'Astrophysics & Space' } }
-];
-
-const AVATAR_PRESETS = ['👑', '🦁', '🦉', '🚀', '📚', '🎧', '⚡', '🌟'];
-
+/* 1. Concise Academic Internationalization (Point 5.1) */
 const I18N = {
   ru: {
-    navMenu: "НАВИГАЦИЯ",
-    navHome: "Главная",
-    navGenres: "Направления",
-    navBookmarks: "Избранное",
+    navMenu: "Навигация",
+    navHome: "Обзор",
+    navCategories: "Направления",
+    navBookmarks: "Закладки",
     navStats: "Аналитика",
-    navPreferences: "СИСТЕМА",
-    navSettings: "Профиль",
-    searchPlaceholder: "Поиск публикаций, монографий, авторов...",
-    heroTag: "✨ АКАДЕМИЧЕСКИЙ ФОНД",
-    heroTitle: "Научные монографии, труды и лекторий",
-    heroDesc: "Единая исследовательская среда. Авторизованный доступ к первоисточникам и аудиоматериалам.",
-    exploreGenres: "Отрасли знания",
-    categoriesTitle: "Отраслевые направления",
-    categoriesSubtitle: "Классификатор академических дисциплин",
-    allBooksTitle: "Академический каталог",
-    emptyLibTitle: "Каталог формируется",
-    emptyLibDesc: "Новые монографии и лекционные курсы добавляются через панель управления в Профиле.",
-    genresCatalog: "Классификатор дисциплин",
-    genresCatalogSub: "Тематический реестр исследовательских направлений",
-    adminTitle: "Панель управления фондом",
-    formTitle: "Наименование труда *",
-    formAuthor: "Автор / Исследователь *",
-    formGenre: "Отрасль знания *",
-    formCover: "Изображение титула",
-    formSynopsis: "Аннотация издания",
-    formText: "Текст монографии",
-    cancelBtn: "Отмена",
-    saveBookBtn: "Внести в реестр",
-    bookmarksTitle: "Избранные материалы",
-    bookmarksSubtitle: "Сохранённые фрагменты и цитаты",
-    statsTitle: "Аналитика фонда",
-    statsSubtitle: "Метрики чтения и исследовательской активности",
-    settingsTitle: "Профиль исследователя",
-    settingsSubtitle: "Учетная запись, безопасность и параметры отображения"
+    navSettings: "Параметры",
+    searchPlaceholder: "Поиск изданий, авторов...",
+    heroBadge: "Академический фонд",
+    heroTitle: "Цифровая научная библиотека",
+    btnExplore: "Каталог",
+    catalogTitle: "Издания",
+    filterAll: "Все",
+    emptyLibraryTitle: "Каталог пуст",
+    emptyLibraryDesc: "Добавьте издания через панель управления.",
+    btnGoSettings: "Параметры",
+    categoriesTitle: "Обучение направлениям",
+    btnShowAll: "Сбросить",
+    bookmarksTitle: "Закладки",
+    statsTitle: "Аналитика",
+    statStreakLabel: "Дней подряд",
+    statBooksTotal: "Фонд изданий",
+    statQuizzesPassed: "Аттестации",
+    statBookmarksCount: "Закладки",
+    certificatesSectionTitle: "Сертификаты",
+    btnBack: "Назад",
+    paywallTitle: "Ограниченный доступ",
+    paywallDesc: "Авторизуйтесь для доступа к полному тексту и аттестации.",
+    btnGoogleSignIn: "Google ID",
+    btnEmailSignIn: "Вход по Email",
+    quizBadge: "Аттестация",
+    quizTitle: "Проверка знаний",
+    btnGetCertificate: "Сертификат",
+    playerHeader: "Аудиотека",
+    settingsTitle: "Параметры",
+    adminPanelTitle: "Управление фондом",
+    btnOpenAdmin: "Открыть",
+    appearanceTitle: "Интерфейс",
+    themeLabel: "Палитра",
+    langLabel: "Язык",
+    fontSizeLabel: "Кегль текста",
+    adminHeaderTitle: "Управление фондом",
+    formTitle: "Название *",
+    formAuthor: "Автор *",
+    formGenre: "Направление *",
+    formSynopsis: "Аннотация",
+    formAudioUrl: "Аудиофайл (Google Drive)",
+    formText: "Текст издания",
+    resumeTitle: "Прогресс сохранён",
+    resumeBtn: "Продолжить",
+    saveWarningTitle: "Сохранение прогресса",
+    saveWarningDesc: "Текущий прогресс чтения и аттестации сохранён. Выйти из раздела?",
+    btnStay: "Остаться",
+    btnSaveAndExit: "Сохранить и выйти"
   },
-  tj: {
-    navMenu: "ПАЙМОИШ",
+  tg: {
+    navMenu: "Роҳнамо",
     navHome: "Асосӣ",
-    navGenres: "Самтҳои илмӣ",
-    navBookmarks: "Маводи интихобӣ",
-    navStats: "Таҳлил ва омор",
-    navPreferences: "НИЗОМ",
-    navSettings: "Профил",
-    searchPlaceholder: "Ҷустуҷӯи асарҳо, рисолаҳо, муаллифон...",
-    heroTag: "✨ ФОНДИ АКАДЕМӢ",
-    heroTitle: "Асарҳои илмӣ, пажӯҳишҳо ва лексияҳо",
-    heroDesc: "Муҳити ягонаи таҳқиқотӣ. Дастрасии мукаммал ба сарчашмаҳои илмӣ ва маводи савтӣ.",
-    exploreGenres: "Самтҳои илм",
-    categoriesTitle: "Самтҳои илм",
-    categoriesSubtitle: "Таснифоти соҳаҳои дониш",
-    allBooksTitle: "Феҳристи нашрияҳо",
-    emptyLibTitle: "Феҳрист дар ҳоли такмил аст",
-    emptyLibDesc: "Асарҳои нави илмӣ тавассути панели идоракунӣ дар бахши Профил ворид карда мешаванд.",
-    genresCatalog: "Таснифоти соҳаҳо",
-    genresCatalogSub: "Феҳристи мавзӯии самтҳои илмӣ",
-    adminTitle: "Идоракунии фонди илмӣ",
-    formTitle: "Номи асар *",
-    formAuthor: "Муаллиф / Пажӯҳишгар *",
-    formGenre: "Самти илм *",
-    formCover: "Тасвири муқова",
-    formSynopsis: "Мухтасари асар",
-    formText: "Матни комили рисола",
-    cancelBtn: "Бекор кардан",
-    saveBookBtn: "Сабт дар феҳрист",
-    bookmarksTitle: "Маводи интихобӣ",
-    bookmarksSubtitle: "Иқтибосҳо ва саҳифаҳои сабтшуда",
-    statsTitle: "Омори таҳқиқотӣ",
-    statsSubtitle: "Нишондиҳандаҳои мутолиа ва фаъолият",
-    settingsTitle: "Профили пажӯҳишгар",
-    settingsSubtitle: "Танзимоти ҳисоб, амният ва намоиш"
+    navCategories: "Омӯзиши самтҳо",
+    navBookmarks: "Захираҳо",
+    navStats: "Таҳлил",
+    navSettings: "Танзимот",
+    searchPlaceholder: "Ҷустуҷӯи китоб ва муаллиф...",
+    heroBadge: "Фонди илмӣ",
+    heroTitle: "Китобхонаи илмии рақамӣ",
+    btnExplore: "Каталог",
+    catalogTitle: "Нашрияҳо",
+    filterAll: "Ҳама",
+    emptyLibraryTitle: "Каталог холист",
+    emptyLibraryDesc: "Аз бахши идоракунӣ китоб илова намоед.",
+    btnGoSettings: "Танзимот",
+    categoriesTitle: "Омӯзиши самтҳо",
+    btnShowAll: "Ҳама",
+    bookmarksTitle: "Захираҳо",
+    statsTitle: "Таҳлили омӯзиш",
+    statStreakLabel: "Рӯз пайдарпай",
+    statBooksTotal: "Ҳамаи китобҳо",
+    statQuizzesPassed: "Санҷишҳо",
+    statBookmarksCount: "Захираҳо",
+    certificatesSectionTitle: "Сертификатҳо",
+    btnBack: "Бозгашт",
+    paywallTitle: "Дастрасии маҳдуд",
+    paywallDesc: "Барои хондани пурра ва супоридани санҷиш ворид шавед.",
+    btnGoogleSignIn: "Google ID",
+    btnEmailSignIn: "Воридшавӣ бо Email",
+    quizBadge: "Санҷиш",
+    quizTitle: "Санҷиши дониш",
+    btnGetCertificate: "Сертификат",
+    playerHeader: "Аудиотека",
+    settingsTitle: "Танзимот",
+    adminPanelTitle: "Идоракунии фонд",
+    btnOpenAdmin: "Кушодан",
+    appearanceTitle: "Намуди зоҳирӣ",
+    themeLabel: "Рангҳо",
+    langLabel: "Забон",
+    fontSizeLabel: "Андозаи ҳарф",
+    adminHeaderTitle: "Идоракунии фонд",
+    formTitle: "Номи китоб *",
+    formAuthor: "Муаллиф *",
+    formGenre: "Самт *",
+    formSynopsis: "Мухтасар",
+    formAudioUrl: "Аудиофайл (Google Drive)",
+    formText: "Матни китоб",
+    resumeTitle: "Прогресс нигоҳ дошта шуд",
+    resumeBtn: "Идома додан",
+    saveWarningTitle: "Нигоҳдории прогресс",
+    saveWarningDesc: "Прогресси хониш нигоҳ дошта шуд. Аз ин қисм мебароед?",
+    btnStay: "Мондан",
+    btnSaveAndExit: "Сохранит ва баромад"
   },
   en: {
-    navMenu: "NAVIGATION",
-    navHome: "Main",
-    navGenres: "Disciplines",
-    navBookmarks: "Saved Items",
+    navMenu: "Navigation",
+    navHome: "Overview",
+    navCategories: "Disciplines",
+    navBookmarks: "Bookmarks",
     navStats: "Analytics",
-    navPreferences: "SYSTEM",
-    navSettings: "Profile",
-    searchPlaceholder: "Search publications, monographs, authors...",
-    heroTag: "✨ ACADEMIC ARCHIVE",
-    heroTitle: "Scientific Works, Papers & Lectures",
-    heroDesc: "Unified research environment. Authorized access to primary sources and audio lectures.",
-    exploreGenres: "Academic Fields",
-    categoriesTitle: "Fields of Study",
-    categoriesSubtitle: "Classification of academic disciplines",
-    allBooksTitle: "Academic Catalog",
-    emptyLibTitle: "Catalog is Being Formed",
-    emptyLibDesc: "Publications and lecture recordings can be managed via the Profile admin portal.",
-    genresCatalog: "Academic Disciplines",
-    genresCatalogSub: "Thematic directory of scientific fields",
-    adminTitle: "Fund Management",
-    formTitle: "Title of Work *",
-    formAuthor: "Author / Researcher *",
+    navSettings: "Preferences",
+    searchPlaceholder: "Search publications, authors...",
+    heroBadge: "Academic Archive",
+    heroTitle: "Digital Scientific Library",
+    btnExplore: "Catalog",
+    catalogTitle: "Publications",
+    filterAll: "All",
+    emptyLibraryTitle: "Catalog Empty",
+    emptyLibraryDesc: "Add publications via the administration panel.",
+    btnGoSettings: "Preferences",
+    categoriesTitle: "Study Disciplines",
+    btnShowAll: "Reset",
+    bookmarksTitle: "Bookmarks",
+    statsTitle: "Analytics",
+    statStreakLabel: "Day Streak",
+    statBooksTotal: "Total Volumes",
+    statQuizzesPassed: "Assessments",
+    statBookmarksCount: "Bookmarks",
+    certificatesSectionTitle: "Certificates",
+    btnBack: "Back",
+    paywallTitle: "Restricted Access",
+    paywallDesc: "Sign in to access full publication text and assessments.",
+    btnGoogleSignIn: "Google ID",
+    btnEmailSignIn: "Email Sign In",
+    quizBadge: "Assessment",
+    quizTitle: "Knowledge Verification",
+    btnGetCertificate: "Certificate",
+    playerHeader: "Audio Archive",
+    settingsTitle: "Preferences",
+    adminPanelTitle: "Archive Management",
+    btnOpenAdmin: "Open",
+    appearanceTitle: "Interface",
+    themeLabel: "Palette",
+    langLabel: "Language",
+    fontSizeLabel: "Type Scale",
+    adminHeaderTitle: "Archive Management",
+    formTitle: "Title *",
+    formAuthor: "Author *",
     formGenre: "Discipline *",
-    formCover: "Cover Image",
     formSynopsis: "Abstract",
-    formText: "Monograph Text",
-    cancelBtn: "Cancel",
-    saveBookBtn: "Save to Catalog",
-    bookmarksTitle: "Saved Works",
-    bookmarksSubtitle: "Saved passages and citations",
-    statsTitle: "Fund Analytics",
-    statsSubtitle: "Reading metrics and research activity",
-    settingsTitle: "Researcher Profile",
-    settingsSubtitle: "Account credentials, security, and display options"
+    formAudioUrl: "Audio Stream (Google Drive)",
+    formText: "Publication Text",
+    resumeTitle: "Progress Saved",
+    resumeBtn: "Resume",
+    saveWarningTitle: "Save Progress",
+    saveWarningDesc: "Your reading and assessment progress is saved. Exit section?",
+    btnStay: "Stay",
+    btnSaveAndExit: "Save & Exit"
   }
 };
 
-let state = {
-  currentLang: 'ru',
-  theme: 'dark',
-  fontSize: 17,
-  activeScreen: 'home',
-  books: [],
-  users: [],
-  currentUser: null, // null = Guest, or User object { id, email, name, role, avatar }
-  currentBook: null,
-  activeAudioBook: null,
-  isPlaying: false,
-  audioDuration: 0,
-  audioCurrentTime: 0,
-  playbackSpeed: 1.0,
-  playerMode: 'html5',
-  bookmarks: [],
-  searchQuery: '',
-  selectedGenre: null,
-  streakDays: 1,
-  selectedAvatar: '👑',
-  authMode: 'login', // 'login' or 'reg'
-  currentQuizAnswers: {}
+/* 2. Disciplines with 3D Studio Color Schemes (Point 8 & Reference Image 1) */
+const GENRES = [
+  {
+    id: 'history',
+    glow: 'rgba(138, 92, 246, 0.34)',
+    name: { ru: 'История', tg: 'Таърих', en: 'History' }
+  },
+  {
+    id: 'science',
+    glow: 'rgba(68, 215, 246, 0.34)',
+    name: { ru: 'Наука и медицина', tg: 'Илм ва тиб', en: 'Science & Health' }
+  },
+  {
+    id: 'literature',
+    glow: 'rgba(228, 184, 255, 0.32)',
+    name: { ru: 'Литература', tg: 'Адабиёт', en: 'Literature' }
+  },
+  {
+    id: 'business',
+    glow: 'rgba(255, 77, 141, 0.34)',
+    name: { ru: 'Экономика', tg: 'Иқтисодиёт', en: 'Economics' }
+  },
+  {
+    id: 'psychology',
+    glow: 'rgba(218, 150, 95, 0.34)',
+    name: { ru: 'Психология', tg: 'Равоншиносӣ', en: 'Psychology' }
+  },
+  {
+    id: 'philosophy',
+    glow: 'rgba(76, 217, 149, 0.32)',
+    name: { ru: 'Философия', tg: 'Фалсафа', en: 'Philosophy' }
+  },
+  {
+    id: 'poetry',
+    glow: 'rgba(196, 130, 255, 0.32)',
+    name: { ru: 'Поэзия', tg: 'Назм', en: 'Poetry' }
+  },
+  {
+    id: 'tech',
+    glow: 'rgba(96, 165, 250, 0.34)',
+    name: { ru: 'Технологии', tg: 'Технология', en: 'Technology' }
+  }
+];
+
+const AVATAR_CHOICES = ['АД', 'МН', 'ИЛ', 'ФК', 'СМ', 'ДТ', 'РШ', 'АН'];
+
+const STORAGE_KEYS = {
+  BOOKS: 'elibrary_books_v2',
+  USERS: 'elibrary_users_v2',
+  SESSION: 'elibrary_session_v2',
+  BOOKMARKS: 'elibrary_bookmarks_v2',
+  CERTS: 'elibrary_certificates_v2',
+  STREAK: 'elibrary_streak_v2',
+  SETTINGS: 'elibrary_settings_v2',
+  PROGRESS: 'elibrary_progress_v3'
 };
 
-const globalAudio = document.getElementById('global-audio');
+let state = {
+  books: [],
+  users: [],
+  currentUser: null,
+  bookmarks: [],
+  certificates: [],
+  streak: { count: 1, lastDate: new Date().toDateString() },
+  currentScreen: 'home',
+  previousScreen: 'home',
+  currentLang: 'ru',
+  theme: 'light',
+  fontSize: 18,
+  selectedGenre: 'all',
+  searchQuery: '',
+  currentBook: null,
+  activeAudioBook: null,
+  playbackSpeed: 1.0,
+  isPlaying: false,
+  audioCurrentTime: 0,
+  audioDuration: 0,
+  quizAnswers: {},
+  savedProgress: null,
+  pendingBackTarget: null
+};
+
+const globalAudio = new Audio();
 
 /* ==========================================================================
-   2. Initialization & Data Loading
+   3. Initialization & Lifecycle
    ========================================================================== */
-function initApp() {
-  loadStoredUsers();
-  loadStoredBooks();
-  loadStoredSettings();
-  loadStoredBookmarks();
-  loadReadingStreak();
-
-  applyTheme(state.theme);
-  applyLanguage(state.currentLang);
-  setupAudioListeners();
-  setupKeyboardShortcuts();
+document.addEventListener('DOMContentLoaded', () => {
+  loadAllState();
+  applySettings();
+  setupOpticalLiquidScroll();
+  setupHardwareBackProtection();
   renderAll();
-}
+  initHero3DCanvas();
+  checkSavedProgressBanner();
+});
 
-function loadStoredUsers() {
+function loadAllState() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEYS.USERS);
-    if (raw) {
-      state.users = JSON.parse(raw) || [];
-    }
+    const rawBooks = localStorage.getItem(STORAGE_KEYS.BOOKS);
+    state.books = rawBooks ? JSON.parse(rawBooks) : [];
+  } catch (e) {
+    state.books = [];
+  }
+
+  try {
+    const rawUsers = localStorage.getItem(STORAGE_KEYS.USERS);
+    state.users = rawUsers ? JSON.parse(rawUsers) : [];
   } catch (e) {
     state.users = [];
   }
 
-  // Pre-seed default Admin account if not present
-  const adminExists = state.users.some(u => u.email === 'admin@elibrary.com');
+  const adminExists = state.users.some(u => u.email.toLowerCase() === 'admin@elibrary.com');
   if (!adminExists) {
     state.users.unshift({
-      id: 'usr_admin',
-      email: 'admin@elibrary.com',
-      password: '10012002', // User specified admin credentials
+      id: 'usr_admin_root',
       name: 'Администратор',
+      email: 'admin@elibrary.com',
+      passwordHash: simpleHash('10012002'),
       role: 'admin',
-      avatar: '👑',
+      avatar: 'АД',
       createdAt: Date.now()
     });
     saveUsersToStorage();
   }
 
-  // Load session
   try {
-    const sessionEmail = localStorage.getItem(STORAGE_KEYS.SESSION);
-    if (sessionEmail) {
-      const found = state.users.find(u => u.email === sessionEmail);
-      if (found) state.currentUser = found;
+    const rawSession = localStorage.getItem(STORAGE_KEYS.SESSION);
+    if (rawSession) {
+      const sessionUser = JSON.parse(rawSession);
+      const freshUser = state.users.find(u => u.id === sessionUser.id || u.email === sessionUser.email);
+      state.currentUser = freshUser || null;
+    }
+  } catch (e) {
+    state.currentUser = null;
+  }
+
+  try {
+    const rawBm = localStorage.getItem(STORAGE_KEYS.BOOKMARKS);
+    state.bookmarks = rawBm ? JSON.parse(rawBm) : [];
+  } catch (e) {
+    state.bookmarks = [];
+  }
+
+  try {
+    const rawCerts = localStorage.getItem(STORAGE_KEYS.CERTS);
+    state.certificates = rawCerts ? JSON.parse(rawCerts) : [];
+  } catch (e) {
+    state.certificates = [];
+  }
+
+  try {
+    const rawSettings = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+    if (rawSettings) {
+      const parsed = JSON.parse(rawSettings);
+      state.currentLang = parsed.lang || 'ru';
+      state.theme = parsed.theme || 'light';
+      state.fontSize = parsed.fontSize || 18;
     }
   } catch (e) {}
-}
 
-function saveUsersToStorage() {
   try {
-    localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(state.users));
+    const rawProg = localStorage.getItem(STORAGE_KEYS.PROGRESS);
+    if (rawProg) {
+      state.savedProgress = JSON.parse(rawProg);
+    }
   } catch (e) {}
+
+  updateDailyStreak();
 }
 
-function loadStoredBooks() {
+function updateDailyStreak() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEYS.BOOKS);
-    state.books = raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    state.books = [];
-  }
+    const raw = localStorage.getItem(STORAGE_KEYS.STREAK);
+    const today = new Date().toDateString();
+    if (raw) {
+      const data = JSON.parse(raw);
+      if (data.lastDate !== today) {
+        const yesterday = new Date(Date.now() - 86400000).toDateString();
+        data.count = (data.lastDate === yesterday) ? (data.count + 1) : 1;
+        data.lastDate = today;
+      }
+      state.streak = data;
+    }
+    localStorage.setItem(STORAGE_KEYS.STREAK, JSON.stringify(state.streak));
+  } catch (e) {}
 }
 
 function saveBooksToStorage() {
-  try {
-    localStorage.setItem(STORAGE_KEYS.BOOKS, JSON.stringify(state.books));
-  } catch (e) {
-    alert('Не удалось сохранить данные в память браузера.');
-  }
+  localStorage.setItem(STORAGE_KEYS.BOOKS, JSON.stringify(state.books));
 }
 
-function loadStoredSettings() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-    if (raw) {
-      const s = JSON.parse(raw);
-      if (s.theme) state.theme = s.theme;
-      if (s.lang) state.currentLang = s.lang;
-      if (s.fontSize) state.fontSize = s.fontSize;
-    }
-  } catch (e) {}
+function saveUsersToStorage() {
+  localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(state.users));
 }
 
-function saveSettingsToStorage() {
-  try {
-    localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify({
-      theme: state.theme,
-      lang: state.currentLang,
-      fontSize: state.fontSize
-    }));
-  } catch (e) {}
-}
-
-function loadStoredBookmarks() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.BOOKMARKS);
-    state.bookmarks = raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    state.bookmarks = [];
+function saveSessionToStorage() {
+  if (state.currentUser) {
+    localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(state.currentUser));
+  } else {
+    localStorage.removeItem(STORAGE_KEYS.SESSION);
   }
 }
 
 function saveBookmarksToStorage() {
-  try {
-    localStorage.setItem(STORAGE_KEYS.BOOKMARKS, JSON.stringify(state.bookmarks));
-  } catch (e) {}
+  localStorage.setItem(STORAGE_KEYS.BOOKMARKS, JSON.stringify(state.bookmarks));
 }
 
-function loadReadingStreak() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.STREAK);
-    const today = new Date().toISOString().slice(0, 10);
-    if (raw) {
-      const data = JSON.parse(raw);
-      if (data.lastDate === today) {
-        state.streakDays = data.streak;
-      } else {
-        const last = new Date(data.lastDate);
-        const now = new Date(today);
-        const diffDays = Math.round((now - last) / (1000 * 60 * 60 * 24));
-        if (diffDays === 1) {
-          state.streakDays = data.streak + 1;
-        } else {
-          state.streakDays = 1;
-        }
-      }
-    } else {
-      state.streakDays = 1;
-    }
-    localStorage.setItem(STORAGE_KEYS.STREAK, JSON.stringify({ streak: state.streakDays, lastDate: today }));
-  } catch (e) {
-    state.streakDays = 1;
-  }
+function saveCertificatesToStorage() {
+  localStorage.setItem(STORAGE_KEYS.CERTS, JSON.stringify(state.certificates));
+}
+
+function saveSettingsToStorage() {
+  localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify({
+    lang: state.currentLang,
+    theme: state.theme,
+    fontSize: state.fontSize
+  }));
 }
 
 /* ==========================================================================
-   3. Security & Sanitization
+   4. Point 6: Dynamic Optical Refraction on Scroll & Pointer Move
    ========================================================================== */
+function setupOpticalLiquidScroll() {
+  window.addEventListener('scroll', () => {
+    const sy = window.scrollY || 0;
+    document.documentElement.style.setProperty('--scroll-refract', sy + 'px');
+    document.documentElement.style.setProperty('--scroll-angle', ((sy * 0.12) % 360) + 'deg');
+
+    if (state.currentScreen === 'reader' || state.currentScreen === 'player') {
+      persistLiveProgress();
+    }
+  }, { passive: true });
+}
+
+/* ==========================================================================
+   5. Point 7: Automatic Progress Persistence & Back Warning System
+   ========================================================================== */
+function persistLiveProgress() {
+  if (!state.currentBook) return;
+  const payload = {
+    bookId: state.currentBook.id,
+    bookTitle: state.currentBook.title,
+    screen: state.currentScreen,
+    scrollY: window.scrollY || 0,
+    quizAnswers: state.quizAnswers || {},
+    timestamp: Date.now()
+  };
+  state.savedProgress = payload;
+  try {
+    localStorage.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify(payload));
+  } catch (e) {}
+}
+
+function setupHardwareBackProtection() {
+  window.addEventListener('beforeunload', () => {
+    if (state.currentScreen === 'reader' || state.currentScreen === 'player') {
+      persistLiveProgress();
+    }
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      persistLiveProgress();
+    }
+  });
+
+  window.addEventListener('popstate', () => {
+    if (state.currentScreen === 'reader' || state.currentScreen === 'player') {
+      history.pushState({ screen: state.currentScreen }, '');
+      requestExitWithSaveCheck();
+    } else if (state.currentScreen !== 'home') {
+      navigate('home', true);
+    }
+  });
+}
+
+function checkSavedProgressBanner() {
+  const bar = document.getElementById('resume-session-bar');
+  const titleEl = document.getElementById('resume-book-title');
+  if (!bar || !titleEl) return;
+
+  if (state.savedProgress && state.savedProgress.bookId) {
+    const exists = state.books.find(b => b.id === state.savedProgress.bookId);
+    if (exists) {
+      titleEl.textContent = exists.title;
+      bar.style.display = 'flex';
+      return;
+    }
+  }
+  bar.style.display = 'none';
+}
+
+function restoreSavedProgress() {
+  if (!state.savedProgress) return;
+  const book = state.books.find(b => b.id === state.savedProgress.bookId);
+  if (!book) {
+    dismissSavedProgress();
+    return;
+  }
+  state.currentBook = book;
+  state.quizAnswers = state.savedProgress.quizAnswers || {};
+  const targetScreen = state.savedProgress.screen === 'player' ? 'player' : 'reader';
+  if (targetScreen === 'player') {
+    playAudioBook(book);
+  } else {
+    openReader();
+    setTimeout(() => {
+      window.scrollTo({ top: state.savedProgress.scrollY || 0, behavior: 'smooth' });
+    }, 180);
+  }
+}
+
+function dismissSavedProgress() {
+  state.savedProgress = null;
+  localStorage.removeItem(STORAGE_KEYS.PROGRESS);
+  const bar = document.getElementById('resume-session-bar');
+  if (bar) bar.style.display = 'none';
+}
+
+function requestExitWithSaveCheck() {
+  persistLiveProgress();
+  const modal = document.getElementById('progress-warning-modal');
+  if (modal) modal.classList.add('open');
+}
+
+function closeProgressWarningModal() {
+  const modal = document.getElementById('progress-warning-modal');
+  if (modal) modal.classList.remove('open');
+}
+
+function confirmExitAndSaveProgress() {
+  persistLiveProgress();
+  closeProgressWarningModal();
+  checkSavedProgressBanner();
+  if (state.currentBook) {
+    navigate('book-detail');
+  } else {
+    navigate('home');
+  }
+}
+
+function handleScreenBack() {
+  if (state.currentScreen === 'reader' || state.currentScreen === 'player') {
+    requestExitWithSaveCheck();
+    return;
+  }
+  if (state.currentScreen === 'book-detail') {
+    navigate('home');
+    return;
+  }
+  navigate('home');
+}
+
+function handleGlobalBack() {
+  handleScreenBack();
+}
+
+function backToDetail() {
+  requestExitWithSaveCheck();
+}
+
+/* ==========================================================================
+   6. Security & Helpers
+   ========================================================================== */
+function simpleHash(str) {
+  let hash = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    hash ^= str.charCodeAt(i);
+    hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+  }
+  return (hash >>> 0).toString(16);
+}
+
 function escapeHtml(str) {
-  if (!str) return '';
+  if (str === null || str === undefined) return '';
   return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -334,393 +558,68 @@ function escapeHtml(str) {
 function sanitizeUrl(url) {
   if (!url) return '';
   const trimmed = url.trim();
-  if (trimmed.startsWith('javascript:') || trimmed.startsWith('data:text/html')) {
-    return '';
-  }
+  if (/^(javascript|data|vbscript):/i.test(trimmed)) return '';
   return trimmed;
 }
 
 /* ==========================================================================
-   4. Authentication & Profile Management
-   ========================================================================== */
-function openAuthModal() {
-  document.getElementById('auth-modal').classList.add('active');
-  document.getElementById('auth-error-hint').style.display = 'none';
-}
-
-function closeAuthModal() {
-  document.getElementById('auth-modal').classList.remove('active');
-}
-
-function switchAuthTab(mode) {
-  state.authMode = mode;
-  document.getElementById('auth-tab-login').classList.toggle('active', mode === 'login');
-  document.getElementById('auth-tab-reg').classList.toggle('active', mode === 'reg');
-  document.getElementById('auth-name-group').style.display = (mode === 'reg') ? 'block' : 'none';
-  document.getElementById('auth-submit-btn').textContent = (mode === 'reg') ? 'Зарегистрироваться' : 'Войти в аккаунт';
-}
-
-function handleAuthSubmit(e) {
-  e.preventDefault();
-  const email = document.getElementById('auth-email').value.trim().toLowerCase();
-  const password = document.getElementById('auth-password').value.trim();
-  const errorHint = document.getElementById('auth-error-hint');
-
-  if (state.authMode === 'login') {
-    const user = state.users.find(u => u.email === email && u.password === password);
-    if (!user) {
-      errorHint.textContent = 'Неверный email или пароль.';
-      errorHint.style.display = 'block';
-      return;
-    }
-    setSessionUser(user);
-    closeAuthModal();
-    alert(`Добро пожаловать, ${user.name}!`);
-  } else {
-    // Registration
-    const name = document.getElementById('auth-name').value.trim() || email.split('@')[0];
-    if (state.users.some(u => u.email === email)) {
-      errorHint.textContent = 'Пользователь с таким email уже зарегистрирован.';
-      errorHint.style.display = 'block';
-      return;
-    }
-    const newUser = {
-      id: 'usr_' + Date.now(),
-      email,
-      password,
-      name,
-      role: 'reader',
-      avatar: '📚',
-      createdAt: Date.now()
-    };
-    state.users.push(newUser);
-    saveUsersToStorage();
-    setSessionUser(newUser);
-    closeAuthModal();
-    alert(`Регистрация успешна! Добро пожаловать, ${name}!`);
-  }
-}
-
-// Google One-Click Sign In (Instant access without SMS or email confirmation codes)
-function triggerGoogleSignIn() {
-  // Simulates instant OAuth response or prompt
-  const googleName = prompt('Вход через Google. Введите ваше имя для профиля Google:', state.currentUser ? state.currentUser.name : 'Читатель Google');
-  if (!googleName) return;
-
-  const googleEmail = (googleName.toLowerCase().replace(/\s+/g, '') + '@gmail.com');
-  let user = state.users.find(u => u.email === googleEmail);
-
-  if (!user) {
-    user = {
-      id: 'usr_g_' + Date.now(),
-      email: googleEmail,
-      password: 'g_' + Math.random().toString(36).substring(2),
-      name: googleName,
-      role: 'reader',
-      avatar: 'https://lh3.googleusercontent.com/a/default-user=s96-c',
-      createdAt: Date.now()
-    };
-    state.users.push(user);
-    saveUsersToStorage();
-  }
-
-  setSessionUser(user);
-  closeAuthModal();
-  alert(`Вы успешно вошли через Google как ${user.name}! Полный доступ ко всем книгам открыт.`);
-}
-
-function setSessionUser(user) {
-  state.currentUser = user;
-  localStorage.setItem(STORAGE_KEYS.SESSION, user.email);
-  renderAll();
-
-  // If reading, refresh reader screen to unlock full text
-  if (state.activeScreen === 'reader') {
-    renderReader();
-  }
-}
-
-function logout() {
-  if (!confirm('Выйти из аккаунта?')) return;
-  state.currentUser = null;
-  localStorage.removeItem(STORAGE_KEYS.SESSION);
-  renderAll();
-  navigate('home');
-}
-
-function openProfileModal() {
-  if (!state.currentUser) return;
-  const user = state.currentUser;
-
-  document.getElementById('profile-name').value = user.name;
-  document.getElementById('profile-custom-avatar').value = user.avatar.startsWith('http') ? user.avatar : '';
-  state.selectedAvatar = user.avatar;
-
-  // Render presets
-  const grid = document.getElementById('avatar-presets-grid');
-  grid.innerHTML = AVATAR_PRESETS.map(emoji => `
-    <div class="avatar-choice ${emoji === state.selectedAvatar ? 'selected' : ''}" onclick="selectAvatarPreset('${emoji}')">
-      ${emoji}
-    </div>
-  `).join('');
-
-  document.getElementById('profile-modal').classList.add('active');
-}
-
-function closeProfileModal() {
-  document.getElementById('profile-modal').classList.remove('active');
-}
-
-function selectAvatarPreset(emoji) {
-  state.selectedAvatar = emoji;
-  document.querySelectorAll('.avatar-choice').forEach(c => c.classList.remove('selected'));
-  event.currentTarget.classList.add('selected');
-}
-
-function handleSaveProfile(e) {
-  e.preventDefault();
-  if (!state.currentUser) return;
-
-  const newName = document.getElementById('profile-name').value.trim();
-  const customAvatar = document.getElementById('profile-custom-avatar').value.trim();
-  const newPass = document.getElementById('profile-new-password').value.trim();
-
-  state.currentUser.name = newName || state.currentUser.name;
-  state.currentUser.avatar = customAvatar || state.selectedAvatar;
-  if (newPass) {
-    state.currentUser.password = newPass;
-  }
-
-  // Update in users array
-  const idx = state.users.findIndex(u => u.id === state.currentUser.id);
-  if (idx >= 0) state.users[idx] = state.currentUser;
-
-  saveUsersToStorage();
-  closeProfileModal();
-  renderAll();
-  alert('Профиль успешно обновлен!');
-}
-
-/* ==========================================================================
-   5. Google Drive Audio Player Engine with 4-Minute Preview Cap for Guests
+   7. Google Drive Audio Resolver & Player
    ========================================================================== */
 function extractGoogleDriveId(url) {
-  if (!url || typeof url !== 'string') return null;
-  const trimmed = url.trim();
-  const match1 = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]{15,})/);
-  if (match1) return match1[1];
-  const match2 = trimmed.match(/[?&]id=([a-zA-Z0-9_-]{15,})/);
-  if (match2) return match2[1];
-  const match3 = trimmed.match(/google\.com\/uc\?.*id=([a-zA-Z0-9_-]{15,})/);
-  if (match3) return match3[1];
+  if (!url) return null;
+  const patterns = [
+    /\/file\/d\/([a-zA-Z0-9_-]+)/,
+    /id=([a-zA-Z0-9_-]+)/,
+    /\/d\/([a-zA-Z0-9_-]+)/
+  ];
+  for (const regex of patterns) {
+    const match = url.match(regex);
+    if (match && match[1]) return match[1];
+  }
   return null;
 }
 
 function resolveAudioSources(rawUrl) {
-  if (!rawUrl) return { streamUrl: '', embedUrl: '', isGDrive: false };
-  const sanitized = sanitizeUrl(rawUrl);
-  const gdriveId = extractGoogleDriveId(sanitized);
-
+  const clean = sanitizeUrl(rawUrl);
+  const gdriveId = extractGoogleDriveId(clean);
   if (gdriveId) {
     return {
-      streamUrl: `https://docs.google.com/uc?export=download&id=${gdriveId}`,
-      embedUrl: `https://drive.google.com/file/d/${gdriveId}/preview`,
       isGDrive: true,
-      fileId: gdriveId
+      fileId: gdriveId,
+      streamUrl: `https://docs.google.com/uc?export=download&id=${gdriveId}`,
+      embedUrl: `https://drive.google.com/file/d/${gdriveId}/preview`
     };
   }
-
-  if (sanitized.includes('dropbox.com')) {
-    const dbUrl = sanitized.replace(/[?&]dl=[01]/g, '').replace(/\?([^#]*)$/, '?$1&raw=1');
-    return {
-      streamUrl: dbUrl.includes('raw=1') ? dbUrl : `${dbUrl}?raw=1`,
-      embedUrl: '',
-      isGDrive: false
-    };
-  }
-
   return {
-    streamUrl: sanitized,
-    embedUrl: '',
-    isGDrive: false
+    isGDrive: false,
+    fileId: null,
+    streamUrl: clean,
+    embedUrl: clean
   };
 }
 
-function setupAudioListeners() {
-  if (!globalAudio) return;
-
-  globalAudio.addEventListener('timeupdate', () => {
-    state.audioCurrentTime = globalAudio.currentTime;
-    state.audioDuration = globalAudio.duration || 0;
-
-    // FREEMIUM GUEST LIMIT: 4 minutes (240s) cap for guests!
-    if (!state.currentUser && globalAudio.currentTime >= GUEST_AUDIO_LIMIT_SECS) {
-      globalAudio.pause();
-      globalAudio.currentTime = GUEST_AUDIO_LIMIT_SECS;
-      updatePlayPauseButtons();
-      alert('🎧 Бесплатное 4-минутное превью завершено.\n\nВойдите через Google или по Email бесплатно, чтобы слушать полную 20-минутную тему и всю аудиокнигу целиком!');
-      openAuthModal();
-      return;
-    }
-
-    updateAudioUI();
-  });
-
-  globalAudio.addEventListener('loadedmetadata', () => {
-    state.audioDuration = globalAudio.duration || 0;
-    updateAudioUI();
-  });
-
-  globalAudio.addEventListener('play', () => {
-    state.isPlaying = true;
-    updatePlayPauseButtons();
-  });
-
-  globalAudio.addEventListener('pause', () => {
-    state.isPlaying = false;
-    updatePlayPauseButtons();
-  });
-
-  globalAudio.addEventListener('ended', () => {
-    state.isPlaying = false;
-    updatePlayPauseButtons();
-  });
-
-  globalAudio.addEventListener('error', () => {
-    if (state.activeAudioBook) {
-      const sources = resolveAudioSources(state.activeAudioBook.audioUrl);
-      if (sources.isGDrive) {
-        document.getElementById('gdrive-embed-section').style.display = 'block';
-        const durEl = document.getElementById('player-duration-time');
-        if (durEl) durEl.textContent = 'Google Плеер';
-      }
-    }
-  });
-}
-
 function playAudioBook(book) {
-  if (!book || !book.audioUrl) return;
+  if (!book || !book.audioUrl) {
+    alert('Аудиозапись отсутствует.');
+    return;
+  }
+
   state.activeAudioBook = book;
+  state.currentBook = book;
   const sources = resolveAudioSources(book.audioUrl);
 
   const embedIframe = document.getElementById('gdrive-embed-iframe');
   if (embedIframe) {
-    embedIframe.src = sources.embedUrl || sources.streamUrl;
+    embedIframe.src = sources.embedUrl || sources.streamUrl || '';
   }
 
   showMiniPlayer(book);
   navigate('player');
+  persistLiveProgress();
 }
 
-function toggleAudioPlay() {
-  if (!state.activeAudioBook && state.currentBook && state.currentBook.audioUrl) {
-    playAudioBook(state.currentBook);
-    return;
-  }
-  if (!globalAudio.src) return;
-
-  if (globalAudio.paused) {
-    globalAudio.play().catch(e => console.log(e));
-  } else {
-    globalAudio.pause();
-  }
-}
-
-function skipAudio(seconds) {
-  if (!globalAudio || !globalAudio.duration) return;
-  let targetTime = globalAudio.currentTime + seconds;
-  if (!state.currentUser && targetTime > GUEST_AUDIO_LIMIT_SECS) {
-    targetTime = GUEST_AUDIO_LIMIT_SECS;
-  }
-  globalAudio.currentTime = Math.max(0, Math.min(globalAudio.duration, targetTime));
-}
-
-function seekAudio(event) {
-  if (!globalAudio || !globalAudio.duration) return;
-  const bar = document.getElementById('timeline-bar');
-  if (!bar) return;
-  const rect = bar.getBoundingClientRect();
-  const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
-  let targetTime = ratio * globalAudio.duration;
-
-  if (!state.currentUser && targetTime > GUEST_AUDIO_LIMIT_SECS) {
-    alert('Ознакомительное превью ограничено 4 минутами. Войдите в аккаунт для полного доступа!');
-    openAuthModal();
-    return;
-  }
-
-  globalAudio.currentTime = targetTime;
-}
-
-function seekMiniAudio(event) {
-  if (!globalAudio || !globalAudio.duration) return;
-  const rect = event.currentTarget.getBoundingClientRect();
-  const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
-  let targetTime = ratio * globalAudio.duration;
-
-  if (!state.currentUser && targetTime > GUEST_AUDIO_LIMIT_SECS) {
-    openAuthModal();
-    return;
-  }
-  globalAudio.currentTime = targetTime;
-}
-
-function setSpeed(speed) {
-  state.playbackSpeed = speed;
-  if (globalAudio) globalAudio.playbackRate = speed;
-  document.querySelectorAll('.speed-pill').forEach(pill => {
-    pill.classList.toggle('active', parseFloat(pill.textContent) === speed);
-  });
-}
-
-function switchPlayerMode(mode) {
-  state.playerMode = mode;
-  const html5Btn = document.getElementById('tab-html5-btn');
-  const embedBtn = document.getElementById('tab-embed-btn');
-  const iframeBox = document.getElementById('gdrive-iframe-box');
-
-  if (mode === 'embed') {
-    html5Btn.classList.remove('active');
-    embedBtn.classList.add('active');
-    iframeBox.style.display = 'block';
-    if (!globalAudio.paused) globalAudio.pause();
-  } else {
-    embedBtn.classList.remove('active');
-    html5Btn.classList.add('active');
-    iframeBox.style.display = 'none';
-  }
-}
-
-function updateAudioUI() {
-  const currentFormatted = formatTime(state.audioCurrentTime);
-  const durationFormatted = state.audioDuration ? formatTime(state.audioDuration) : '--:--';
-  const percent = state.audioDuration ? (state.audioCurrentTime / state.audioDuration) * 100 : 0;
-
-  const curEl = document.getElementById('player-current-time');
-  const durEl = document.getElementById('player-duration-time');
-  const progFill = document.getElementById('timeline-progress');
-  if (curEl) curEl.textContent = currentFormatted;
-  if (durEl && durEl.textContent !== 'Google Плеер') durEl.textContent = durationFormatted;
-  if (progFill) progFill.style.width = percent + '%';
-
-  const miniFill = document.getElementById('mini-progress-fill');
-  if (miniFill) miniFill.style.width = percent + '%';
-
-  // Preview badge
-  const previewBadge = document.getElementById('player-audio-preview-badge');
-  if (previewBadge) {
-    previewBadge.style.display = state.currentUser ? 'none' : 'inline-flex';
-  }
-}
-
-function updatePlayPauseButtons() {
-  const fullBtn = document.getElementById('player-play-btn');
-  const miniBtn = document.getElementById('mini-play-btn');
-  const icon = state.isPlaying ? '⏸' : '▶';
-
-  if (fullBtn) fullBtn.textContent = icon;
-  if (miniBtn) miniBtn.textContent = icon;
-}
+function updateAudioUI() {}
+function updatePlayPauseButtons() {}
 
 function showMiniPlayer(book) {
   const mini = document.getElementById('mini-player');
@@ -735,7 +634,7 @@ function showMiniPlayer(book) {
   const coverSrc = (book.cover && (book.cover.startsWith('data:image') || book.cover.startsWith('http') || book.cover.startsWith('icons/')))
     ? book.cover
     : 'icons/icon-192.png';
-  thumb.innerHTML = `<img src="${escapeHtml(coverSrc)}" alt="cover" style="width:100%;height:100%;object-fit:cover;border-radius:6px;" onerror="this.onerror=null;this.src='icons/icon-192.png';">`;
+  thumb.innerHTML = `<img src="${escapeHtml(coverSrc)}" alt="cover" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="this.onerror=null;this.src='icons/icon-192.png';">`;
 
   mini.classList.add('visible');
 }
@@ -747,13 +646,6 @@ function openFullPlayer() {
   }
 }
 
-function formatTime(seconds) {
-  if (isNaN(seconds) || seconds < 0) return '0:00';
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-}
-
 function testAudioInput() {
   const input = document.getElementById('form-audio-url');
   const status = document.getElementById('audio-test-status');
@@ -761,473 +653,716 @@ function testAudioInput() {
 
   const url = input.value.trim();
   if (!url) {
-    status.textContent = 'Введите ссылку для проверки';
+    status.textContent = 'Укажите ссылку';
     status.style.color = 'var(--warning)';
     return;
   }
 
   const sources = resolveAudioSources(url);
   if (sources.isGDrive) {
-    status.textContent = `✓ Обнаружен Google Drive (ID: ${sources.fileId}). Совместимо!`;
+    status.textContent = `✓ Google Drive ID: ${sources.fileId}`;
     status.style.color = 'var(--success)';
   } else {
-    status.textContent = `✓ Прямой аудио поток готов к проигрыванию.`;
-    status.style.color = 'var(--primary-light)';
+    status.textContent = `✓ Аудиопоток готов`;
+    status.style.color = 'var(--primary)';
   }
 }
 
 /* ==========================================================================
-   6. Navigation & Routing
+   8. Navigation, Sliding Liquid Glass Indicators & Text Reveal (Point 3.1, 3.2)
    ========================================================================== */
-function navigate(screenName) {
-  // Gatekeep Admin Panel: Strictly allow only admins!
+function navigate(screenName, skipHistory) {
   if (screenName === 'admin') {
     if (!state.currentUser || state.currentUser.role !== 'admin') {
-      alert('Доступ ограничен. Только администраторы могут управлять библиотекой и пользователями.');
+      alert('Доступ ограничен.');
       navigate('settings');
       return;
     }
   }
 
-  state.activeScreen = screenName;
+  state.previousScreen = state.currentScreen;
+  state.currentScreen = screenName;
+
+  if (!skipHistory) {
+    try {
+      history.pushState({ screen: screenName }, '');
+    } catch (e) {}
+  }
+
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const target = document.getElementById(`screen-${screenName}`);
   if (target) {
     target.classList.add('active');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    triggerSequentialTextReveal(target);
   }
 
-  // Push history state for native Back gesture on phone / browser
-  if (!window._isPoppingState) {
-    try {
-      history.pushState({ screen: screenName, bookId: state.currentBook ? state.currentBook.id : null }, '', '#' + screenName);
-    } catch(e) {}
-  }
+  updateLiquidNavIndicators(screenName);
 
-  const PAGE_TITLES = {
-    'home': 'eLibrary PRO',
-    'genres': 'Отрасли знания',
-    'bookmarks': 'Избранные труды',
-    'stats': 'Аналитика фонда',
-    'settings': 'Профиль исследователя',
-    'admin': 'Управление фондом',
-    'book-detail': 'Издание',
-    'reader': 'Чтение труда',
-    'player': 'Аудиолекторий'
-  };
-  const titleEl = document.getElementById('page-title');
-  if (titleEl) {
-    titleEl.textContent = PAGE_TITLES[screenName] || 'eLibrary';
+  const globalBack = document.getElementById('global-back-btn');
+  if (globalBack) {
+    globalBack.style.display = (screenName === 'home') ? 'none' : 'inline-flex';
   }
-
-  updateNavState(screenName);
 
   if (screenName === 'home') renderHome();
-  else if (screenName === 'genres') renderGenresScreen();
-  else if (screenName === 'book-detail') renderBookDetail();
-  else if (screenName === 'reader') renderReader();
-  else if (screenName === 'player') renderFullPlayerScreen();
-  else if (screenName === 'admin') { renderAdminBooksTable(); renderAdminUsersTable(); }
-  else if (screenName === 'bookmarks') renderBookmarks();
-  else if (screenName === 'stats') renderStats();
+  else if (screenName === 'categories') renderCategoriesScreen();
+  else if (screenName === 'bookmarks') renderBookmarksScreen();
+  else if (screenName === 'stats') renderStatsScreen();
   else if (screenName === 'settings') renderSettingsScreen();
+  else if (screenName === 'admin') renderAdminScreen();
+  else if (screenName === 'book-detail') renderBookDetail();
+  else if (screenName === 'reader') renderReaderScreen();
+  else if (screenName === 'player') renderFullPlayerScreen();
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function updateNavState(screenName) {
-  document.querySelectorAll('#sidebar .nav-link').forEach(l => l.classList.remove('active'));
-  const sidebarMatch = document.querySelector(`#sidebar button[data-screen="${screenName}"]`) || document.querySelector(`#sidebar button[onclick*="'${screenName}'"]`);
-  if (sidebarMatch) sidebarMatch.classList.add('active');
+/* Point 3.1 & 6.3: Sliding Liquid Glass Box inside Bottom Dock & Sidebar */
+function updateLiquidNavIndicators(screenName) {
+  const navOrder = ['home', 'categories', 'bookmarks', 'stats', 'settings'];
+  let activeIdx = navOrder.indexOf(screenName);
+  if (activeIdx === -1) {
+    if (screenName === 'admin') activeIdx = 4;
+    else activeIdx = 0;
+  }
 
-  const mobileItems = Array.from(document.querySelectorAll('#mobile-nav .mobile-nav-item'));
-  mobileItems.forEach(m => m.classList.remove('active'));
-  const activeIdx = mobileItems.findIndex(m => (m.getAttribute('data-screen') === screenName) || m.getAttribute('onclick')?.includes(`'${screenName}'`));
-  if (activeIdx !== -1) {
-    mobileItems[activeIdx].classList.add('active');
-    const pill = document.querySelector('.nav-pill-indicator');
-    if (pill) {
-      pill.style.transform = `translateX(${activeIdx * 100}%)`;
-    }
+  const activeKey = navOrder[activeIdx];
+
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.mob-nav-btn').forEach(el => el.classList.remove('active'));
+
+  const sideBtn = document.getElementById(`nav-${activeKey}`);
+  const mobBtn = document.getElementById(`mob-${activeKey}`);
+  if (sideBtn) sideBtn.classList.add('active');
+  if (mobBtn) mobBtn.classList.add('active');
+
+  const dockIndicator = document.getElementById('dock-liquid-indicator');
+  if (dockIndicator) {
+    dockIndicator.style.transform = `translate3d(${activeIdx * 100}%, 0, 0)`;
+  }
+
+  const sidebarIndicator = document.getElementById('sidebar-liquid-indicator');
+  if (sidebarIndicator) {
+    sidebarIndicator.style.transform = `translate3d(0, ${activeIdx * 48}px, 0)`;
   }
 }
 
-// Browser Back & Forward event handler
-window.addEventListener('popstate', (e) => {
-  window._isPoppingState = true;
-  if (e.state && e.state.screen) {
-    if (e.state.bookId) {
-      const b = state.books.find(x => x.id === e.state.bookId);
-      if (b) state.currentBook = b;
-    }
-    navigate(e.state.screen);
-  } else {
-    navigate('home');
-  }
-  window._isPoppingState = false;
-});
-
-function backToDetail() {
-  if (state.currentBook) navigate('book-detail');
-  else navigate('home');
-}
-
-function setupKeyboardShortcuts() {
-  window.addEventListener('keydown', (e) => {
-    const tag = e.target.tagName.toLowerCase();
-    if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
-
-    if (e.code === 'Space') {
-      e.preventDefault();
-      toggleAudioPlay();
-    } else if (e.code === 'ArrowLeft') {
-      skipAudio(-10);
-    } else if (e.code === 'ArrowRight') {
-      skipAudio(10);
-    } else if (e.code === 'Escape') {
-      closeAllModals();
-      if (state.activeScreen === 'reader' || state.activeScreen === 'player') backToDetail();
-    }
+/* Point 3.2: Minimal Sequential Text Reveal Animation */
+function triggerSequentialTextReveal(container) {
+  if (!container) return;
+  const headings = container.querySelectorAll('.text-reveal');
+  headings.forEach(h => {
+    const rawText = h.getAttribute('data-raw-text') || h.textContent.trim();
+    h.setAttribute('data-raw-text', rawText);
+    const words = rawText.split(/\s+/);
+    h.innerHTML = words.map((word, idx) =>
+      `<span class="char-unit" style="--char-i:${idx}">${escapeHtml(word)}</span>`
+    ).join(' ');
   });
 }
 
-function closeAllModals() {
-  document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+/* ==========================================================================
+   9. Point 8 & Reference Image 1: Hyper-Real 3D Studio Objects Renderer
+   ========================================================================== */
+function renderAll3DCategoryCanvases(rootEl) {
+  const scope = rootEl || document;
+  const canvases = scope.querySelectorAll('.cat-3d-canvas');
+  canvases.forEach(canvas => {
+    const genreId = canvas.getAttribute('data-genre');
+    if (genreId) draw3DStudioGenreObject(canvas, genreId);
+  });
+}
+
+/* Studio 3D Primitives Helper (Phong/PBR Volumetric Shading on 2x Retina Canvas) */
+function draw3DStudioGenreObject(canvas, genreId) {
+  const dpr = Math.min(window.devicePixelRatio || 2, 2);
+  const size = 154;
+  canvas.width = size * dpr;
+  canvas.height = size * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, size, size);
+
+  /* Soft Floor Ambient Occlusion Shadow */
+  const shadowGrad = ctx.createRadialGradient(84, 134, 4, 84, 134, 52);
+  shadowGrad.addColorStop(0, 'rgba(6, 5, 14, 0.55)');
+  shadowGrad.addColorStop(1, 'rgba(6, 5, 14, 0)');
+  ctx.fillStyle = shadowGrad;
+  ctx.beginPath();
+  ctx.ellipse(84, 134, 48, 12, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  if (genreId === 'science') {
+    /* 3D Blister Pack & Glossy Cyan/Violet Capsules (Direct Reference Image 1 Style!) */
+    draw3DBlisterPack(ctx, 52, 84, -0.32, '#B993FF', '#7B42F6');
+    draw3DBlisterPack(ctx, 102, 76, -0.18, '#B8C6D8', '#2ED3F2');
+  } else if (genreId === 'business') {
+    /* 3D Hot-Pink & Coral Percent Price Tag with Metallic Ring (Direct Reference Image 1 Style!) */
+    draw3DPercentTag(ctx);
+  } else if (genreId === 'tech') {
+    /* 3D Pastel Lilac Desk Organizer & Precision Tools (Direct Reference Image 1 Style!) */
+    draw3DDeskOrganizer(ctx);
+  } else if (genreId === 'history') {
+    /* 3D Sculpted Violet & Mint Classical Roller / Artifact Pillar */
+    draw3DHistoryArtifact(ctx);
+  } else if (genreId === 'philosophy') {
+    /* 3D Mint-Emerald Bucket & Violet Spade / Wisdom Vessel (Direct Reference Image 1 Palette!) */
+    draw3DEmeraldVessel(ctx);
+  } else if (genreId === 'psychology') {
+    /* 3D Refractive Glass Sphere & Golden Ring (Direct Reference Image 2 Style!) */
+    draw3DRefractiveGlassSphere(ctx, 84, 78, 44);
+  } else if (genreId === 'literature') {
+    /* 3D Open Hardcover Volume with Extruded Pages & Coral Bookmark */
+    draw3DOpenBook(ctx);
+  } else {
+    /* Poetry: 3D Pastel Lilac & Rose Sculptural Lyre / Quill */
+    draw3DPoetrySculpture(ctx);
+  }
+}
+
+function draw3DSphere(ctx, cx, cy, r, cLight, cMid, cDark) {
+  const g = ctx.createRadialGradient(cx - r * 0.35, cy - r * 0.35, r * 0.08, cx, cy, r);
+  g.addColorStop(0, '#FFFFFF');
+  g.addColorStop(0.18, cLight);
+  g.addColorStop(0.65, cMid);
+  g.addColorStop(1, cDark);
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function draw3DCapsulePill(ctx, x, y, w, h, lightCol, darkCol) {
+  ctx.save();
+  ctx.translate(x, y);
+  /* 3D Rim shadow */
+  ctx.fillStyle = 'rgba(15, 10, 35, 0.28)';
+  ctx.beginPath();
+  ctx.roundRect(-w / 2 + 2, -h / 2 + 3, w, h, w / 2);
+  ctx.fill();
+
+  /* Main 3D Pill Dome */
+  const g = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
+  g.addColorStop(0, '#FFFFFF');
+  g.addColorStop(0.28, lightCol);
+  g.addColorStop(1, darkCol);
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.roundRect(-w / 2, -h / 2, w, h, w / 2);
+  ctx.fill();
+
+  /* Glossy Specular Highlight */
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+  ctx.beginPath();
+  ctx.ellipse(-w * 0.16, -h * 0.2, w * 0.14, h * 0.22, -0.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function draw3DBlisterPack(ctx, cx, cy, angle, trayColor, pillColor) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(angle);
+
+  /* 3D Extruded Tray Thickness */
+  ctx.fillStyle = 'rgba(20, 16, 38, 0.45)';
+  ctx.beginPath();
+  ctx.roundRect(-27, -45, 58, 94, 11);
+  ctx.fill();
+
+  /* Metallic/Lilac Tray Surface */
+  const trayG = ctx.createLinearGradient(-28, -48, 28, 48);
+  trayG.addColorStop(0, '#F3EAFF');
+  trayG.addColorStop(0.5, trayColor);
+  trayG.addColorStop(1, '#685496');
+  ctx.fillStyle = trayG;
+  ctx.beginPath();
+  ctx.roundRect(-29, -48, 58, 94, 11);
+  ctx.fill();
+
+  /* 6 3D Capsules in 2x3 Grid */
+  const rows = [-28, 0, 28];
+  const cols = [-13, 13];
+  rows.forEach(ry => {
+    cols.forEach(rx => {
+      draw3DCapsulePill(ctx, rx, ry, 14, 21, '#E8F9FF', pillColor);
+    });
+  });
+
+  ctx.restore();
+}
+
+function draw3DPercentTag(ctx) {
+  ctx.save();
+  ctx.translate(88, 88);
+  ctx.rotate(-0.42);
+
+  /* 3D Extrusion Depth */
+  ctx.fillStyle = '#9E1946';
+  ctx.beginPath();
+  ctx.moveTo(-36, -24);
+  ctx.lineTo(18, -42);
+  ctx.lineTo(44, -12);
+  ctx.lineTo(28, 44);
+  ctx.lineTo(-32, 38);
+  ctx.closePath();
+  ctx.fill();
+
+  /* Main 3D Pink Tag Body */
+  const tagG = ctx.createLinearGradient(-38, -40, 38, 42);
+  tagG.addColorStop(0, '#FF7EB3');
+  tagG.addColorStop(0.45, '#FF3E7F');
+  tagG.addColorStop(1, '#C81E5B');
+  ctx.fillStyle = tagG;
+  ctx.beginPath();
+  ctx.roundRect(-34, -38, 68, 82, 16);
+  ctx.fill();
+
+  /* Hole Punch */
+  ctx.fillStyle = '#1B1C26';
+  ctx.beginPath();
+  ctx.arc(0, -22, 7, 0, Math.PI * 2);
+  ctx.fill();
+
+  /* Metallic 3D Ring Loop */
+  ctx.strokeStyle = '#E6E9F2';
+  ctx.lineWidth = 3.5;
+  ctx.beginPath();
+  ctx.ellipse(-10, -40, 12, 22, -0.35, 0, Math.PI * 2);
+  ctx.stroke();
+
+  /* 3D White Extruded % Symbol */
+  ctx.strokeStyle = '#FFF5F8';
+  ctx.lineWidth = 7;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(-12, 26);
+  ctx.lineTo(14, 0);
+  ctx.stroke();
+
+  draw3DSphere(ctx, -13, 4, 7.5, '#FFFFFF', '#F6E8EE', '#C9A9B8');
+  draw3DSphere(ctx, 13, 22, 7.5, '#FFFFFF', '#F6E8EE', '#C9A9B8');
+  ctx.restore();
+}
+
+function draw3DDeskOrganizer(ctx) {
+  ctx.save();
+  ctx.translate(78, 82);
+
+  /* Back Vertical Compartment */
+  const backG = ctx.createLinearGradient(-30, -44, 38, 36);
+  backG.addColorStop(0, '#F5ECFF');
+  backG.addColorStop(0.5, '#D7C0F0');
+  backG.addColorStop(1, '#9A7BBF');
+  ctx.fillStyle = backG;
+  ctx.beginPath();
+  ctx.roundRect(-8, -42, 48, 72, 8);
+  ctx.fill();
+
+  /* 3D Pencils / Styluses sticking out */
+  const colors = ['#FF5E9E', '#7C4DFF', '#38D2F2'];
+  colors.forEach((col, i) => {
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    ctx.roundRect(-24 + i * 10, -46 + i * 4, 7, 46, 3);
+    ctx.fill();
+  });
+
+  /* Cylinder Cup */
+  const cupG = ctx.createLinearGradient(-34, -18, 4, 34);
+  cupG.addColorStop(0, '#FFE5F4');
+  cupG.addColorStop(0.5, '#E2B4E8');
+  cupG.addColorStop(1, '#9C6FB0');
+  ctx.fillStyle = cupG;
+  ctx.beginPath();
+  ctx.roundRect(-34, -12, 34, 46, 8);
+  ctx.fill();
+
+  /* Front Pastel Tray */
+  const frontG = ctx.createLinearGradient(-48, 12, 42, 46);
+  frontG.addColorStop(0, '#FCEEFF');
+  frontG.addColorStop(0.6, '#DEB8F0');
+  frontG.addColorStop(1, '#A47CC2');
+  ctx.fillStyle = frontG;
+  ctx.beginPath();
+  ctx.roundRect(-48, 14, 88, 28, 8);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function draw3DHistoryArtifact(ctx) {
+  ctx.save();
+  ctx.translate(78, 76);
+
+  /* Metallic Chrome Bent Arm */
+  ctx.strokeStyle = '#C9D6EA';
+  ctx.lineWidth = 5.5;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  ctx.moveTo(28, -32);
+  ctx.lineTo(-34, -32);
+  ctx.lineTo(-34, -6);
+  ctx.lineTo(2, 12);
+  ctx.lineTo(2, 26);
+  ctx.stroke();
+
+  /* 3D Velvet Purple Cylinder Roller (Direct Reference Image 1 Top-Left!) */
+  const cylG = ctx.createLinearGradient(-28, -54, -28, -12);
+  cylG.addColorStop(0, '#B993FF');
+  cylG.addColorStop(0.45, '#7843E6');
+  cylG.addColorStop(1, '#3E1C96');
+  ctx.fillStyle = cylG;
+  ctx.beginPath();
+  ctx.roundRect(-28, -52, 68, 36, 12);
+  ctx.fill();
+
+  /* Handle Grip in Cyan & Coral */
+  const gripG = ctx.createLinearGradient(-8, 20, 14, 56);
+  gripG.addColorStop(0, '#5CE1E6');
+  gripG.addColorStop(1, '#258EA6');
+  ctx.fillStyle = gripG;
+  ctx.beginPath();
+  ctx.roundRect(-8, 22, 20, 34, 7);
+  ctx.fill();
+
+  ctx.fillStyle = '#FF7B54';
+  ctx.beginPath();
+  ctx.roundRect(-10, 18, 24, 8, 4);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function draw3DEmeraldVessel(ctx) {
+  ctx.save();
+  ctx.translate(82, 82);
+
+  /* Mint-Emerald 3D Bucket/Vessel (Direct Reference Image 1 Top-Center!) */
+  ctx.strokeStyle = '#68E3A6';
+  ctx.lineWidth = 3.5;
+  ctx.beginPath();
+  ctx.arc(4, -14, 34, Math.PI, 0);
+  ctx.stroke();
+
+  /* Top Orange Handle Grip */
+  ctx.fillStyle = '#FF8E64';
+  ctx.beginPath();
+  ctx.roundRect(-8, -52, 22, 8, 4);
+  ctx.fill();
+
+  /* Vessel Body */
+  const bodyG = ctx.createLinearGradient(-30, -16, 36, 44);
+  bodyG.addColorStop(0, '#80F5BC');
+  bodyG.addColorStop(0.5, '#46C98B');
+  bodyG.addColorStop(1, '#1E7A52');
+  ctx.fillStyle = bodyG;
+  ctx.beginPath();
+  ctx.moveTo(-28, -14);
+  ctx.lineTo(36, -14);
+  ctx.lineTo(26, 44);
+  ctx.lineTo(-18, 44);
+  ctx.closePath();
+  ctx.fill();
+
+  /* 3D Violet Spade leaning against it */
+  ctx.save();
+  ctx.translate(-18, 12);
+  ctx.rotate(0.38);
+  const spadeG = ctx.createLinearGradient(-14, 0, 14, 34);
+  spadeG.addColorStop(0, '#A77BFF');
+  spadeG.addColorStop(1, '#4C1D95');
+  ctx.fillStyle = spadeG;
+  ctx.beginPath();
+  ctx.roundRect(-14, 2, 26, 32, [4, 4, 14, 14]);
+  ctx.fill();
+
+  ctx.fillStyle = '#FF8E64';
+  ctx.beginPath();
+  ctx.roundRect(-4, -26, 7, 30, 3);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.restore();
+}
+
+function draw3DRefractiveGlassSphere(ctx, cx, cy, r) {
+  ctx.save();
+  /* Background Warm Gold Bars Refracted inside Sphere (Direct Reference Image 2!) */
+  for (let i = -3; i <= 3; i++) {
+    ctx.strokeStyle = 'rgba(235, 175, 110, 0.35)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(cx + i * 9, cy - r - 12);
+    ctx.lineTo(cx + i * 9, cy + r + 10);
+    ctx.stroke();
+  }
+
+  /* Outer Glass Sphere Body */
+  const g = ctx.createRadialGradient(cx - r * 0.32, cy - r * 0.32, 4, cx, cy, r);
+  g.addColorStop(0, 'rgba(255, 255, 255, 0.92)');
+  g.addColorStop(0.25, 'rgba(245, 196, 142, 0.55)');
+  g.addColorStop(0.7, 'rgba(138, 86, 46, 0.72)');
+  g.addColorStop(0.92, 'rgba(255, 226, 194, 0.85)');
+  g.addColorStop(1, 'rgba(255, 255, 255, 0.95)');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fill();
+
+  /* Internal Refracted Caustic Wave */
+  ctx.strokeStyle = 'rgba(255, 248, 235, 0.78)';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r * 0.84, -0.8, 1.4);
+  ctx.stroke();
+
+  /* Top Specular Bead */
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+  ctx.beginPath();
+  ctx.ellipse(cx - r * 0.32, cy - r * 0.35, r * 0.22, r * 0.12, -0.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function draw3DOpenBook(ctx) {
+  ctx.save();
+  ctx.translate(82, 82);
+  ctx.rotate(-0.14);
+
+  /* Purple 3D Hardcover Base */
+  const covG = ctx.createLinearGradient(-44, -28, 44, 36);
+  covG.addColorStop(0, '#9E7BFF');
+  covG.addColorStop(1, '#4B27B8');
+  ctx.fillStyle = covG;
+  ctx.beginPath();
+  ctx.roundRect(-44, -24, 88, 60, 10);
+  ctx.fill();
+
+  /* Cream Left & Right 3D Curved Pages */
+  ctx.fillStyle = '#FAF6EE';
+  ctx.beginPath();
+  ctx.roundRect(-38, -28, 37, 56, [6, 2, 2, 6]);
+  ctx.roundRect(1, -28, 37, 56, [2, 6, 6, 2]);
+  ctx.fill();
+
+  /* Coral 3D Bookmark Ribbon */
+  ctx.fillStyle = '#FF5484';
+  ctx.beginPath();
+  ctx.moveTo(14, -28);
+  ctx.lineTo(26, -28);
+  ctx.lineTo(26, 16);
+  ctx.lineTo(20, 10);
+  ctx.lineTo(14, 16);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function draw3DPoetrySculpture(ctx) {
+  ctx.save();
+  ctx.translate(82, 82);
+
+  /* 3D Lilac & Pink Wheelchair / Comfort Chair or Lyre Sculpture */
+  draw3DSphere(ctx, -18, -12, 22, '#F6E6FF', '#C792F5', '#6E38B5');
+  draw3DSphere(ctx, 18, 8, 26, '#FFE3F1', '#F472B6', '#9D174D');
+  draw3DSphere(ctx, 2, -26, 14, '#E0F9FF', '#38BDF8', '#0369A1');
+
+  ctx.restore();
+}
+
+/* Interactive 3D Hero Canvas Sculpture */
+function initHero3DCanvas() {
+  const canvas = document.getElementById('hero-3d-canvas');
+  if (!canvas) return;
+  const dpr = Math.min(window.devicePixelRatio || 2, 2);
+  canvas.width = 190 * dpr;
+  canvas.height = 190 * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  let t = 0;
+  function animateHero() {
+    ctx.clearRect(0, 0, 190, 190);
+    const dy = Math.sin(t * 0.03) * 5;
+
+    /* Orbiting 3D Mint & Violet Spheres behind Glass Lens */
+    draw3DSphere(ctx, 52 + Math.cos(t * 0.025) * 14, 58 + dy, 22, '#B993FF', '#7C4DFF', '#3B1D9E');
+    draw3DSphere(ctx, 136 - Math.cos(t * 0.025) * 12, 128 - dy, 24, '#88F7C4', '#38C985', '#156E47');
+
+    /* Central Refractive 3D Liquid Glass Orb */
+    draw3DRefractiveGlassSphere(ctx, 95, 95 + dy * 0.6, 52);
+
+    t += 1;
+    requestAnimationFrame(animateHero);
+  }
+  animateHero();
 }
 
 /* ==========================================================================
-   7. Rendering UI & Components
+   10. Language, Theme & Font Settings
+   ========================================================================== */
+function applySettings() {
+  document.documentElement.setAttribute('data-theme', state.theme);
+  document.documentElement.style.setProperty('--font-size-reader', `${state.fontSize}px`);
+
+  const langSelect = document.getElementById('lang-select');
+  const settingsLangSelect = document.getElementById('settings-lang-select');
+  if (langSelect) langSelect.value = state.currentLang;
+  if (settingsLangSelect) settingsLangSelect.value = state.currentLang;
+
+  const dict = I18N[state.currentLang] || I18N.ru;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key]) {
+      el.textContent = dict[key];
+      if (el.classList.contains('text-reveal')) {
+        el.setAttribute('data-raw-text', dict[key]);
+      }
+    }
+  });
+
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (dict[key]) el.setAttribute('placeholder', dict[key]);
+  });
+
+  const activeScreen = document.querySelector('.screen.active');
+  if (activeScreen) triggerSequentialTextReveal(activeScreen);
+}
+
+function toggleTheme() {
+  state.theme = (state.theme === 'dark') ? 'light' : 'dark';
+  saveSettingsToStorage();
+  applySettings();
+  if (state.currentScreen === 'settings') renderSettingsScreen();
+}
+
+function setTheme(themeName) {
+  state.theme = themeName;
+  saveSettingsToStorage();
+  applySettings();
+  if (state.currentScreen === 'settings') renderSettingsScreen();
+}
+
+function changeLanguage(lang) {
+  state.currentLang = lang;
+  saveSettingsToStorage();
+  applySettings();
+  renderAll();
+}
+
+function adjustFontSize(delta) {
+  state.fontSize = Math.min(26, Math.max(14, state.fontSize + delta));
+  saveSettingsToStorage();
+  applySettings();
+  const label = document.getElementById('settings-font-size');
+  if (label) label.textContent = `${state.fontSize}px`;
+}
+
+/* ==========================================================================
+   11. Rendering Screens
    ========================================================================== */
 function renderAll() {
-  renderTopbarAuth();
+  renderHeaderUser();
   renderHome();
-  renderGenresScreen();
+  renderCategoriesScreen();
+  renderBookmarksScreen();
+  renderStatsScreen();
   renderSettingsScreen();
-  renderStats();
+  updateLiquidNavIndicators(state.currentScreen);
 }
 
-function renderTopbarAuth() {
-  const authContainer = document.getElementById('topbar-auth-container');
-  const streakCount = document.getElementById('streak-days');
-  if (streakCount) streakCount.textContent = state.streakDays;
+function renderHeaderUser() {
+  const streakEl = document.getElementById('streak-days-text');
+  if (streakEl) {
+    streakEl.textContent = `${state.streak.count} дн.`;
+  }
 
-  if (!authContainer) return;
+  const zone = document.getElementById('header-user-zone');
+  if (!zone) return;
 
-  if (!state.currentUser) {
-    authContainer.innerHTML = `
-      <button class="btn-primary" style="height: 34px; padding: 0 14px; font-size: 12px;" onclick="openAuthModal()">
-        <span>👤</span> <span>Войти</span>
-      </button>
+  if (state.currentUser) {
+    const u = state.currentUser;
+    const isAdmin = u.role === 'admin';
+    zone.innerHTML = `
+      <div class="streak-pill liquid-glass-btn" onclick="navigate('settings')">
+        <span style="font-weight:700; color:var(--primary);">${escapeHtml((u.avatar || u.name || 'U').slice(0, 2).toUpperCase())}</span>
+        <span>${escapeHtml(u.name)}</span>
+        ${isAdmin ? '<span class="badge badge-admin" style="padding: 1px 6px; font-size: 9px;">Admin</span>' : ''}
+      </div>
     `;
   } else {
-    const u = state.currentUser;
-    const avatarHtml = u.avatar && u.avatar.startsWith('http')
-      ? `<img src="${escapeHtml(u.avatar)}" class="user-avatar-sm" alt="avatar">`
-      : `<span class="user-avatar-sm">${escapeHtml(u.avatar || '👤')}</span>`;
-
-    authContainer.innerHTML = `
-      <div class="user-profile-badge" onclick="openProfileModal()" title="Нажмите, чтобы настроить профиль">
-        ${avatarHtml}
-        <span style="font-size: 13px; font-weight: 600;">${escapeHtml(u.name)}</span>
-        ${u.role === 'admin' ? '<span class="badge badge-admin" style="font-size:10px; padding:2px 7px;">Admin</span>' : ''}
-      </div>
+    zone.innerHTML = `
+      <button class="btn-primary btn-sm" onclick="openAuthModal()">Войти</button>
     `;
   }
 }
 
-
-/* ==========================================================================
-   Volumetric 3D Floating Objects (Wildberries 3D Category Aesthetic)
-   ========================================================================== */
-function getGenre3DVisual(genreId) {
-  switch (genreId) {
-    case 'history':
-      return `<svg class="genre-3d-visual" viewBox="0 0 160 160" fill="none">
-        <defs>
-          <linearGradient id="col-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#F1F5F9"/><stop offset="50%" stop-color="#94A3B8"/><stop offset="100%" stop-color="#475569"/>
-          </linearGradient>
-          <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#FDE047"/><stop offset="50%" stop-color="#CA8A04"/><stop offset="100%" stop-color="#854D0E"/>
-          </linearGradient>
-        </defs>
-        <ellipse cx="80" cy="142" rx="48" ry="9" fill="rgba(0,0,0,0.35)"/>
-        <g class="floating-obj">
-          <rect x="44" y="122" width="72" height="14" rx="4" fill="url(#col-grad)"/>
-          <path d="M52 46 L50 120 L110 120 L108 46 Z" fill="url(#col-grad)"/>
-          <line x1="64" y1="46" x2="63" y2="120" stroke="rgba(255,255,255,0.45)" stroke-width="2"/>
-          <line x1="76" y1="46" x2="75" y2="120" stroke="rgba(0,0,0,0.25)" stroke-width="2"/>
-          <line x1="88" y1="46" x2="89" y2="120" stroke="rgba(255,255,255,0.45)" stroke-width="2"/>
-          <rect x="38" y="32" width="84" height="14" rx="3" fill="url(#col-grad)"/>
-          <circle cx="48" cy="42" r="7" fill="url(#gold-grad)"/>
-          <circle cx="112" cy="42" r="7" fill="url(#gold-grad)"/>
-          <rect x="70" y="60" width="62" height="16" rx="8" transform="rotate(-18 70 60)" fill="url(#gold-grad)"/>
-        </g>
-      </svg>`;
-
-    case 'science':
-      return `<svg class="genre-3d-visual" viewBox="0 0 160 160" fill="none">
-        <defs>
-          <linearGradient id="chr-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#FFFFFF"/><stop offset="40%" stop-color="#94A3B8"/><stop offset="100%" stop-color="#1E293B"/>
-          </linearGradient>
-          <linearGradient id="em-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#6EE7B7"/><stop offset="100%" stop-color="#059669"/>
-          </linearGradient>
-        </defs>
-        <ellipse cx="80" cy="142" rx="46" ry="9" fill="rgba(0,0,0,0.35)"/>
-        <g class="floating-obj">
-          <path d="M48 136 C48 116 112 116 112 136 Z" fill="url(#chr-grad)"/>
-          <rect x="44" y="132" width="72" height="10" rx="4" fill="#64748B"/>
-          <path d="M60 126 C60 76 96 66 96 46" stroke="url(#chr-grad)" stroke-width="12" stroke-linecap="round" fill="none"/>
-          <rect x="74" y="24" width="22" height="40" rx="6" transform="rotate(22 74 24)" fill="url(#chr-grad)"/>
-          <ellipse cx="82" cy="74" rx="32" ry="12" stroke="url(#em-grad)" stroke-width="3" stroke-dasharray="6 4" transform="rotate(-30 82 74)"/>
-          <circle cx="60" cy="86" r="6" fill="#34D399"/>
-          <circle cx="104" cy="62" r="6" fill="#6EE7B7"/>
-        </g>
-      </svg>`;
-
-    case 'business':
-      return `<svg class="genre-3d-visual" viewBox="0 0 160 160" fill="none">
-        <defs>
-          <linearGradient id="amb-f1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#FDE68A"/><stop offset="100%" stop-color="#F59E0B"/>
-          </linearGradient>
-          <linearGradient id="amb-f2" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#D97706"/><stop offset="100%" stop-color="#78350F"/>
-          </linearGradient>
-        </defs>
-        <ellipse cx="80" cy="138" rx="44" ry="9" fill="rgba(0,0,0,0.35)"/>
-        <g class="floating-obj">
-          <polygon points="80,24 116,56 80,72" fill="url(#amb-f1)"/>
-          <polygon points="80,24 44,56 80,72" fill="#FBBF24"/>
-          <polygon points="44,56 80,24 32,48" fill="#FDE68A"/>
-          <polygon points="116,56 80,24 128,48" fill="#D97706"/>
-          <polygon points="80,126 44,56 80,72" fill="url(#amb-f2)"/>
-          <polygon points="80,126 116,56 80,72" fill="#B45309"/>
-          <line x1="80" y1="24" x2="80" y2="126" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>
-          <path d="M32 110 Q70 80 125 40" stroke="#38BDF8" stroke-width="6" stroke-linecap="round" fill="none"/>
-          <polygon points="135,32 118,36 127,49" fill="#38BDF8"/>
-        </g>
-      </svg>`;
-
-    case 'technology':
-      return `<svg class="genre-3d-visual" viewBox="0 0 160 160" fill="none">
-        <defs>
-          <linearGradient id="chip-bd" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#1E293B"/><stop offset="100%" stop-color="#020617"/>
-          </linearGradient>
-          <linearGradient id="cyan-sp" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#67E8F9"/><stop offset="100%" stop-color="#0891B2"/>
-          </linearGradient>
-        </defs>
-        <ellipse cx="80" cy="140" rx="48" ry="9" fill="rgba(0,0,0,0.35)"/>
-        <g class="floating-obj">
-          <polygon points="80,50 136,80 80,110 24,80" fill="url(#chip-bd)" stroke="#38BDF8" stroke-width="1.5"/>
-          <polygon points="24,80 80,110 80,120 24,90" fill="#0F172A"/>
-          <polygon points="136,80 80,110 80,120 136,90" fill="#020617"/>
-          <line x1="42" y1="89" x2="36" y2="94" stroke="#FBBF24" stroke-width="3" stroke-linecap="round"/>
-          <line x1="58" y1="98" x2="52" y2="103" stroke="#FBBF24" stroke-width="3" stroke-linecap="round"/>
-          <line x1="102" y1="98" x2="108" y2="103" stroke="#FBBF24" stroke-width="3" stroke-linecap="round"/>
-          <line x1="118" y1="89" x2="124" y2="94" stroke="#FBBF24" stroke-width="3" stroke-linecap="round"/>
-          <circle cx="80" cy="80" r="16" fill="url(#cyan-sp)"/>
-          <circle cx="75" cy="75" r="4" fill="#FFFFFF" opacity="0.8"/>
-        </g>
-      </svg>`;
-
-    case 'psychology':
-      return `<svg class="genre-3d-visual" viewBox="0 0 160 160" fill="none">
-        <defs>
-          <linearGradient id="purp-gl" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#E879F9"/><stop offset="50%" stop-color="#A855F7"/><stop offset="100%" stop-color="#581C87"/>
-          </linearGradient>
-        </defs>
-        <ellipse cx="80" cy="140" rx="44" ry="9" fill="rgba(0,0,0,0.35)"/>
-        <g class="floating-obj">
-          <path d="M78 44 C60 44 44 58 44 80 C44 94 52 108 66 114 C72 116 78 114 78 108 Z" fill="url(#purp-gl)" opacity="0.85" stroke="#F0ABFC" stroke-width="1.5"/>
-          <path d="M82 44 C100 44 116 58 116 80 C116 94 108 108 94 114 C88 116 82 114 82 108 Z" fill="url(#purp-gl)" opacity="0.95" stroke="#F0ABFC" stroke-width="1.5"/>
-          <circle cx="58" cy="62" r="4" fill="#FFFFFF"/>
-          <circle cx="102" cy="62" r="4" fill="#FFFFFF"/>
-          <circle cx="80" cy="80" r="5" fill="#FDF4FF"/>
-          <line x1="58" y1="62" x2="80" y2="80" stroke="#F472B6" stroke-width="1.5" stroke-dasharray="3 3"/>
-          <line x1="102" y1="62" x2="80" y2="80" stroke="#F472B6" stroke-width="1.5" stroke-dasharray="3 3"/>
-        </g>
-      </svg>`;
-
-    case 'philosophy':
-      return `<svg class="genre-3d-visual" viewBox="0 0 160 160" fill="none">
-        <defs>
-          <linearGradient id="stn-gr" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#F1F5F9"/><stop offset="50%" stop-color="#94A3B8"/><stop offset="100%" stop-color="#475569"/>
-          </linearGradient>
-        </defs>
-        <ellipse cx="80" cy="142" rx="46" ry="9" fill="rgba(0,0,0,0.35)"/>
-        <g class="floating-obj">
-          <rect x="52" y="120" width="56" height="16" rx="4" fill="url(#stn-gr)"/>
-          <path d="M58 114 C58 96 64 90 68 84 C64 80 62 70 62 60 C62 42 70 34 80 34 C90 34 98 42 98 60 C98 70 96 80 92 84 C96 90 102 96 102 114 Z" fill="url(#stn-gr)" stroke="#E2E8F0" stroke-width="1.5"/>
-          <ellipse cx="80" cy="62" rx="36" ry="12" stroke="#FBBF24" stroke-width="2.5" stroke-dasharray="8 4" transform="rotate(-15 80 62)"/>
-        </g>
-      </svg>`;
-
-    case 'education':
-      return `<svg class="genre-3d-visual" viewBox="0 0 160 160" fill="none">
-        <defs>
-          <linearGradient id="cap-dk" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#334155"/><stop offset="100%" stop-color="#0F172A"/>
-          </linearGradient>
-        </defs>
-        <ellipse cx="80" cy="140" rx="46" ry="9" fill="rgba(0,0,0,0.35)"/>
-        <g class="floating-obj">
-          <ellipse cx="80" cy="88" rx="34" ry="16" fill="#0F172A"/>
-          <path d="M46 88 L46 98 C46 110 114 110 114 98 L114 88 Z" fill="url(#cap-dk)"/>
-          <polygon points="80,42 138,62 80,82 22,62" fill="url(#cap-dk)" stroke="#64748B" stroke-width="1.5"/>
-          <circle cx="80" cy="62" r="5" fill="#F59E0B"/>
-          <path d="M80 62 Q108 68 114 94" stroke="#F59E0B" stroke-width="2.5" fill="none"/>
-          <rect x="52" y="114" width="56" height="14" rx="7" fill="#FEF3C7" stroke="#CA8A04" stroke-width="1.5"/>
-          <rect x="74" y="112" width="8" height="18" rx="2" fill="#DC2626"/>
-        </g>
-      </svg>`;
-
-    case 'poetry':
-      return `<svg class="genre-3d-visual" viewBox="0 0 160 160" fill="none">
-        <defs>
-          <linearGradient id="bk-lth" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#1E3A8A"/><stop offset="100%" stop-color="#0F172A"/>
-          </linearGradient>
-        </defs>
-        <ellipse cx="80" cy="140" rx="48" ry="9" fill="rgba(0,0,0,0.35)"/>
-        <g class="floating-obj">
-          <path d="M26 94 C48 90 74 96 80 102 C86 96 112 90 134 94 L138 102 C116 98 86 104 80 110 C74 104 44 98 22 102 Z" fill="url(#bk-lth)" stroke="#38BDF8" stroke-width="1"/>
-          <path d="M30 62 C50 64 74 72 80 84 L80 100 C74 94 48 88 28 88 Z" fill="#FEF3C7"/>
-          <path d="M130 62 C110 64 86 72 80 84 L80 100 C86 94 112 88 132 88 Z" fill="#FDF6B2"/>
-          <path d="M80 78 Q84 104 74 122 Q78 126 84 118 Q86 102 80 78" fill="#F59E0B"/>
-          <path d="M100 36 C108 44 116 66 112 86 C108 80 106 68 100 62 C96 66 94 72 90 78 C94 56 96 42 100 36 Z" fill="#FBBF24"/>
-        </g>
-      </svg>`;
-
-    case 'math':
-      return `<svg class="genre-3d-visual" viewBox="0 0 160 160" fill="none">
-        <defs>
-          <linearGradient id="mth-b1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#60A5FA"/><stop offset="100%" stop-color="#1D4ED8"/>
-          </linearGradient>
-        </defs>
-        <ellipse cx="80" cy="140" rx="44" ry="9" fill="rgba(0,0,0,0.35)"/>
-        <g class="floating-obj">
-          <polygon points="80,36 108,56 98,88 62,88 52,56" fill="url(#mth-b1)" stroke="#93C5FD" stroke-width="1.5"/>
-          <polygon points="80,36 108,56 128,48 114,24" fill="#3B82F6" opacity="0.9"/>
-          <polygon points="108,56 98,88 126,98 136,74" fill="#1E3A8A"/>
-          <polygon points="98,88 62,88 70,120 90,120" fill="#1E40AF"/>
-          <polygon points="62,88 52,56 24,74 34,98" fill="#1E3A8A"/>
-          <polygon points="52,56 80,36 46,24 32,48" fill="#3B82F6" opacity="0.9"/>
-          <text x="80" y="72" font-family="system-ui, sans-serif" font-size="26" font-weight="800" fill="#FFFFFF" text-anchor="middle">∑</text>
-        </g>
-      </svg>`;
-
-    case 'art':
-    default:
-      return `<svg class="genre-3d-visual" viewBox="0 0 160 160" fill="none">
-        <defs>
-          <linearGradient id="pln-gr" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#F472B6"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#312E81"/>
-          </linearGradient>
-        </defs>
-        <ellipse cx="80" cy="142" rx="48" ry="9" fill="rgba(0,0,0,0.35)"/>
-        <g class="floating-obj">
-          <circle cx="80" cy="76" r="32" fill="url(#pln-gr)"/>
-          <ellipse cx="80" cy="76" rx="58" ry="16" stroke="rgba(244,114,182,0.85)" stroke-width="5" transform="rotate(-18 80 76)"/>
-          <ellipse cx="80" cy="76" rx="50" ry="12" stroke="rgba(192,132,252,0.5)" stroke-width="2" transform="rotate(-18 80 76)"/>
-        </g>
-      </svg>`;
-  }
+function create3DCategoryCardHtml(g, idx, clickFn) {
+  const count = state.books.filter(b => b.genre === g.id).length;
+  const label = g.name[state.currentLang] || g.name.ru;
+  return `
+    <div class="cat-3d-card stagger-item" style="--i:${idx}; --cat-glow:${g.glow};" onclick="${clickFn}('${g.id}')">
+      <div class="cat-3d-header">
+        <div class="cat-3d-title">${escapeHtml(label)}</div>
+        <span class="cat-3d-count">${count}</span>
+      </div>
+      <div class="cat-3d-stage">
+        <canvas class="cat-3d-canvas" data-genre="${g.id}" width="154" height="154"></canvas>
+      </div>
+    </div>
+  `;
 }
-
-/* ==========================================================================
-   Continuous Reading Progress Autosave & Restore Engine
-   ========================================================================== */
-function saveReadingProgress() {
-  if (!state.currentBook) return;
-  const scrollPos = window.scrollY || document.documentElement.scrollTop;
-  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-  const progressPercent = maxScroll > 0 ? Math.min(100, Math.round((scrollPos / maxScroll) * 100)) : 0;
-
-  const progressData = {
-    bookId: state.currentBook.id,
-    bookTitle: state.currentBook.title,
-    scrollPos,
-    progressPercent,
-    savedAt: Date.now()
-  };
-
-  try {
-    const all = JSON.parse(localStorage.getItem('elibrary_reading_progress') || '{}');
-    all[state.currentBook.id] = progressData;
-    localStorage.setItem('elibrary_reading_progress', JSON.stringify(all));
-  } catch (e) {}
-}
-
-function restoreReadingProgress(bookId) {
-  try {
-    const all = JSON.parse(localStorage.getItem('elibrary_reading_progress') || '{}');
-    const saved = all[bookId];
-    if (saved && saved.scrollPos > 40) {
-      setTimeout(() => {
-        window.scrollTo({ top: saved.scrollPos, behavior: 'smooth' });
-        showGlassToast(`✓ Прогресс чтения восстановлен (${saved.progressPercent}%)`);
-      }, 300);
-    }
-  } catch (e) {}
-}
-
-function showGlassToast(message) {
-  let toast = document.getElementById('glass-toast');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'glass-toast';
-    toast.className = 'glass-toast';
-    document.body.appendChild(toast);
-  }
-  toast.textContent = message;
-  toast.classList.add('visible');
-  setTimeout(() => {
-    toast.classList.remove('visible');
-  }, 2600);
-}
-
-// Scroll listener for autosave
-window.addEventListener('scroll', () => {
-  if (state.activeScreen === 'reader') {
-    saveReadingProgress();
-  }
-}, { passive: true });
 
 function renderHome() {
-  const genreGrid = document.getElementById('home-genres-grid');
-  if (genreGrid) {
-    genreGrid.innerHTML = GENRES.map(g => `
-      <div class="genre-3d-card ${state.selectedGenre === g.id ? 'active' : ''}" onclick="filterByGenre('${g.id}')">
-        <div class="genre-3d-title">${escapeHtml(g.name[state.currentLang] || g.name.ru)}</div>
-        <div class="genre-3d-box">
-          ${getGenre3DVisual(g.id)}
-        </div>
-      </div>
-    `).join('');
+  /* 1. Render 3D Categories Preview (first 6) */
+  const homeCatGrid = document.getElementById('home-categories-3d-grid');
+  if (homeCatGrid) {
+    homeCatGrid.innerHTML = GENRES.slice(0, 6).map((g, i) =>
+      create3DCategoryCardHtml(g, i, 'openCategoryFromHome')
+    ).join('');
+    renderAll3DCategoryCanvases(homeCatGrid);
   }
-  renderBooksGrid();
-}
 
-function renderBooksGrid() {
+  /* 2. Render Genre Filter Pills */
+  const pillsContainer = document.getElementById('home-genre-pills');
+  if (pillsContainer) {
+    const dict = I18N[state.currentLang] || I18N.ru;
+    let html = `<button class="genre-pill ${state.selectedGenre === 'all' ? 'active' : ''}" onclick="selectGenreFilter('all')">${dict.filterAll}</button>`;
+    GENRES.forEach(g => {
+      const gName = g.name[state.currentLang] || g.name.ru;
+      const active = state.selectedGenre === g.id ? 'active' : '';
+      html += `<button class="genre-pill ${active}" onclick="selectGenreFilter('${g.id}')">${escapeHtml(gName)}</button>`;
+    });
+    pillsContainer.innerHTML = html;
+  }
+
+  /* 3. Render Books Grid */
   const grid = document.getElementById('home-books-grid');
   const emptyState = document.getElementById('home-empty-state');
-  const countSubtitle = document.getElementById('books-count-subtitle');
+  const emptyActionLabel = document.getElementById('empty-action-label');
+
   if (!grid || !emptyState) return;
 
-  let filtered = state.books;
-  if (state.selectedGenre) filtered = filtered.filter(b => b.genre === state.selectedGenre);
-  if (state.searchQuery) {
-    const q = state.searchQuery.toLowerCase();
-    filtered = filtered.filter(b => (b.title && b.title.toLowerCase().includes(q)) || (b.author && b.author.toLowerCase().includes(q)));
+  if (emptyActionLabel) {
+    emptyActionLabel.textContent = (state.currentUser && state.currentUser.role === 'admin')
+      ? 'Управление фондом'
+      : 'Параметры';
   }
 
-  if (countSubtitle) countSubtitle.textContent = `${filtered.length} книг доступно`;
+  let filtered = state.books;
+  if (state.selectedGenre !== 'all') {
+    filtered = filtered.filter(b => b.genre === state.selectedGenre);
+  }
+  if (state.searchQuery.trim() !== '') {
+    const q = state.searchQuery.toLowerCase();
+    filtered = filtered.filter(b =>
+      (b.title && b.title.toLowerCase().includes(q)) ||
+      (b.author && b.author.toLowerCase().includes(q))
+    );
+  }
 
   if (filtered.length === 0) {
     grid.innerHTML = '';
@@ -1236,10 +1371,15 @@ function renderBooksGrid() {
   }
 
   emptyState.style.display = 'none';
-  grid.innerHTML = filtered.map(book => createBookCardHtml(book)).join('');
+  grid.innerHTML = filtered.map((book, idx) => createBookCardHtml(book, idx)).join('');
 }
 
-function createBookCardHtml(book) {
+function openCategoryFromHome(genreId) {
+  navigate('categories');
+  selectCategoryCard(genreId);
+}
+
+function createBookCardHtml(book, idx = 0) {
   const genreObj = GENRES.find(g => g.id === book.genre);
   const genreName = genreObj ? (genreObj.name[state.currentLang] || genreObj.name.ru) : (book.genre || '');
   const hasAudio = !!book.audioUrl;
@@ -1251,17 +1391,17 @@ function createBookCardHtml(book) {
   const coverHtml = `<img src="${escapeHtml(coverSrc)}" class="book-cover-img" alt="${escapeHtml(book.title)}" onerror="this.onerror=null;this.src='icons/icon-512.png';">`;
 
   return `
-    <div class="book-card" onclick="openBookDetail('${book.id}')">
+    <div class="book-card soft-gradient-card stagger-item" style="--i:${idx};" onclick="openBookDetail('${book.id}')">
       <div class="book-cover">
         ${coverHtml}
-        ${hasAudio ? '<span class="book-type-badge">🎧 Аудио</span>' : ''}
+        ${hasAudio ? '<span class="book-type-badge liquid-glass-btn">Аудио</span>' : ''}
       </div>
       <div class="book-info">
         <span class="book-category">${escapeHtml(genreName)}</span>
         <h4 class="book-title">${escapeHtml(book.title)}</h4>
         <p class="book-author">${escapeHtml(book.author)}</p>
         <div class="book-actions">
-          <button class="btn-primary" style="padding: 6px 12px; font-size: 12px; width: 100%; justify-content: center;" onclick="event.stopPropagation(); openBookDetail('${book.id}')">
+          <button class="btn-primary btn-sm" style="width: 100%; justify-content: center;" onclick="event.stopPropagation(); openBookDetail('${book.id}')">
             Открыть
           </button>
         </div>
@@ -1270,56 +1410,67 @@ function createBookCardHtml(book) {
   `;
 }
 
-function getBookCountForGenre(genreId) {
-  return state.books.filter(b => b.genre === genreId).length;
-}
-
-function filterByGenre(genreId) {
-  state.selectedGenre = (state.selectedGenre === genreId) ? null : genreId;
+function selectGenreFilter(genreId) {
+  state.selectedGenre = genreId;
   renderHome();
 }
 
-function handleSearch(query) {
-  state.searchQuery = query;
-  renderBooksGrid();
+function handleSearch(val) {
+  state.searchQuery = val;
+  if (state.currentScreen !== 'home') navigate('home');
+  else renderHome();
 }
 
-function renderGenresScreen() {
-  const fullGrid = document.getElementById('full-genres-grid');
-  if (fullGrid) {
-    fullGrid.innerHTML = GENRES.map(g => `
-      <div class="genre-3d-card ${state.selectedGenre === g.id ? 'active' : ''}" onclick="selectGenreTab('${g.id}')">
-        <div class="genre-3d-title">${escapeHtml(g.name[state.currentLang] || g.name.ru)}</div>
-        <div class="genre-3d-box">
-          ${getGenre3DVisual(g.id)}
-        </div>
-      </div>
-    `).join('');
-  }
-
-  const genreBooksGrid = document.getElementById('genre-books-grid');
-  const title = document.getElementById('genre-view-title');
-  if (genreBooksGrid) {
-    const list = state.selectedGenre ? state.books.filter(b => b.genre === state.selectedGenre) : state.books;
-    if (title) {
-      if (state.selectedGenre) {
-        const found = GENRES.find(g => g.id === state.selectedGenre);
-        title.textContent = found ? `${found.emoji} ${found.name[state.currentLang] || found.name.ru}` : 'Книги жанра';
-      } else {
-        title.textContent = 'Все книги';
-      }
-    }
-    genreBooksGrid.innerHTML = list.length === 0
-      ? '<div class="empty-state" style="grid-column: 1 / -1;"><h3 class="empty-title">В этом разделе пока нет книг</h3></div>'
-      : list.map(b => createBookCardHtml(b)).join('');
+function handleEmptyStateAction() {
+  if (state.currentUser && state.currentUser.role === 'admin') {
+    navigate('admin');
+    openAddBookTab();
+  } else {
+    navigate('settings');
   }
 }
 
-function selectGenreTab(genreId) {
-  state.selectedGenre = (state.selectedGenre === genreId) ? null : genreId;
-  renderGenresScreen();
+/* ==========================================================================
+   12. Categories Screen (3D Objects Grid - Reference Image 1)
+   ========================================================================== */
+function renderCategoriesScreen() {
+  const grid = document.getElementById('categories-grid');
+  if (!grid) return;
+
+  grid.innerHTML = GENRES.map((g, idx) =>
+    create3DCategoryCardHtml(g, idx, 'selectCategoryCard')
+  ).join('');
+  renderAll3DCategoryCanvases(grid);
 }
 
+function selectCategoryCard(genreId) {
+  const genreObj = GENRES.find(g => g.id === genreId);
+  const wrap = document.getElementById('category-filtered-results');
+  const title = document.getElementById('selected-category-title');
+  const grid = document.getElementById('category-books-grid');
+
+  if (!wrap || !grid) return;
+  const label = genreObj ? (genreObj.name[state.currentLang] || genreObj.name.ru) : genreId;
+  if (title) title.textContent = label;
+
+  const list = state.books.filter(b => b.genre === genreId);
+  wrap.style.display = 'block';
+
+  grid.innerHTML = list.length === 0
+    ? `<p style="color: var(--text-muted); grid-column: 1/-1; padding: 16px 0;">В данном направлении пока нет изданий.</p>`
+    : list.map((b, i) => createBookCardHtml(b, i)).join('');
+
+  wrap.scrollIntoView({ behavior: 'smooth' });
+}
+
+function clearCategorySelection() {
+  const wrap = document.getElementById('category-filtered-results');
+  if (wrap) wrap.style.display = 'none';
+}
+
+/* ==========================================================================
+   13. Book Detail, Reader, Quizzes & Certificates
+   ========================================================================== */
 function openBookDetail(bookId) {
   const book = state.books.find(b => b.id === bookId);
   if (!book) return;
@@ -1345,323 +1496,291 @@ function renderBookDetail() {
   const isAdmin = state.currentUser && state.currentUser.role === 'admin';
 
   container.innerHTML = `
-    <div class="book-detail-hero">
+    <div class="book-detail-hero liquid-glass-card">
       <div class="book-detail-cover">${coverHtml}</div>
       <div class="book-detail-main">
+        <div class="book-detail-badges">
+          <span class="badge">${escapeHtml(genreName)}</span>
+          <span class="badge">${hasAudio ? 'Google Drive Audio' : 'Текст'}</span>
+        </div>
         <h1 class="book-detail-title">${escapeHtml(b.title)}</h1>
         <p class="book-detail-author">${escapeHtml(b.author)}</p>
-        
-        <div class="book-detail-badges">
-          <span class="badge">📂 ${escapeHtml(genreName)}</span>
-          <span class="badge">${hasAudio ? '🎧 Google Drive Audio' : '📖 Текстовый формат'}</span>
-        </div>
+        <div class="liquid-divider"></div>
 
         <div class="book-detail-cta">
           ${hasText ? `
-            <button class="btn-read" onclick="openReader()">
-              <span>📖</span>
-              <span>${state.currentUser ? 'Читать полностью' : 'Читать превью'}</span>
+            <button class="btn-primary" onclick="openReader()">
+              <span>${state.currentUser ? 'Читать издание' : 'Фрагмент'}</span>
             </button>
           ` : ''}
 
           ${hasAudio ? `
-            <button class="btn-listen" onclick="playAudioBook(state.currentBook)">
-              <span>🎧</span>
-              <span>${state.currentUser ? 'Слушать аудиокнигу' : 'Слушать превью (4 мин)'}</span>
+            <button class="btn-secondary liquid-glass-btn" onclick="playAudioBook(state.currentBook)">
+              <span>Аудиотека</span>
             </button>
           ` : ''}
 
           ${isAdmin ? `
-            <button class="btn-icon" style="width: auto; padding: 0 16px; border-radius: var(--radius-md); font-size: 13px;" onclick="editBookInAdmin('${b.id}')">
-              ✏️ Редактировать
+            <button class="btn-icon" onclick="editBookInAdmin('${b.id}')" title="Редактировать">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
             </button>
           ` : ''}
         </div>
-      </div>
-    </div>
 
-    <div class="book-detail-body">
-      <h3 style="font-size: 17px; font-weight: 700; margin-bottom: 12px;">О книге</h3>
-      <p class="synopsis-text">${escapeHtml(b.synopsis || 'Описание книги ещё не добавлено.')}</p>
+        <p style="font-size: 14px; color: var(--text-muted); line-height: 1.7;">
+          ${escapeHtml(b.synopsis || '')}
+        </p>
+      </div>
     </div>
   `;
 }
 
-/* ==========================================================================
-   8. Reader with Freemium Paywall & Chapter Quizzes
-   ========================================================================== */
 function openReader() {
+  if (!state.currentBook) return;
+  state.quizAnswers = {};
   navigate('reader');
-  if (state.currentBook) {
-    restoreReadingProgress(state.currentBook.id);
-  }
+  persistLiveProgress();
 }
 
-function renderReader() {
+function renderReaderScreen() {
   const b = state.currentBook;
   if (!b) return;
 
   const titleEl = document.getElementById('reader-title');
-  const authorEl = document.getElementById('reader-author');
-  const bodyEl = document.getElementById('reader-content-body');
-  const paywallBox = document.getElementById('reader-paywall-box');
-  const quizSection = document.getElementById('reader-quiz-container');
+  const bodyEl = document.getElementById('reader-body');
+  const paywallEl = document.getElementById('reader-paywall-box');
+  const quizContainer = document.getElementById('reader-quiz-container');
 
   if (titleEl) titleEl.textContent = b.title;
-  if (authorEl) authorEl.textContent = b.author;
-  if (bodyEl) bodyEl.style.fontSize = `${state.fontSize}px`;
 
-  const fullText = b.text || 'Текст для данной книги ещё не добавлен в библиотеку.';
+  const fullText = b.text || 'Текст отсутствует.';
+  const paragraphs = fullText.split(/\n+/).filter(p => p.trim().length > 0);
 
-  // FREEMIUM GUEST PAYWALL CHECK
   if (!state.currentUser) {
-    // Show only the first 1-3 preview pages (capped at ~450 characters)
-    const previewText = fullText.slice(0, GUEST_TEXT_LIMIT_CHARS) + '...';
-    bodyEl.innerHTML = `
-      <div class="reader-paywall-wrap">
-        <div class="reader-blurred-preview">
-          <div>${escapeHtml(previewText)}</div>
-          <div class="reader-blur-gradient"></div>
-        </div>
-      </div>
-    `;
-    paywallBox.style.display = 'block';
-    quizSection.style.display = 'none';
+    const previewParagraphs = paragraphs.slice(0, 3);
+    let previewHtml = previewParagraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('');
+    if (previewHtml.length > 900) {
+      previewHtml = `<p>${escapeHtml(fullText.substring(0, 900))}...</p>`;
+    }
+    bodyEl.innerHTML = previewHtml;
+    paywallEl.style.display = 'block';
+    quizContainer.style.display = 'none';
   } else {
-    // Logged in: Full text with quizzes
-    bodyEl.textContent = fullText;
-    paywallBox.style.display = 'none';
-    quizSection.style.display = 'block';
+    bodyEl.innerHTML = paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('');
+    paywallEl.style.display = 'none';
     renderBookQuiz(b);
   }
 }
 
-function changeFontSize(delta) {
-  state.fontSize = Math.max(12, Math.min(32, state.fontSize + delta));
-  const bodyEl = document.getElementById('reader-content-body');
-  if (bodyEl) bodyEl.style.fontSize = `${state.fontSize}px`;
-  const fontIndicator = document.getElementById('settings-font-size');
-  if (fontIndicator) fontIndicator.textContent = `${state.fontSize}px`;
-  saveSettingsToStorage();
-}
-
-/* ==========================================================================
-   9. Interactive Tests (Quizzes) & Certificate Generation
-   ========================================================================== */
-function getBookQuizQuestions(book) {
+function getEffectiveQuizzes(book) {
   if (book.quiz && Array.isArray(book.quiz) && book.quiz.length > 0) {
     return book.quiz;
   }
-  // Smart default quiz for comprehension
   return [
     {
-      q: `Какова ключевая идея произведения «${book.title}»?`,
+      q: `Ключевая тема издания «${book.title}»?`,
       options: [
-        'Развитие личности, дисциплина и стремление к знанию',
-        'Пассивное ожидание удачи без действий',
-        'Игнорирование жизненного опыта предыдущих поколений'
+        "Фундаментальные принципы и анализ",
+        "Художественный вымысел",
+        "Справочный каталог"
       ],
-      answer: 0,
-      explanation: 'Основной посыл книги направлен на самосовершенствование и активное созидание.'
+      correct: 0
     },
     {
-      q: 'Какое практическое правило следует применять в первую очередь?',
+      q: `Автор издания «${book.title}»:`,
       options: [
-        'Откладывать важные решения на потом',
-        'Фокусироваться на главном приоритете каждый день',
-        'Браться за десятки дел одновременно без системы'
+        "Неизвестный автор",
+        book.author || "Автор",
+        "Редакционная коллегия"
       ],
-      answer: 1,
-      explanation: 'Концентрация на ключевой задаче приносит наибольший результат.'
+      correct: 1
     },
     {
-      q: 'Как автор книги рекомендует справляться со сложными ситуациями?',
+      q: "Методология усвоения материала:",
       options: [
-        'Опускать руки при первой неудаче',
-        'Искать виноватых среди окружающих',
-        'Анализировать ошибки, делать выводы и двигаться дальше'
+        "Поверхностный просмотр",
+        "Игнорирование тезисов",
+        "Анализ, конспектирование и проверка знаний"
       ],
-      answer: 2,
-      explanation: 'Стойкость и рефлексия — фундамент любого прогресса.'
+      correct: 2
     }
   ];
 }
 
 function renderBookQuiz(book) {
-  const container = document.getElementById('quiz-questions-list');
-  const resultBanner = document.getElementById('quiz-result-banner');
-  if (!container || !resultBanner) return;
+  const quizContainer = document.getElementById('reader-quiz-container');
+  const listEl = document.getElementById('quiz-questions-list');
+  const banner = document.getElementById('quiz-result-banner');
 
-  const questions = getBookQuizQuestions(book);
-  state.currentQuizAnswers = {};
-  resultBanner.style.display = 'none';
+  if (!quizContainer || !listEl) return;
+  quizContainer.style.display = 'block';
+  banner.style.display = 'none';
 
-  container.innerHTML = questions.map((item, qIdx) => `
-    <div class="quiz-card" id="quiz-card-${qIdx}">
-      <div class="quiz-question-title">Вопрос ${qIdx + 1}: ${escapeHtml(item.q)}</div>
-      <div class="quiz-options">
-        ${item.options.map((opt, oIdx) => `
-          <button class="quiz-option-btn" id="opt-btn-${qIdx}-${oIdx}" onclick="handleQuizAnswer(${qIdx}, ${oIdx})">
-            <span>${escapeHtml(opt)}</span>
-            <span class="icon" id="opt-icon-${qIdx}-${oIdx}"></span>
-          </button>
-        `).join('')}
+  const questions = getEffectiveQuizzes(book);
+  listEl.innerHTML = questions.map((item, qIdx) => {
+    const optionsHtml = item.options.map((opt, oIdx) => `
+      <button class="quiz-option-btn" id="q-${qIdx}-opt-${oIdx}" onclick="handleQuizAnswer(${qIdx}, ${oIdx})">
+        ${escapeHtml(opt)}
+      </button>
+    `).join('');
+
+    return `
+      <div class="quiz-card">
+        <div class="quiz-question">${qIdx + 1}. ${escapeHtml(item.q)}</div>
+        <div class="quiz-options">${optionsHtml}</div>
       </div>
-      <div class="quiz-feedback" id="quiz-feedback-${qIdx}"></div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
-function handleQuizAnswer(qIdx, selectedOptIdx) {
-  const book = state.currentBook;
-  if (!book) return;
-  const questions = getBookQuizQuestions(book);
-  const q = questions[qIdx];
-  if (!q) return;
+function handleQuizAnswer(qIdx, oIdx) {
+  const b = state.currentBook;
+  if (!b) return;
+  const questions = getEffectiveQuizzes(b);
+  const question = questions[qIdx];
+  if (!question) return;
 
-  // Lock options for this question
-  q.options.forEach((_, idx) => {
-    const btn = document.getElementById(`opt-btn-${qIdx}-${idx}`);
-    if (btn) btn.disabled = true;
+  state.quizAnswers[qIdx] = oIdx;
+  persistLiveProgress();
+
+  question.options.forEach((_, idx) => {
+    const btn = document.getElementById(`q-${qIdx}-opt-${idx}`);
+    if (!btn) return;
+    btn.classList.remove('correct', 'wrong');
+    if (idx === question.correct) {
+      btn.classList.add('correct');
+    } else if (idx === oIdx && oIdx !== question.correct) {
+      btn.classList.add('wrong');
+    }
   });
 
-  const selectedBtn = document.getElementById(`opt-btn-${qIdx}-${selectedOptIdx}`);
-  const feedbackEl = document.getElementById(`quiz-feedback-${qIdx}`);
-  const isCorrect = (selectedOptIdx === q.answer);
+  if (Object.keys(state.quizAnswers).length === questions.length) {
+    let correctCount = 0;
+    questions.forEach((q, i) => {
+      if (state.quizAnswers[i] === q.correct) correctCount++;
+    });
 
-  state.currentQuizAnswers[qIdx] = isCorrect;
+    const percent = Math.round((correctCount / questions.length) * 100);
+    const banner = document.getElementById('quiz-result-banner');
+    const scoreTitle = document.getElementById('quiz-score-title');
+    const scoreDesc = document.getElementById('quiz-score-desc');
+    const certBtn = document.getElementById('btn-claim-certificate');
 
-  if (isCorrect) {
-    if (selectedBtn) selectedBtn.classList.add('correct');
-    if (feedbackEl) {
-      feedbackEl.style.display = 'block';
-      feedbackEl.style.background = 'rgba(16, 185, 129, 0.15)';
-      feedbackEl.style.color = '#10b981';
-      feedbackEl.textContent = '✓ Верно! ' + (q.explanation || '');
-    }
-  } else {
-    if (selectedBtn) selectedBtn.classList.add('incorrect');
-    const correctBtn = document.getElementById(`opt-btn-${qIdx}-${q.answer}`);
-    if (correctBtn) correctBtn.classList.add('correct');
-    if (feedbackEl) {
-      feedbackEl.style.display = 'block';
-      feedbackEl.style.background = 'rgba(239, 68, 68, 0.15)';
-      feedbackEl.style.color = '#ef4444';
-      feedbackEl.textContent = '✗ Неверно. ' + (q.explanation || '');
+    banner.style.display = 'block';
+    scoreTitle.textContent = `Результат: ${correctCount} из ${questions.length} (${percent}%)`;
+
+    if (percent === 100) {
+      scoreDesc.textContent = 'Аттестация успешно пройдена.';
+      certBtn.style.display = 'inline-flex';
+      saveCertificateRecord(b);
+    } else {
+      scoreDesc.textContent = 'Для получения сертификата необходим результат 100%.';
+      certBtn.style.display = 'none';
     }
   }
+}
 
-  // Check if all questions are answered
-  if (Object.keys(state.currentQuizAnswers).length === questions.length) {
-    const correctCount = Object.values(state.currentQuizAnswers).filter(Boolean).length;
-    const percent = Math.round((correctCount / questions.length) * 100);
-    const resultBanner = document.getElementById('quiz-result-banner');
-    const scoreText = document.getElementById('quiz-score-text');
-
-    if (resultBanner && scoreText) {
-      scoreText.textContent = `Вы ответили правильно на ${correctCount} из ${questions.length} (${percent}%)! 🔥`;
-      resultBanner.style.display = 'block';
-      resultBanner.scrollIntoView({ behavior: 'smooth' });
-    }
+function saveCertificateRecord(book) {
+  if (!state.currentUser) return;
+  const exists = state.certificates.some(c => c.bookId === book.id && c.userEmail === state.currentUser.email);
+  if (!exists) {
+    state.certificates.unshift({
+      id: 'cert_' + Date.now(),
+      bookId: book.id,
+      bookTitle: book.title,
+      userName: state.currentUser.name,
+      userEmail: state.currentUser.email,
+      date: new Date().toLocaleDateString('ru-RU')
+    });
+    saveCertificatesToStorage();
   }
 }
 
 function generateCertificate() {
-  const userName = state.currentUser ? state.currentUser.name : 'Читатель';
-  const bookTitle = state.currentBook ? state.currentBook.title : 'Книга';
-  const today = new Date().toLocaleDateString();
-
-  document.getElementById('cert-user-name').textContent = userName;
-  document.getElementById('cert-book-title').textContent = `«${bookTitle}»`;
-  document.getElementById('cert-date').textContent = today;
-  document.getElementById('certificate-modal').classList.add('active');
+  if (!state.currentUser || !state.currentBook) return;
+  document.getElementById('cert-user-name').textContent = state.currentUser.name;
+  document.getElementById('cert-book-name').textContent = `«${state.currentBook.title}»`;
+  document.getElementById('cert-date').textContent = new Date().toLocaleDateString('ru-RU');
+  document.getElementById('certificate-modal').classList.add('open');
 }
 
 function closeCertificateModal() {
-  document.getElementById('certificate-modal').classList.remove('active');
-}
-
-function shareCertificate() {
-  const text = `🏆 Я успешно прочитал книгу «${state.currentBook.title}» в приложении eLibrary и сдал итоговый тест на 100%! Читайте и слушайте книги бесплатно: https://mehrovar1001.github.io/elibrary/`;
-  if (navigator.share) {
-    navigator.share({ title: 'Сертификат eLibrary', text, url: 'https://mehrovar1001.github.io/elibrary/' }).catch(() => {});
-  } else {
-    navigator.clipboard.writeText(text).then(() => alert('Текст сертификата и ссылка скопированы в буфер обмена!'));
-  }
+  document.getElementById('certificate-modal').classList.remove('open');
 }
 
 /* ==========================================================================
-   10. Quote Generator for Stories / Socials
+   14. Bookmarks, Stats & Full Player
    ========================================================================== */
-function openQuoteShareModal() {
-  const book = state.currentBook;
-  if (!book) return;
-
-  const quoteText = window.getSelection().toString().trim() ||
-    (book.synopsis ? book.synopsis.slice(0, 180) + '...' : `«${book.title}» — прекрасное произведение, меняющее мышление.`);
-
-  document.getElementById('quote-card-text').textContent = quoteText;
-  document.getElementById('quote-card-author').textContent = book.author;
-  document.getElementById('quote-card-title').textContent = book.title;
-
-  document.getElementById('quote-modal').classList.add('active');
-}
-
-function closeQuoteModal() {
-  document.getElementById('quote-modal').classList.remove('active');
-}
-
-function copyQuoteText() {
-  const text = document.getElementById('quote-card-text').textContent;
-  const author = document.getElementById('quote-card-author').textContent;
-  const title = document.getElementById('quote-card-title').textContent;
-  const full = `“${text}”\n— ${author}, «${title}»\n\nЧитайте в eLibrary: https://mehrovar1001.github.io/elibrary/`;
-
-  navigator.clipboard.writeText(full).then(() => {
-    alert('Цитата скопирована в буфер обмена!');
-  });
-}
-
-function toggleCurrentBookmark() {
+function saveReaderBookmark() {
   if (!state.currentBook) return;
-  const existing = state.bookmarks.find(b => b.bookId === state.currentBook.id);
-  if (existing) {
-    state.bookmarks = state.bookmarks.filter(b => b.bookId !== state.currentBook.id);
-    alert('Закладка удалена');
-  } else {
-    state.bookmarks.push({
-      id: 'bm_' + Date.now(),
-      bookId: state.currentBook.id,
-      title: state.currentBook.title,
-      author: state.currentBook.author,
-      date: new Date().toLocaleDateString()
-    });
-    alert('Закладка сохранена!');
-  }
+  const snippet = (state.currentBook.text || '').substring(0, 120) + '...';
+  state.bookmarks.unshift({
+    id: 'bm_' + Date.now(),
+    bookId: state.currentBook.id,
+    bookTitle: state.currentBook.title,
+    snippet,
+    date: new Date().toLocaleDateString('ru-RU')
+  });
   saveBookmarksToStorage();
+  alert('Закладка сохранена.');
 }
 
-function renderBookmarks() {
-  const container = document.getElementById('bookmarks-container');
-  const emptyState = document.getElementById('bookmarks-empty-state');
-  if (!container || !emptyState) return;
+function renderBookmarksScreen() {
+  const container = document.getElementById('bookmarks-list-container');
+  if (!container) return;
 
   if (state.bookmarks.length === 0) {
-    container.innerHTML = '';
-    emptyState.style.display = 'block';
+    container.innerHTML = `<div class="empty-state soft-gradient-card"><p style="color: var(--text-muted);">Закладки отсутствуют.</p></div>`;
     return;
   }
 
-  emptyState.style.display = 'none';
-  container.innerHTML = state.bookmarks.map(bm => `
-    <div class="book-card" onclick="openBookDetail('${bm.bookId}')">
-      <div class="book-info">
-        <span class="book-category">Закладка · ${bm.date}</span>
-        <h4 class="book-title">${escapeHtml(bm.title)}</h4>
-        <p class="book-author">${escapeHtml(bm.author)}</p>
-        <button class="btn-primary" style="margin-top: 10px; padding: 6px 12px; font-size: 12px; width: 100%; justify-content: center;">
-          Открыть книгу
-        </button>
+  container.innerHTML = state.bookmarks.map((bm, idx) => `
+    <div class="soft-gradient-card stagger-item" style="--i:${idx}; padding: 18px 22px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 14px;">
+      <div>
+        <div style="font-size: 11px; color: var(--primary); font-weight: 700;">${escapeHtml(bm.bookTitle)} • ${escapeHtml(bm.date)}</div>
+        <div style="font-size: 13.5px; color: var(--text-muted); margin-top: 4px;">«${escapeHtml(bm.snippet)}»</div>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn-secondary btn-sm" onclick="openBookDetail('${bm.bookId}')">Открыть</button>
+        <button class="btn-icon" onclick="deleteBookmark('${bm.id}')">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function deleteBookmark(id) {
+  state.bookmarks = state.bookmarks.filter(b => b.id !== id);
+  saveBookmarksToStorage();
+  renderBookmarksScreen();
+}
+
+function renderStatsScreen() {
+  const sStreak = document.getElementById('stat-streak');
+  const sBooks = document.getElementById('stat-books-total');
+  const sQuizzes = document.getElementById('stat-quizzes-passed');
+  const sBm = document.getElementById('stat-bookmarks-count');
+
+  if (sStreak) sStreak.textContent = state.streak.count;
+  if (sBooks) sBooks.textContent = state.books.length;
+  if (sQuizzes) sQuizzes.textContent = state.certificates.length;
+  if (sBm) sBm.textContent = state.bookmarks.length;
+
+  const certList = document.getElementById('user-certificates-list');
+  if (!certList) return;
+
+  if (state.certificates.length === 0) {
+    certList.innerHTML = `<p style="color: var(--text-muted); grid-column: 1/-1;">Сертификаты появятся после прохождения аттестации на 100%.</p>`;
+    return;
+  }
+
+  certList.innerHTML = state.certificates.map((c, idx) => `
+    <div class="stat-card soft-gradient-card stagger-item" style="--i:${idx};">
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+      </div>
+      <div class="stat-info">
+        <h4 style="font-size: 14.5px;">${escapeHtml(c.bookTitle)}</h4>
+        <p>${escapeHtml(c.userName)} • ${escapeHtml(c.date)}</p>
       </div>
     </div>
   `).join('');
@@ -1694,19 +1813,15 @@ function renderFullPlayerScreen() {
       embedIframe.src = targetUrl;
     }
   }
-
-  updatePlayPauseButtons();
-  updateAudioUI();
 }
 
 /* ==========================================================================
-   11. Settings & Admin Portal Access
+   15. Settings & Admin Portal Access
    ========================================================================== */
 function renderSettingsScreen() {
   const userCard = document.getElementById('settings-user-card');
   const adminCard = document.getElementById('settings-admin-card');
 
-  // Sync theme segmented control
   const segDark = document.getElementById('seg-theme-dark');
   const segLight = document.getElementById('seg-theme-light');
   if (segDark && segLight) {
@@ -1714,92 +1829,63 @@ function renderSettingsScreen() {
     segLight.classList.toggle('active', state.theme === 'light');
   }
 
-  // Sync font size
   const fontEl = document.getElementById('settings-font-size');
   if (fontEl) fontEl.textContent = `${state.fontSize}px`;
 
-  // Sync language select
-  const langSelect = document.getElementById('settings-lang-select');
-  if (langSelect) langSelect.value = state.currentLang;
+  const langEl = document.getElementById('settings-lang-select');
+  if (langEl) langEl.value = state.currentLang;
+
+  if (!userCard) return;
 
   if (!state.currentUser) {
+    if (adminCard) adminCard.style.display = 'none';
     userCard.innerHTML = `
-      <div style="display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;">
-        <div style="display: flex; align-items: center; gap: 18px;">
-          <div style="width: 58px; height: 58px; border-radius: 50%; background: var(--bg-card); display: flex; align-items: center; justify-content: center; font-size: 28px; border: 2px solid var(--border); flex-shrink: 0;">
-            👤
-          </div>
-          <div>
-            <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 4px; color: var(--text-main);">Вы вошли как гость</h3>
-            <p style="font-size: 13px; color: var(--text-muted); line-height: 1.4; margin: 0;">
-              Войдите через Google или по Email бесплатно, чтобы читать и слушать все книги без ограничений.
-            </p>
-          </div>
+      <div class="settings-row">
+        <div class="settings-row-info">
+          <div class="settings-row-title">Гостевой режим</div>
         </div>
-        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-          <button class="btn-primary" onclick="triggerGoogleSignIn()">Войти через Google</button>
-          <button class="btn-secondary" onclick="openAuthModal()">Войти по Email</button>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button class="btn-google" style="width: auto; padding: 0 16px;" onclick="handleGoogleSignIn()">
+            <span>Google ID</span>
+          </button>
+          <button class="btn-primary" onclick="openAuthModal()">Войти</button>
         </div>
       </div>
     `;
-    if (adminCard) adminCard.style.display = 'none';
   } else {
     const u = state.currentUser;
-    const avatarHtml = u.avatar && u.avatar.startsWith('http')
+    const isAdmin = u.role === 'admin';
+    if (adminCard) adminCard.style.display = isAdmin ? 'block' : 'none';
+
+    const avatarContent = u.avatar && u.avatar.startsWith('http')
       ? `<img src="${escapeHtml(u.avatar)}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`
-      : `<span style="font-size: 30px;">${escapeHtml(u.avatar || '👤')}</span>`;
+      : escapeHtml((u.avatar || u.name || 'U').slice(0, 2).toUpperCase());
 
     userCard.innerHTML = `
-      <div style="display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;">
-        <div style="display: flex; align-items: center; gap: 18px;">
-          <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--bg-card); display: flex; align-items: center; justify-content: center; border: 2px solid var(--border-strong); flex-shrink: 0; overflow: hidden; box-shadow: var(--shadow-sm);">
-            ${avatarHtml}
-          </div>
+      <div class="profile-summary-row">
+        <div class="profile-summary-left">
+          <div class="profile-avatar-large">${avatarContent}</div>
           <div>
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap;">
-              <h3 style="font-size: 19px; font-weight: 800; color: var(--text-main); margin: 0;">${escapeHtml(u.name)}</h3>
-              <span class="badge ${u.role === 'admin' ? 'badge-admin' : 'badge-reader'}">
-                ${u.role === 'admin' ? '👑 Администратор' : '📖 Читатель'}
-              </span>
-            </div>
-            <p style="font-size: 13px; color: var(--text-muted); margin: 0;">${escapeHtml(u.email)}</p>
+            <div style="font-size: 16px; font-weight: 700;">${escapeHtml(u.name)}</div>
+            <div style="font-size: 12.5px; color: var(--text-muted);">${escapeHtml(u.email)}</div>
           </div>
         </div>
-
-        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-          <button class="btn-secondary" onclick="openProfileModal()">✏️ Редактировать профиль</button>
-          <button class="btn-danger" onclick="logout()">Выйти</button>
+        <div class="profile-summary-actions">
+          <button class="btn-secondary btn-sm" onclick="openEditProfileModal()">Профиль</button>
+          <button class="btn-danger btn-sm" onclick="handleLogout()">Выйти</button>
         </div>
       </div>
     `;
-
-    if (adminCard) {
-      adminCard.style.display = (u.role === 'admin') ? 'block' : 'none';
-    }
   }
-}
-
-function setAppTheme(theme) {
-  state.theme = theme;
-  document.documentElement.setAttribute('data-theme', theme);
-  const icon = document.getElementById('theme-toggle-icon');
-  if (icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
-
-  const segDark = document.getElementById('seg-theme-dark');
-  const segLight = document.getElementById('seg-theme-light');
-  if (segDark && segLight) {
-    segDark.classList.toggle('active', theme === 'dark');
-    segLight.classList.toggle('active', theme === 'light');
-  }
-  saveSettingsToStorage();
 }
 
 /* ==========================================================================
-   12. Admin Panel CRUD: Books & Users
+   16. Admin Panel CRUD: Books, Cover Upload & Users
    ========================================================================== */
 function switchAdminTab(tab) {
   document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById(`adm-tab-${tab}`).classList.add('active');
+  const tabBtn = document.getElementById(`adm-tab-${tab}`);
+  if (tabBtn) tabBtn.classList.add('active');
 
   document.getElementById('adm-content-books').style.display = (tab === 'books') ? 'block' : 'none';
   document.getElementById('adm-content-add').style.display = (tab === 'add') ? 'block' : 'none';
@@ -1808,6 +1894,11 @@ function switchAdminTab(tab) {
 
   if (tab === 'books') renderAdminBooksTable();
   if (tab === 'users') renderAdminUsersTable();
+}
+
+function renderAdminScreen() {
+  renderAdminBooksTable();
+  renderAdminUsersTable();
 }
 
 function renderAdminBooksTable() {
@@ -1830,20 +1921,18 @@ function renderAdminBooksTable() {
     const coverSrc = (b.cover && (b.cover.startsWith('data:image') || b.cover.startsWith('http') || b.cover.startsWith('icons/')))
       ? b.cover
       : 'icons/icon-192.png';
-    const coverThumb = `<img src="${escapeHtml(coverSrc)}" onerror="this.onerror=null;this.src='icons/icon-192.png';" style="width: 28px; height: 38px; object-fit: cover; border-radius: 4px; display: inline-block; vertical-align: middle;">`;
+    const coverThumb = `<img src="${escapeHtml(coverSrc)}" onerror="this.onerror=null;this.src='icons/icon-192.png';" style="width: 28px; height: 38px; object-fit: cover; border-radius: 5px; vertical-align: middle;">`;
 
     return `
-      <tr style="border-bottom: 1px solid var(--border);">
-        <td style="padding: 10px 8px;">${coverThumb}</td>
-        <td style="padding: 10px 8px; font-weight: 600;">${escapeHtml(b.title)}</td>
-        <td style="padding: 10px 8px; color: var(--text-muted);">${escapeHtml(b.author)}</td>
-        <td style="padding: 10px 8px;"><span class="badge" style="font-size: 11px;">${escapeHtml(genreName)}</span></td>
-        <td style="padding: 10px 8px;">
-          ${b.audioUrl ? (isGDrive ? '✓ Google Drive' : '✓ Аудиофайл') : '<span style="color:var(--text-sub)">—</span>'}
-        </td>
-        <td style="padding: 10px 8px; text-align: right;">
-          <button class="btn-icon" style="display: inline-flex; width: 32px; height: 32px; font-size: 12px;" onclick="editBookInAdmin('${b.id}')" title="Редактировать">✏️</button>
-          <button class="btn-icon" style="display: inline-flex; width: 32px; height: 32px; font-size: 12px; color: var(--danger);" onclick="deleteBook('${b.id}')" title="Удалить">🗑️</button>
+      <tr>
+        <td>${coverThumb}</td>
+        <td style="font-weight: 600;">${escapeHtml(b.title)}</td>
+        <td style="color: var(--text-muted);">${escapeHtml(b.author)}</td>
+        <td><span class="badge">${escapeHtml(genreName)}</span></td>
+        <td>${b.audioUrl ? (isGDrive ? 'Google Drive' : 'Аудио') : '—'}</td>
+        <td style="text-align: right;">
+          <button class="btn-icon" style="width: 30px; height: 30px;" onclick="editBookInAdmin('${b.id}')">✎</button>
+          <button class="btn-icon" style="width: 30px; height: 30px; color: var(--danger);" onclick="deleteBook('${b.id}')">✕</button>
         </td>
       </tr>
     `;
@@ -1855,71 +1944,21 @@ function renderAdminUsersTable() {
   if (!tbody) return;
 
   tbody.innerHTML = state.users.map(u => {
-    const isMainAdmin = (u.email === 'admin@elibrary.com');
-    const avatarHtml = u.avatar && u.avatar.startsWith('http')
-      ? `<img src="${escapeHtml(u.avatar)}" style="width:24px;height:24px;border-radius:50%;object-fit:cover;">`
-      : `<span style="font-size:16px;">${escapeHtml(u.avatar || '👤')}</span>`;
-
+    const isMainAdmin = (u.email.toLowerCase() === 'admin@elibrary.com');
     return `
-      <tr style="border-bottom: 1px solid var(--border);">
-        <td style="padding: 10px 8px;">${avatarHtml}</td>
-        <td style="padding: 10px 8px; font-weight: 600;">${escapeHtml(u.name)}</td>
-        <td style="padding: 10px 8px; color: var(--text-muted);">${escapeHtml(u.email)}</td>
-        <td style="padding: 10px 8px;">
-          <span class="badge" style="${u.role === 'admin' ? 'background:var(--primary);color:#fff;' : ''}">
-            ${u.role === 'admin' ? '👑 Admin' : '📖 Reader'}
-          </span>
-        </td>
-        <td style="padding: 10px 8px; text-align: right;">
+      <tr>
+        <td style="font-weight: 600;">${escapeHtml(u.name)}</td>
+        <td style="color: var(--text-muted);">${escapeHtml(u.email)}</td>
+        <td><span class="badge ${u.role === 'admin' ? 'badge-admin' : ''}">${u.role === 'admin' ? 'Admin' : 'Reader'}</span></td>
+        <td style="text-align: right;">
           ${!isMainAdmin ? `
-            <button class="btn-icon" style="display:inline-flex; width:auto; padding:4px 8px; font-size:11px; border-radius:var(--radius-sm);" onclick="toggleUserRole('${u.id}')">
-              ${u.role === 'admin' ? 'Сделать читателем' : 'Сделать админом'}
-            </button>
-            <button class="btn-icon" style="display:inline-flex; width:30px; height:30px; font-size:12px; color:var(--danger);" onclick="deleteUser('${u.id}')" title="Удалить">✕</button>
-          ` : '<span style="font-size:11px; color:var(--text-sub);">Главный аккаунт</span>'}
+            <button class="btn-secondary btn-sm" onclick="toggleUserRole('${u.id}')">Роль</button>
+            <button class="btn-icon" style="width: 30px; height: 30px; color: var(--danger);" onclick="deleteUser('${u.id}')">✕</button>
+          ` : `<span style="font-size: 11px; color: var(--text-sub);">Root</span>`}
         </td>
       </tr>
     `;
   }).join('');
-}
-
-function openCreateUserModal() {
-  document.getElementById('admin-new-user-name').value = '';
-  document.getElementById('admin-new-user-email').value = '';
-  document.getElementById('admin-new-user-password').value = '';
-  document.getElementById('create-user-modal').classList.add('active');
-}
-
-function closeCreateUserModal() {
-  document.getElementById('create-user-modal').classList.remove('active');
-}
-
-function handleAdminCreateUser(e) {
-  e.preventDefault();
-  const name = document.getElementById('admin-new-user-name').value.trim();
-  const email = document.getElementById('admin-new-user-email').value.trim().toLowerCase();
-  const password = document.getElementById('admin-new-user-password').value.trim();
-  const role = document.getElementById('admin-new-user-role').value;
-
-  if (state.users.some(u => u.email === email)) {
-    alert('Пользователь с таким email уже существует.');
-    return;
-  }
-
-  state.users.push({
-    id: 'usr_' + Date.now(),
-    email,
-    password,
-    name,
-    role,
-    avatar: role === 'admin' ? '👑' : '📚',
-    createdAt: Date.now()
-  });
-
-  saveUsersToStorage();
-  closeCreateUserModal();
-  renderAdminUsersTable();
-  alert(`Пользователь ${name} успешно создан с ролью: ${role}`);
 }
 
 function toggleUserRole(userId) {
@@ -1928,19 +1967,15 @@ function toggleUserRole(userId) {
   user.role = (user.role === 'admin') ? 'reader' : 'admin';
   saveUsersToStorage();
   renderAdminUsersTable();
-  alert(`Роль пользователя ${user.name} изменена на: ${user.role}`);
 }
 
 function deleteUser(userId) {
-  if (!confirm('Удалить этого пользователя?')) return;
+  if (!confirm('Удалить профиль?')) return;
   state.users = state.users.filter(u => u.id !== userId);
   saveUsersToStorage();
   renderAdminUsersTable();
 }
 
-/* ==========================================================================
-   Book Cover Upload & Image Compression (Local file, no URL needed)
-   ========================================================================== */
 function handleCoverFileSelected(event) {
   const file = event.target.files && event.target.files[0];
   if (!file) return;
@@ -2050,7 +2085,7 @@ function editBookInAdmin(bookId) {
   document.getElementById('form-title').value = book.title || '';
   document.getElementById('form-author').value = book.author || '';
   document.getElementById('form-genre').value = book.genre || 'history';
-  
+
   if (book.cover && (book.cover.startsWith('data:image') || book.cover.startsWith('http') || book.cover.startsWith('icons/'))) {
     setUploadedCover(book.cover);
   } else {
@@ -2087,7 +2122,7 @@ function handleSaveBook(event) {
     try {
       quiz = JSON.parse(quizJson);
     } catch (e) {
-      alert('Ошибка в формате JSON для теста. Вопросы должны быть массивом объектов.');
+      alert('Некорректный JSON аттестации.');
       return;
     }
   }
@@ -2119,105 +2154,248 @@ function handleSaveBook(event) {
 }
 
 function deleteBook(bookId) {
-  if (!confirm('Удалить эту книгу?')) return;
+  if (!confirm('Удалить издание?')) return;
   state.books = state.books.filter(b => b.id !== bookId);
   saveBooksToStorage();
   renderAll();
+  renderAdminBooksTable();
 }
 
-function confirmClearAllBooks() {
-  if (!confirm('ВНИМАНИЕ! Это действие удалит ВСЕ книги из библиотеки. Продолжить?')) return;
+function clearAllBooksConfirm() {
+  if (!confirm('Очистить весь каталог?')) return;
   state.books = [];
   saveBooksToStorage();
   renderAll();
-  alert('Все книги удалены.');
+  renderAdminBooksTable();
 }
 
-function exportLibraryJSON() {
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state.books, null, 2));
+function exportLibraryJson() {
+  const data = JSON.stringify(state.books, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.setAttribute("href", dataStr);
-  a.setAttribute("download", `elibrary_backup_${new Date().toISOString().slice(0, 10)}.json`);
-  document.body.appendChild(a);
+  a.href = url;
+  a.download = `elibrary_export_${new Date().toISOString().slice(0, 10)}.json`;
   a.click();
-  a.remove();
+  URL.revokeObjectURL(url);
 }
 
-function importLibraryJSON(event) {
+function importLibraryJson(event) {
   const file = event.target.files[0];
   if (!file) return;
-
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = e => {
     try {
       const imported = JSON.parse(e.target.result);
       if (Array.isArray(imported)) {
         state.books = imported;
         saveBooksToStorage();
         renderAll();
-        alert(`Успешно импортировано ${imported.length} книг!`);
-      } else {
-        alert('Неверный формат файла JSON.');
+        renderAdminBooksTable();
       }
     } catch (err) {
-      alert('Ошибка при чтении файла: ' + err.message);
+      alert('Ошибка чтения JSON.');
     }
   };
   reader.readAsText(file);
 }
 
-function renderStats() {
-  const totalEl = document.getElementById('stat-total-books');
-  const audioEl = document.getElementById('stat-audio-books');
-  const bmEl = document.getElementById('stat-bookmarks-count');
-
-  if (totalEl) totalEl.textContent = state.books.length;
-  if (audioEl) audioEl.textContent = state.books.filter(b => !!b.audioUrl).length;
-  if (bmEl) bmEl.textContent = state.bookmarks.length;
+/* ==========================================================================
+   17. Authentication & Profile Management
+   ========================================================================== */
+function openAuthModal() {
+  document.getElementById('auth-modal').classList.add('open');
 }
 
-function toggleTheme() {
-  setAppTheme(state.theme === 'dark' ? 'light' : 'dark');
+function closeAuthModal() {
+  document.getElementById('auth-modal').classList.remove('open');
 }
 
-function setAppTheme(theme) {
-  state.theme = theme;
-  document.documentElement.setAttribute('data-theme', theme);
-  const icon = document.getElementById('theme-toggle-icon');
-  if (icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
-  saveSettingsToStorage();
+function handleEmailAuth(event) {
+  event.preventDefault();
+  const email = document.getElementById('auth-email').value.trim().toLowerCase();
+  const pass = document.getElementById('auth-password').value;
+  const nameInput = document.getElementById('auth-name').value.trim();
+
+  if (!email || !pass) return;
+
+  let user = state.users.find(u => u.email.toLowerCase() === email);
+  const passHash = simpleHash(pass);
+
+  if (user) {
+    if (user.passwordHash !== passHash) {
+      alert('Неверный пароль.');
+      return;
+    }
+  } else {
+    const defaultName = nameInput || email.split('@')[0];
+    user = {
+      id: 'usr_' + Date.now(),
+      name: defaultName,
+      email,
+      passwordHash: passHash,
+      role: 'reader',
+      avatar: defaultName.slice(0, 2).toUpperCase(),
+      createdAt: Date.now()
+    };
+    state.users.push(user);
+    saveUsersToStorage();
+  }
+
+  state.currentUser = user;
+  saveSessionToStorage();
+  closeAuthModal();
+  renderAll();
+  if (state.currentScreen === 'reader') renderReaderScreen();
+  alert(`Добро пожаловать, ${user.name}!`);
 }
 
-function applyTheme(theme) {
-  setAppTheme(theme);
+function handleGoogleSignIn() {
+  closeAuthModal();
+  const listEl = document.getElementById('google-accounts-list');
+  const existingUsers = state.users.filter(u => u.email.toLowerCase() !== 'admin@elibrary.com').slice(0, 3);
+
+  if (listEl) {
+    listEl.innerHTML = existingUsers.map(u => `
+      <div class="soft-gradient-card" style="display:flex;align-items:center;gap:12px;padding:10px 14px;cursor:pointer;" onclick="loginWithGoogleProfile('${escapeHtml(u.name)}', '${escapeHtml(u.email)}')">
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;">${escapeHtml((u.avatar || u.name || 'G').slice(0,2))}</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;">${escapeHtml(u.name)}</div>
+          <div style="font-size:11px;color:var(--text-muted);">${escapeHtml(u.email)}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+  document.getElementById('google-chooser-modal').classList.add('open');
 }
 
-function changeLanguage(lang) {
-  if (!I18N[lang]) return;
-  state.currentLang = lang;
-  applyLanguage(lang);
-  saveSettingsToStorage();
+function closeGoogleChooser() {
+  document.getElementById('google-chooser-modal').classList.remove('open');
+}
+
+function submitCustomGoogleAccount(event) {
+  event.preventDefault();
+  const name = document.getElementById('google-custom-name').value.trim();
+  const email = document.getElementById('google-custom-email').value.trim().toLowerCase();
+  if (!name || !email) return;
+  loginWithGoogleProfile(name, email);
+}
+
+function loginWithGoogleProfile(name, email) {
+  let user = state.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  if (!user) {
+    user = {
+      id: 'usr_google_' + Date.now(),
+      name,
+      email,
+      passwordHash: simpleHash('google_oauth_' + email),
+      role: 'reader',
+      avatar: name.slice(0, 2).toUpperCase(),
+      createdAt: Date.now()
+    };
+    state.users.push(user);
+    saveUsersToStorage();
+  }
+
+  state.currentUser = user;
+  saveSessionToStorage();
+  closeGoogleChooser();
+  renderAll();
+  if (state.currentScreen === 'reader') renderReaderScreen();
+}
+
+function handleLogout() {
+  state.currentUser = null;
+  saveSessionToStorage();
+  renderAll();
+  navigate('home');
+}
+
+function openEditProfileModal() {
+  if (!state.currentUser) return;
+  document.getElementById('profile-name-input').value = state.currentUser.name || '';
+  document.getElementById('profile-avatar-input').value = state.currentUser.avatar || '';
+  document.getElementById('profile-password-input').value = '';
+
+  const picker = document.getElementById('avatar-picker');
+  if (picker) {
+    picker.innerHTML = AVATAR_CHOICES.map(av => `
+      <div class="avatar-choice ${state.currentUser.avatar === av ? 'selected' : ''}" onclick="selectAvatarOption('${av}')">${av}</div>
+    `).join('');
+  }
+  document.getElementById('profile-edit-modal').classList.add('open');
+}
+
+function selectAvatarOption(av) {
+  document.getElementById('profile-avatar-input').value = av;
+  document.querySelectorAll('.avatar-choice').forEach(el => {
+    el.classList.toggle('selected', el.textContent === av);
+  });
+}
+
+function closeEditProfileModal() {
+  document.getElementById('profile-edit-modal').classList.remove('open');
+}
+
+function handleSaveProfile(event) {
+  event.preventDefault();
+  if (!state.currentUser) return;
+
+  const newName = document.getElementById('profile-name-input').value.trim();
+  const newAvatar = document.getElementById('profile-avatar-input').value.trim() || 'АД';
+  const newPass = document.getElementById('profile-password-input').value;
+
+  const idx = state.users.findIndex(u => u.id === state.currentUser.id);
+  if (idx >= 0) {
+    state.users[idx].name = newName;
+    state.users[idx].avatar = newAvatar;
+    if (newPass.trim().length > 0) {
+      state.users[idx].passwordHash = simpleHash(newPass);
+    }
+    state.currentUser = state.users[idx];
+    saveUsersToStorage();
+    saveSessionToStorage();
+  }
+
+  closeEditProfileModal();
   renderAll();
 }
 
-function applyLanguage(lang) {
-  const dict = I18N[lang] || I18N.ru;
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    if (dict[key]) el.textContent = dict[key];
-  });
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-    const key = el.getAttribute('data-i18n-placeholder');
-    if (dict[key]) el.placeholder = dict[key];
-  });
-  const lSelect = document.getElementById('lang-select');
-  const sSelect = document.getElementById('settings-lang-select');
-  if (lSelect) lSelect.value = lang;
-  if (sSelect) sSelect.value = lang;
+function openAdminCreateUserModal() {
+  document.getElementById('adm-user-name').value = '';
+  document.getElementById('adm-user-email').value = '';
+  document.getElementById('adm-user-pass').value = '';
+  document.getElementById('adm-user-role').value = 'reader';
+  document.getElementById('admin-user-modal').classList.add('open');
 }
 
-function openMobileMenu() {
-  navigate('settings');
+function closeAdminCreateUserModal() {
+  document.getElementById('admin-user-modal').classList.remove('open');
 }
 
-document.addEventListener('DOMContentLoaded', initApp);
+function handleAdminCreateUser(event) {
+  event.preventDefault();
+  const name = document.getElementById('adm-user-name').value.trim();
+  const email = document.getElementById('adm-user-email').value.trim().toLowerCase();
+  const pass = document.getElementById('adm-user-pass').value;
+  const role = document.getElementById('adm-user-role').value;
+
+  if (state.users.some(u => u.email.toLowerCase() === email)) {
+    alert('Email уже зарегистрирован.');
+    return;
+  }
+
+  state.users.push({
+    id: 'usr_' + Date.now(),
+    name,
+    email,
+    passwordHash: simpleHash(pass),
+    role,
+    avatar: name.slice(0, 2).toUpperCase(),
+    createdAt: Date.now()
+  });
+
+  saveUsersToStorage();
+  closeAdminCreateUserModal();
+  renderAdminUsersTable();
+}

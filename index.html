@@ -1,866 +1,928 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="dark">
+<html lang="ru" data-theme="light">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-  <meta name="description" content="eLibrary — современная электронная библиотека и аудиоплеер с поддержкой Google Drive, адаптацией для Mac, ПК и смартфонов.">
-  <title>eLibrary — Цифровая библиотека & Аудиоплеер</title>
-
-  <!-- PWA & Mobile Meta Tags -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#080d14">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="theme-color" content="#F5F2EB">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="eLibrary">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link rel="icon" type="image/png" href="icons/favicon.png">
+  <meta name="description" content="eLibrary — Академическая цифровая платформа.">
+  
+  <!-- Content Security Policy -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; img-src 'self' https: data: blob:; media-src 'self' https: data: blob: https://*.googleusercontent.com https://drive.google.com https://docs.google.com; frame-src 'self' https://drive.google.com https://docs.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; script-src 'self' 'unsafe-inline';">
 
-  <!-- Stylesheet -->
+  <title>eLibrary — Научная платформа</title>
+
+  <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="app-layout">
-  <!-- Desktop / Mac Sidebar Navigation -->
-  <aside id="sidebar">
-    <div class="sidebar-header">
-      <div class="brand-icon"><img src="icons/icon-192.png" alt="eLibrary logo"></div>
-      <div class="brand-name">eLibrary</div>
-      <span class="brand-badge">PRO</span>
-    </div>
+  <!-- Optical SVG Filters for iOS 26 UltraReal 3D Liquid Glass Refraction -->
+  <svg class="optical-svg-defs" aria-hidden="true" width="0" height="0">
+    <defs>
+      <filter id="liquid-glass-refract" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.018 0.022" numOctaves="2" seed="7" result="noise" />
+        <feGaussianBlur in="noise" stdDeviation="3.5" result="smoothNoise" />
+        <feDisplacementMap in="SourceGraphic" in2="smoothNoise" scale="11" xChannelSelector="R" yChannelSelector="G" result="refracted" />
+        <feSpecularLighting in="smoothNoise" surfaceScale="3" specularConstant="0.85" specularExponent="28" lighting-color="#ffffff" result="specular">
+          <fePointLight x="180" y="-120" z="220" />
+        </feSpecularLighting>
+        <feComposite in="specular" in2="SourceAlpha" operator="in" result="specularMask" />
+        <feMerge>
+          <feMergeNode in="refracted" />
+          <feMergeNode in="specularMask" />
+        </feMerge>
+      </filter>
 
-    <nav class="sidebar-nav">
-      <div class="nav-section-title" data-i18n="navMenu">НАВИГАЦИЯ</div>
-      <button class="nav-link active" data-screen="home" onclick="navigate('home')">
-        <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9.5z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        <span data-i18n="navHome">Главная</span>
-      </button>
-      <button class="nav-link" data-screen="genres" onclick="navigate('genres')">
-        <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/></svg>
-        <span data-i18n="navGenres">Направления</span>
-      </button>
-      <button class="nav-link" data-screen="bookmarks" onclick="navigate('bookmarks')">
-        <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-        <span data-i18n="navBookmarks">Избранное</span>
-      </button>
-      <button class="nav-link" data-screen="stats" onclick="navigate('stats')">
-        <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-        <span data-i18n="navStats">Аналитика</span>
-      </button>
+      <filter id="liquid-pill-refract" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+        <feTurbulence type="turbulence" baseFrequency="0.025" numOctaves="2" seed="3" result="pillWaves" />
+        <feGaussianBlur in="pillWaves" stdDeviation="2" result="softWaves" />
+        <feDisplacementMap in="SourceGraphic" in2="softWaves" scale="8" xChannelSelector="R" yChannelSelector="B" />
+      </filter>
+    </defs>
+  </svg>
 
-      <div class="nav-section-title" data-i18n="navPreferences">СИСТЕМА</div>
-      <button class="nav-link" data-screen="settings" onclick="navigate('settings')">
-        <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        <span data-i18n="navSettings">Профиль</span>
-      </button>
-    </nav>
+  <!-- Ambient Background Refraction Shapes (visible through UltraReal Liquid Glass) -->
+  <div class="ambient-refraction-stage" aria-hidden="true">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+    <div class="ambient-grid-lines"></div>
+  </div>
 
-    <div class="sidebar-footer">
-      <div style="display: flex; gap: 8px; align-items: center; justify-content: space-between;">
-        <button class="btn-icon" onclick="toggleTheme()" title="Переключить тему">
-          <span id="theme-toggle-icon">☀️</span>
-        </button>
-        <select class="form-select" id="lang-select" onchange="changeLanguage(this.value)" style="padding: 6px 10px; font-size: 12px; width: auto;">
-          <option value="ru">Русский</option>
-          <option value="tj">Тоҷикӣ</option>
-          <option value="en">English</option>
-        </select>
+  <div class="app-shell">
+    
+    <!-- ======================= DESKTOP SIDEBAR (UltraReal Liquid Glass) ======================= -->
+    <aside class="sidebar liquid-glass-panel" id="sidebar">
+      <div class="brand-logo" onclick="navigate('home')">
+        <div class="brand-icon-glass">
+          <img src="icons/icon-192.png" alt="eLibrary">
+        </div>
+        <span class="brand-title">eLibrary</span>
       </div>
-      <p style="font-size: 11px; color: var(--text-sub); text-align: center; margin-top: 4px;">eLibrary Pro v2.0</p>
-    </div>
-  </aside>
 
-  <!-- Main Workspace -->
-  <main id="main-content">
-    <!-- Topbar -->
-    <header class="topbar">
-      <div class="topbar-left">
-        <button class="menu-toggle-btn" onclick="openMobileMenu()">☰</button>
-        <div class="topbar-title" id="page-title" style="display: flex; align-items: center; gap: 8px;">
-          <img src="icons/icon-192.png" alt="" style="width: 24px; height: 24px; border-radius: 6px; object-fit: cover;">
+      <div class="liquid-divider"></div>
+
+      <div class="nav-section-title" data-i18n="navMenu">Навигация</div>
+      <div class="sidebar-nav-track" id="sidebar-nav-track">
+        <!-- Sliding Liquid Glass Indicator for Sidebar -->
+        <div class="sidebar-liquid-pill" id="sidebar-liquid-indicator"></div>
+
+        <button class="nav-item active" id="nav-home" data-screen="home" onclick="navigate('home')">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-9z"/><path d="M9 21V13h6v8"/></svg>
+          </span>
+          <span class="nav-label" data-i18n="navHome">Обзор</span>
+        </button>
+
+        <button class="nav-item" id="nav-categories" data-screen="categories" onclick="navigate('categories')">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/></svg>
+          </span>
+          <span class="nav-label" data-i18n="navCategories">Направления</span>
+        </button>
+
+        <button class="nav-item" id="nav-bookmarks" data-screen="bookmarks" onclick="navigate('bookmarks')">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          </span>
+          <span class="nav-label" data-i18n="navBookmarks">Закладки</span>
+        </button>
+
+        <button class="nav-item" id="nav-stats" data-screen="stats" onclick="navigate('stats')">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+          </span>
+          <span class="nav-label" data-i18n="navStats">Аналитика</span>
+        </button>
+
+        <button class="nav-item" id="nav-settings" data-screen="settings" onclick="navigate('settings')">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </span>
+          <span class="nav-label" data-i18n="navSettings">Параметры</span>
+        </button>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="liquid-divider" style="margin: 0 auto 14px;"></div>
+        <div class="sidebar-footer-controls">
+          <button class="btn-icon liquid-glass-btn" onclick="toggleTheme()" id="theme-toggle-btn" title="Тема">
+            <svg id="theme-icon-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          </button>
+          <select class="lang-select liquid-glass-input" id="lang-select" onchange="changeLanguage(this.value)" aria-label="Язык">
+            <option value="ru">RU</option>
+            <option value="tg">TG</option>
+            <option value="en">EN</option>
+          </select>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ======================= TOP HEADER (UltraReal Liquid Glass) ======================= -->
+    <header class="top-header liquid-glass-panel">
+      <div class="header-left">
+        <button class="header-back-btn liquid-glass-btn" id="global-back-btn" onclick="handleGlobalBack()" style="display: none;" title="Назад">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        </button>
+        <div class="mobile-brand" onclick="navigate('home')">
+          <img src="icons/icon-192.png" alt="eLibrary">
           <span>eLibrary</span>
         </div>
       </div>
 
-      <div class="search-bar">
-        <span class="search-icon">🔍</span>
-        <input type="text" class="search-input" id="search-input" placeholder="Поиск книг, авторов..." oninput="handleSearch(this.value)" data-i18n-placeholder="searchPlaceholder">
+      <div class="search-wrapper">
+        <span class="search-icon">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        </span>
+        <input type="text" class="search-input" id="search-input" placeholder="Поиск литературы..." data-i18n-placeholder="searchPlaceholder" oninput="handleSearch(this.value)">
       </div>
 
-      <div class="topbar-actions">
-        <!-- Daily Streak Badge (Psychological Habit Trigger) -->
-        <div class="streak-badge" id="topbar-streak" title="Дней чтения подряд">
-          🔥 <span id="streak-days">1</span> дн.
+      <div class="header-actions">
+        <div class="streak-pill liquid-glass-btn" id="header-streak" onclick="navigate('stats')">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          <span id="streak-days-text">1 дн.</span>
         </div>
 
-        <!-- Auth / Profile Container -->
-        <div id="topbar-auth-container">
-          <!-- Dynamically populated: Login Button or User Profile Badge -->
-        </div>
+        <div id="header-user-zone"></div>
       </div>
     </header>
 
-    <!-- Page: HOME -->
-    <section class="screen active" id="screen-home">
-      <div class="page-container">
-        <!-- Hero Banner -->
-        <div class="hero-banner">
-          <div class="hero-content">
-            <span class="hero-tag" data-i18n="heroTag">✨ АКАДЕМИЧЕСКИЙ ФОНД</span>
-            <h1 class="hero-title" data-i18n="heroTitle">Научные монографии, труды и лекторий</h1>
-            <p class="hero-desc" data-i18n="heroDesc">Единая исследовательская среда. Авторизованный доступ к первоисточникам и аудиоматериалам.</p>
-            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-              <button class="btn-primary" onclick="navigate('genres')" data-i18n="exploreGenres">Отрасли знания</button>
-              <button class="btn-back-glass" style="margin-bottom:0;" onclick="navigate('settings')">Профиль исследователя →</button>
-            </div>
-          </div>
-        </div>
+    <!-- ======================= MAIN CONTENT AREA ======================= -->
+    <main class="main-content" id="main-scroll">
 
-        <div class="glass-divider"></div>
-
-        <!-- Academic Disciplines 3D Cards -->
-        <div class="section-header">
+      <!-- Resume Progress Banner (Auto-Restored Session) -->
+      <div class="resume-progress-bar liquid-glass-card" id="resume-session-bar" style="display: none;">
+        <div class="resume-info">
+          <span class="resume-dot"></span>
           <div>
-            <h2 class="section-title"><span data-i18n="categoriesTitle">Отраслевые направления</span></h2>
-            <p class="section-subtitle" data-i18n="categoriesSubtitle">Классификатор академических дисциплин</p>
+            <div class="resume-label" data-i18n="resumeTitle">Сессия сохранена</div>
+            <div class="resume-sub" id="resume-book-title"></div>
           </div>
         </div>
-        <div class="genres-grid" id="home-genres-grid"></div>
-
-        <div class="glass-divider"></div>
-
-        <!-- Books Library Section -->
-        <div class="section-header" style="margin-top: 16px;">
-          <div>
-            <h2 class="section-title"><span data-i18n="allBooksTitle">Академический каталог</span></h2>
-            <p class="section-subtitle" id="books-count-subtitle">0 изданий доступно</p>
-          </div>
-        </div>
-
-        <!-- Books Grid Container -->
-        <div class="books-grid" id="home-books-grid"></div>
-
-        <!-- Empty State Container (displayed when 0 books exist) -->
-        <div class="empty-state" id="home-empty-state" style="display: none;">
-          <div class="empty-icon">📖</div>
-          <h3 class="empty-title" data-i18n="emptyLibTitle">Библиотека пуста</h3>
-          <p class="empty-desc" data-i18n="emptyLibDesc">Все старые книги удалены. Добавьте свои первые книги и аудиокниги с Google Drive через удобную панель управления в Настройках!</p>
-          <button class="btn-primary" onclick="navigate('settings')" style="margin: 0 auto;">
-            <span>⚙️</span> <span>Перейти в Настройки</span>
+        <div class="resume-actions">
+          <button class="btn-primary btn-sm" onclick="restoreSavedProgress()" data-i18n="resumeBtn">Продолжить</button>
+          <button class="btn-icon btn-sm" onclick="dismissSavedProgress()" title="Скрыть">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
           </button>
         </div>
       </div>
-    </section>
 
-    <!-- Page: GENRES -->
-    <section class="screen" id="screen-genres">
-      <div class="page-container">
-        <div class="section-header">
-          <div>
-            <h2 class="section-title">📂 <span data-i18n="genresCatalog">Каталог жанров</span></h2>
-            <p class="section-subtitle" data-i18n="genresCatalogSub">Исследуйте книги по тематическим разделам</p>
+      <!-- Page 1: HOME -->
+      <section class="screen active" id="screen-home">
+        <div class="page-container">
+          
+          <!-- Minimal Academic Hero (Liquid Glass + Soft Two-Tone) -->
+          <div class="hero-banner liquid-glass-hero stagger-item" style="--i: 0;">
+            <div class="hero-content">
+              <div class="hero-tag">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                <span data-i18n="heroBadge">Академический фонд</span>
+              </div>
+              <h1 class="hero-title text-reveal" data-i18n="heroTitle">Цифровая библиотека</h1>
+              <div class="liquid-divider hero-divider"></div>
+              <div class="hero-actions">
+                <button class="btn-primary" onclick="document.getElementById('catalog-section').scrollIntoView({behavior:'smooth'})">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                  <span data-i18n="btnExplore">Каталог</span>
+                </button>
+                <button class="btn-secondary liquid-glass-btn" onclick="navigate('categories')">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+                  <span data-i18n="navCategories">Направления</span>
+                </button>
+              </div>
+            </div>
+            <div class="hero-3d-showcase">
+              <canvas id="hero-3d-canvas" width="320" height="320"></canvas>
+            </div>
           </div>
-        </div>
-        <div class="genres-grid" id="full-genres-grid"></div>
-        <div class="section-header" style="margin-top: 24px;">
-          <h3 class="section-title" id="genre-view-title">Все книги</h3>
-        </div>
-        <div class="books-grid" id="genre-books-grid"></div>
-      </div>
-    </section>
 
-    <!-- Page: BOOK DETAIL -->
-    <section class="screen" id="screen-book-detail">
-      <div class="page-container">
-        <button class="btn-back-glass" onclick="navigate('home')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> <span>Назад в каталог</span></button>
-        
-        <div class="book-detail-wrapper" id="book-detail-content">
-          <!-- Dynamically populated by app.js -->
-        </div>
-      </div>
-    </section>
-
-    <!-- Page: TEXT READER -->
-    <section class="screen" id="screen-reader">
-      <div class="page-container">
-        <div class="reader-header">
-          <button class="btn-back-glass" onclick="backToDetail()" style="margin-bottom:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> <span>Назад</span></button>
-          <div style="text-align: center;">
-            <div id="reader-title" style="font-weight: 700; font-size: 15px;"></div>
-            <div id="reader-author" style="font-size: 12px; color: var(--text-muted);"></div>
-          </div>
-          <div class="reader-controls">
-            <button class="btn-icon" onclick="changeFontSize(-2)" title="Уменьшить шрифт">A-</button>
-            <button class="btn-icon" onclick="changeFontSize(2)" title="Увеличить шрифт">A+</button>
-            <button class="btn-icon" id="reader-share-btn" onclick="openQuoteShareModal()" title="Поделиться цитатой">📤</button>
-            <button class="btn-icon" id="reader-bookmark-btn" onclick="toggleCurrentBookmark()" title="Закладка">🔖</button>
-          </div>
-        </div>
-
-        <div class="reader-container">
-          <!-- Text Body Container -->
-          <div class="reader-content" id="reader-content-body"></div>
-
-          <!-- Freemium Paywall (Shown if user is not logged in) -->
-          <div id="reader-paywall-box" class="paywall-card" style="display: none;">
-            <div class="paywall-icon">🔒</div>
-            <h3 class="paywall-title">Ознакомительный фрагмент (Превью)</h3>
-            <p class="paywall-desc">
-              Вы прочитали бесплатные первые страницы. Войдите через Google или по Email бесплатно, чтобы получить полный доступ ко всей книге и пройти тест по материалу!
-            </p>
-            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-              <button class="btn-google" style="max-width: 240px;" onclick="triggerGoogleSignIn()">
-                <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-                <span>Войти через Google</span>
+          <!-- 3D Disciplines Preview Grid (Reference Image 1 Style) -->
+          <div class="section-block stagger-item" style="--i: 1;">
+            <div class="section-header">
+              <h2 class="section-title text-reveal" data-i18n="navCategories">Обучение направлениям</h2>
+              <button class="btn-link" onclick="navigate('categories')">
+                <span data-i18n="filterAll">Все</span>
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </button>
-              <button class="btn-primary" onclick="openAuthModal()">Войти по Email</button>
+            </div>
+            <div class="liquid-divider"></div>
+            <div class="categories-3d-grid home-categories-preview" id="home-categories-3d-grid"></div>
+          </div>
+
+          <!-- Catalog Section -->
+          <div id="catalog-section" class="section-block stagger-item" style="--i: 2;">
+            <div class="section-header">
+              <h2 class="section-title text-reveal" data-i18n="catalogTitle">Литература</h2>
+            </div>
+            <div class="liquid-divider"></div>
+
+            <!-- Genre Filter Track with Sliding Pill -->
+            <div class="genre-pills" id="home-genre-pills"></div>
+
+            <!-- Books Grid -->
+            <div class="books-grid" id="home-books-grid"></div>
+
+            <!-- Empty State -->
+            <div class="empty-state soft-gradient-card" id="home-empty-state" style="display: none;">
+              <div class="empty-icon-svg">
+                <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              </div>
+              <h3 class="empty-title" data-i18n="emptyLibraryTitle">Каталог пуст</h3>
+              <div class="liquid-divider" style="max-width: 140px; margin: 12px auto;"></div>
+              <p class="empty-desc" data-i18n="emptyLibraryDesc">Добавьте издания через панель управления.</p>
+              <button class="btn-primary" onclick="handleEmptyStateAction()">
+                <span id="empty-action-label" data-i18n="btnGoSettings">Параметры</span>
+              </button>
             </div>
           </div>
 
-          <!-- Interactive Test / Quiz Section -->
-          <div id="reader-quiz-container" class="quiz-section" style="display: none;">
-            <div class="quiz-header">
-              <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981; margin-bottom: 8px;">🎯 Проверка знаний</span>
-              <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 6px;">Тест по прочитанному материалу</h3>
-              <p style="font-size: 13px; color: var(--text-muted);">Ответьте на вопросы, чтобы закрепить понимание темы и получить сертификат!</p>
+        </div>
+      </section>
+
+      <!-- Page 2: CATEGORIES (3D Floating Objects Grid - Reference Image 1) -->
+      <section class="screen" id="screen-categories">
+        <div class="page-container">
+          <div class="screen-top-nav">
+            <button class="btn-back liquid-glass-btn" onclick="handleScreenBack()">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+              <span data-i18n="btnBack">Назад</span>
+            </button>
+            <h2 class="section-title text-reveal" data-i18n="categoriesTitle">Обучение направлениям</h2>
+          </div>
+          <div class="liquid-divider"></div>
+
+          <div class="categories-3d-grid" id="categories-grid"></div>
+
+          <div id="category-filtered-results" style="margin-top: 36px; display: none;">
+            <div class="section-header">
+              <h3 class="section-title" id="selected-category-title">Направление</h3>
+              <button class="btn-secondary liquid-glass-btn btn-sm" onclick="clearCategorySelection()" data-i18n="btnShowAll">Сбросить</button>
             </div>
-            
-            <div id="quiz-questions-list"></div>
+            <div class="liquid-divider"></div>
+            <div class="books-grid" id="category-books-grid"></div>
+          </div>
+        </div>
+      </section>
 
-            <div id="quiz-result-banner" class="quiz-score-banner" style="display: none;">
-              <h4 style="font-size: 18px; font-weight: 800; margin-bottom: 8px;" id="quiz-score-text">Вы набрали 100%!</h4>
-              <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Поздравляем! Материал успешно усвоен.</p>
-              <button class="btn-primary" onclick="generateCertificate()" style="margin: 0 auto;">🏆 Получить сертификат читателя</button>
+      <!-- Page 3: BOOKMARKS -->
+      <section class="screen" id="screen-bookmarks">
+        <div class="page-container">
+          <div class="screen-top-nav">
+            <button class="btn-back liquid-glass-btn" onclick="handleScreenBack()">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+              <span data-i18n="btnBack">Назад</span>
+            </button>
+            <h2 class="section-title text-reveal" data-i18n="bookmarksTitle">Закладки</h2>
+          </div>
+          <div class="liquid-divider"></div>
+
+          <div id="bookmarks-list-container"></div>
+        </div>
+      </section>
+
+      <!-- Page 4: STATS & CERTIFICATES -->
+      <section class="screen" id="screen-stats">
+        <div class="page-container">
+          <div class="screen-top-nav">
+            <button class="btn-back liquid-glass-btn" onclick="handleScreenBack()">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+              <span data-i18n="btnBack">Назад</span>
+            </button>
+            <h2 class="section-title text-reveal" data-i18n="statsTitle">Аналитика</h2>
+          </div>
+          <div class="liquid-divider"></div>
+
+          <div class="stats-grid">
+            <div class="stat-card soft-gradient-card stagger-item" style="--i: 0;">
+              <div class="stat-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              </div>
+              <div class="stat-info">
+                <h4 id="stat-streak">1</h4>
+                <p data-i18n="statStreakLabel">Дней подряд</p>
+              </div>
+            </div>
+            <div class="stat-card soft-gradient-card stagger-item" style="--i: 1;">
+              <div class="stat-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              </div>
+              <div class="stat-info">
+                <h4 id="stat-books-total">0</h4>
+                <p data-i18n="statBooksTotal">Фонд изданий</p>
+              </div>
+            </div>
+            <div class="stat-card soft-gradient-card stagger-item" style="--i: 2;">
+              <div class="stat-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+              <div class="stat-info">
+                <h4 id="stat-quizzes-passed">0</h4>
+                <p data-i18n="statQuizzesPassed">Аттестации</p>
+              </div>
+            </div>
+            <div class="stat-card soft-gradient-card stagger-item" style="--i: 3;">
+              <div class="stat-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+              </div>
+              <div class="stat-info">
+                <h4 id="stat-bookmarks-count">0</h4>
+                <p data-i18n="statBookmarksCount">Закладки</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-header" style="margin-top: 28px;">
+            <h3 class="section-title" data-i18n="certificatesSectionTitle">Сертификаты</h3>
+          </div>
+          <div class="liquid-divider"></div>
+          <div id="user-certificates-list" class="stats-grid"></div>
+        </div>
+      </section>
+
+      <!-- Page 5: BOOK DETAIL -->
+      <section class="screen" id="screen-book-detail">
+        <div class="page-container">
+          <div class="screen-top-nav">
+            <button class="btn-back liquid-glass-btn" onclick="handleScreenBack()">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+              <span data-i18n="btnBack">Назад</span>
+            </button>
+          </div>
+          <div class="liquid-divider"></div>
+          <div id="book-detail-content"></div>
+        </div>
+      </section>
+
+      <!-- Page 6: READER & QUIZZES -->
+      <section class="screen" id="screen-reader">
+        <div class="page-container">
+          <div class="reader-toolbar liquid-glass-panel">
+            <button class="btn-back liquid-glass-btn" onclick="requestExitWithSaveCheck()">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+              <span data-i18n="btnBack">Назад</span>
+            </button>
+
+            <div class="reader-controls">
+              <button class="font-btn" onclick="adjustFontSize(-1)" title="A-">A-</button>
+              <button class="font-btn" onclick="adjustFontSize(1)" title="A+">A+</button>
+              <button class="font-btn" onclick="saveReaderBookmark()" title="Закладка">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="reader-paper soft-gradient-card" id="reader-paper">
+            <h1 class="reader-chapter-title" id="reader-title">Название</h1>
+            <div class="liquid-divider"></div>
+            <div class="reader-text" id="reader-body"></div>
+
+            <!-- Paywall for Guests -->
+            <div class="paywall-overlay liquid-glass-card" id="reader-paywall-box" style="display: none;">
+              <div class="paywall-icon-svg">
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </div>
+              <h3 class="paywall-title" data-i18n="paywallTitle">Ограниченный доступ</h3>
+              <div class="liquid-divider" style="max-width: 140px; margin: 10px auto;"></div>
+              <p class="paywall-desc" data-i18n="paywallDesc">Авторизуйтесь для доступа к полному тексту и аттестации.</p>
+              <div class="paywall-actions">
+                <button class="btn-google" onclick="handleGoogleSignIn()" style="max-width: 280px;">
+                  <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                  <span data-i18n="btnGoogleSignIn">Google ID</span>
+                </button>
+                <button class="btn-primary" onclick="openAuthModal()">
+                  <span data-i18n="btnEmailSignIn">Вход по Email</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Interactive Quiz Section -->
+            <div class="quiz-section" id="reader-quiz-container" style="display: none;">
+              <div class="quiz-header">
+                <span class="badge" data-i18n="quizBadge">Аттестация</span>
+                <h3 style="font-size: 20px; font-weight: 700; margin-top: 8px;" data-i18n="quizTitle">Проверка знаний</h3>
+              </div>
+              <div class="liquid-divider"></div>
+
+              <div id="quiz-questions-list"></div>
+
+              <div id="quiz-result-banner" class="soft-gradient-card" style="display: none; margin-top: 20px; padding: 22px; border-radius: var(--radius-md); text-align: center;">
+                <h4 id="quiz-score-title" style="font-size: 18px; font-weight: 700; margin-bottom: 6px;"></h4>
+                <p id="quiz-score-desc" style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;"></p>
+                <button class="btn-primary" id="btn-claim-certificate" onclick="generateCertificate()" style="display: none; margin: 0 auto;">
+                  <span data-i18n="btnGetCertificate">Сертификат</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- Page 7: AUDIO PLAYER (100% Native Google Drive Player) -->
+      <section class="screen" id="screen-player">
+        <div class="page-container">
+          <div class="screen-top-nav">
+            <button class="btn-back liquid-glass-btn" onclick="requestExitWithSaveCheck()">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+              <span data-i18n="btnBack">Назад</span>
+            </button>
+            <h2 class="section-title text-reveal" data-i18n="playerHeader">Аудиотека</h2>
+          </div>
+          <div class="liquid-divider"></div>
+
+          <div class="player-page-card liquid-glass-card" style="max-width: 620px; margin: 0 auto; text-align: center;">
+            <div class="player-cover-large" id="player-cover-box">
+              <img src="icons/icon-512.png" alt="Cover">
+            </div>
+
+            <h2 class="player-title" id="player-title">Аудиокнига</h2>
+            <p class="player-author" id="player-author">Автор</p>
+
+            <div class="liquid-divider" style="max-width: 220px; margin: 16px auto;"></div>
+
+            <!-- Seamless In-App Google Drive Player Iframe -->
+            <div class="gdrive-player-box" id="gdrive-player-wrapper">
+              <iframe id="gdrive-embed-iframe" src="" allow="autoplay"></iframe>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Page: AUDIO PLAYER (100% Native Google Drive Player) -->
-    <section class="screen" id="screen-player">
-      <div class="page-container">
-        <button class="btn-back-glass" onclick="backToDetail()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> <span>Назад к изданию</span></button>
-        
-        <div class="player-page-card" style="max-width: 640px; margin: 0 auto; text-align: center;">
-          <!-- Book Cover -->
-          <div class="player-cover-large" id="player-cover-box" style="width: 170px; height: 230px; border-radius: var(--radius-md); margin: 0 auto 20px;">
-            <img src="icons/icon-512.png" alt="Cover" style="width: 100%; height: 100%; object-fit: cover;">
+      <!-- Page 8: SETTINGS & PROFILE -->
+      <section class="screen" id="screen-settings">
+        <div class="page-container">
+          <div class="screen-top-nav">
+            <button class="btn-back liquid-glass-btn" onclick="handleScreenBack()">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+              <span data-i18n="btnBack">Назад</span>
+            </button>
+            <h2 class="section-title text-reveal" data-i18n="settingsTitle">Параметры</h2>
           </div>
-          
-          <h2 class="player-title" id="player-title" style="font-size: 22px; margin-bottom: 4px;">Название аудиокниги</h2>
-          <p class="player-author" id="player-author" style="font-size: 14px; color: var(--primary-light); margin-bottom: 14px;">Автор</p>
-          
-          <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 20px;">
-            <span class="badge badge-admin" style="padding: 5px 12px; font-size: 12px;">⚡ Google Drive Player (100% совместимость)</span>
-          </div>
+          <div class="liquid-divider"></div>
 
-          <!-- Seamless In-App Google Drive Player Iframe -->
-          <div class="gdrive-player-box" id="gdrive-player-wrapper" style="width: 100%; height: 140px; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-strong); background: #000000; box-shadow: var(--shadow-md);">
-            <iframe id="gdrive-embed-iframe" src="" allow="autoplay" style="width: 100%; height: 100%; border: none;"></iframe>
-          </div>
+          <div class="settings-stack">
+            <!-- Account Card -->
+            <div class="settings-card soft-gradient-card" id="settings-user-card"></div>
 
-          <p style="font-size: 12px; color: var(--text-muted); margin-top: 14px; line-height: 1.5;">
-            ✓ Официальный встроенный плеер Google Drive. Работает со 100% гарантией без CORS-ошибок и сетевых блокировок.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Page: BOOKMARKS -->
-    <section class="screen" id="screen-bookmarks">
-      <div class="page-container">
-        <div class="section-header">
-          <div>
-            <h2 class="section-title">🔖 <span data-i18n="bookmarksTitle">Мои закладки</span></h2>
-            <p class="section-subtitle" data-i18n="bookmarksSubtitle">Сохранённые цитаты и страницы</p>
-          </div>
-        </div>
-        <div id="bookmarks-container" class="books-grid"></div>
-        <div class="empty-state" id="bookmarks-empty-state" style="display: none;">
-          <div class="empty-icon">🔖</div>
-          <h3 class="empty-title">Нет закладок</h3>
-          <p class="empty-desc">Во время чтения книги нажимайте на значок закладки, чтобы сохранить понравившийся фрагмент.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Page: STATS -->
-    <section class="screen" id="screen-stats">
-      <div class="page-container">
-        <div class="section-header">
-          <div>
-            <h2 class="section-title">📊 <span data-i18n="statsTitle">Статистика библиотеки</span></h2>
-            <p class="section-subtitle" data-i18n="statsSubtitle">Активность и статистика вашей библиотеки</p>
-          </div>
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
-          <div class="admin-card" style="text-align: center; margin: 0;">
-            <div style="font-size: 32px; font-weight: 800; color: var(--primary-light);" id="stat-total-books">0</div>
-            <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Всего книг</div>
-          </div>
-          <div class="admin-card" style="text-align: center; margin: 0;">
-            <div style="font-size: 32px; font-weight: 800; color: var(--success);" id="stat-audio-books">0</div>
-            <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">С аудиокнигами</div>
-          </div>
-          <div class="admin-card" style="text-align: center; margin: 0;">
-            <div style="font-size: 32px; font-weight: 800; color: var(--accent);" id="stat-genres-count">10</div>
-            <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Категорий</div>
-          </div>
-          <div class="admin-card" style="text-align: center; margin: 0;">
-            <div style="font-size: 32px; font-weight: 800; color: var(--warning);" id="stat-bookmarks-count">0</div>
-            <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Закладок</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Page: SETTINGS & USER PROFILE (Admin entry point resides here!) -->
-    <section class="screen" id="screen-settings">
-      <div class="page-container">
-        <div class="section-header" style="max-width: 860px; margin: 0 auto 24px;">
-          <div>
-            <h2 class="section-title">⚙️ <span data-i18n="settingsTitle">Настройки и Профиль</span></h2>
-            <p class="section-subtitle" data-i18n="settingsSubtitle">Управление вашим аккаунтом, безопасность и параметры чтения</p>
-          </div>
-        </div>
-
-        <div class="settings-container">
-          <!-- 1. User Account Card -->
-          <div class="settings-card" id="settings-user-card">
-            <!-- Populated dynamically by app.js -->
-          </div>
-
-          <!-- 2. Admin Portal Card (VISIBLE ONLY TO ADMINS) -->
-          <div class="settings-card settings-admin-hero" id="settings-admin-card" style="display: none;">
-            <div style="display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;">
-              <div style="display: flex; align-items: center; gap: 16px;">
-                <div style="width: 52px; height: 52px; border-radius: var(--radius-md); background: linear-gradient(135deg, rgba(2, 132, 199, 0.3), rgba(56, 189, 248, 0.15)); display: flex; align-items: center; justify-content: center; font-size: 26px; border: 1px solid rgba(56, 189, 248, 0.3); flex-shrink: 0;">
-                  👑
-                </div>
-                <div>
-                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                    <h3 style="font-size: 17px; font-weight: 800; color: var(--text-main); margin: 0;">Панель администратора</h3>
+            <!-- Admin Portal Card (Visible ONLY when Admin is logged in) -->
+            <div class="settings-card liquid-glass-card" id="settings-admin-card" style="display: none;">
+              <div class="settings-row">
+                <div class="settings-row-info">
+                  <div class="settings-row-title" style="display: flex; align-items: center; gap: 10px;">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <span data-i18n="adminPanelTitle">Управление</span>
                     <span class="badge badge-admin">Admin</span>
                   </div>
-                  <p style="font-size: 13px; color: var(--text-muted); line-height: 1.4; margin: 0;">
-                    Управление каталогом книг, аудиофайлами Google Drive и пользователями системы.
-                  </p>
                 </div>
-              </div>
-              <button class="btn-primary" onclick="navigate('admin')">
-                <span>Панель управления</span>
-                <span>→</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- 3. General Preferences Card -->
-          <div class="settings-card">
-            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 8px;">Внешний вид и чтение</h3>
-            
-            <!-- Row: Theme -->
-            <div class="settings-row">
-              <div class="settings-row-info">
-                <div class="settings-row-title">Тема оформления</div>
-                <div class="settings-row-desc">Переключение между тёмным и светлым интерфейсом</div>
-              </div>
-              <div class="segmented-control" id="theme-segmented-control">
-                <button class="segmented-item active" id="seg-theme-dark" onclick="setAppTheme('dark')">
-                  <span>🌙</span> <span>Тёмная</span>
-                </button>
-                <button class="segmented-item" id="seg-theme-light" onclick="setAppTheme('light')">
-                  <span>☀️</span> <span>Светлая</span>
+                <button class="btn-primary" onclick="navigate('admin')">
+                  <span data-i18n="btnOpenAdmin">Открыть</span>
                 </button>
               </div>
             </div>
 
-            <!-- Row: Language -->
-            <div class="settings-row">
-              <div class="settings-row-info">
-                <div class="settings-row-title">Язык интерфейса</div>
-                <div class="settings-row-desc">Выберите основной язык для навигации</div>
-              </div>
-              <div>
-                <select class="form-select" id="settings-lang-select" onchange="changeLanguage(this.value)" style="width: auto; min-width: 140px; padding: 8px 12px;">
-                  <option value="ru">Русский</option>
-                  <option value="tj">Тоҷикӣ</option>
-                  <option value="en">English</option>
-                </select>
-              </div>
-            </div>
+            <!-- Appearance & Reading Card -->
+            <div class="settings-card soft-gradient-card">
+              <h3 class="settings-section-heading" data-i18n="appearanceTitle">Интерфейс</h3>
+              <div class="liquid-divider" style="margin: 12px 0;"></div>
 
-            <!-- Row: Font Size -->
-            <div class="settings-row">
-              <div class="settings-row-info">
-                <div class="settings-row-title">Размер шрифта для чтения</div>
-                <div class="settings-row-desc">Комфортный размер текста книги</div>
-              </div>
-              <div class="stepper-control">
-                <button class="stepper-btn" onclick="changeFontSize(-2)" title="Уменьшить">-</button>
-                <div class="stepper-value" id="settings-font-size">17px</div>
-                <button class="stepper-btn" onclick="changeFontSize(2)" title="Увеличить">+</button>
-              </div>
-            </div>
-
-            <!-- Row: About -->
-            <div class="settings-row">
-              <div class="settings-row-info">
-                <div class="settings-row-title">eLibrary Pro</div>
-                <div class="settings-row-desc">Версия 2.0.0 · PWA с интеграцией Google Drive</div>
-              </div>
-              <span class="badge" style="background: var(--bg-card); color: var(--text-sub);">v2.0 PRO</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Page: ADMIN PANEL (Accessed exclusively via Settings when authorized) -->
-    <section class="screen" id="screen-admin">
-      <div class="page-container">
-        <div class="section-header">
-          <div>
-            <button class="btn-back-glass" onclick="navigate('settings')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> <span>Назад в Профиль</span></button>
-            <h2 class="section-title">👑 <span data-i18n="adminTitle">Панель администратора</span></h2>
-            <p class="section-subtitle">Полный контроль над книгами, аудиофайлами Google Drive и пользователями системы</p>
-          </div>
-        </div>
-
-        <div class="admin-card">
-          <!-- Admin Tabs -->
-          <div class="admin-tabs">
-            <button class="admin-tab active" id="adm-tab-books" onclick="switchAdminTab('books')">📚 Каталог книг</button>
-            <button class="admin-tab" id="adm-tab-add" onclick="openAddBookTab()">➕ Добавить книгу & Тест</button>
-            <button class="admin-tab" id="adm-tab-users" onclick="switchAdminTab('users')">👥 Пользователи и Роли</button>
-            <button class="admin-tab" id="adm-tab-backup" onclick="switchAdminTab('backup')">💾 Резервная копия</button>
-          </div>
-
-          <!-- Admin Sub-tab 1: Books List -->
-          <div id="adm-content-books">
-            <div style="overflow-x: auto;">
-              <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
-                <thead>
-                  <tr style="border-bottom: 2px solid var(--border); color: var(--text-muted);">
-                    <th style="padding: 10px 8px;">Обложка</th>
-                    <th style="padding: 10px 8px;">Название</th>
-                    <th style="padding: 10px 8px;">Автор</th>
-                    <th style="padding: 10px 8px;">Жанр</th>
-                    <th style="padding: 10px 8px;">Аудио (Google Drive)</th>
-                    <th style="padding: 10px 8px; text-align: right;">Действия</th>
-                  </tr>
-                </thead>
-                <tbody id="admin-books-table-body">
-                  <!-- Populated by app.js -->
-                </tbody>
-              </table>
-            </div>
-            <div id="admin-empty-books" style="padding: 40px; text-align: center; color: var(--text-muted);">
-              В каталоге пока нет книг. Нажмите «Добавить книгу» выше.
-            </div>
-          </div>
-
-          <!-- Admin Sub-tab 2: Add / Edit Form (with Quiz Editor) -->
-          <div id="adm-content-add" style="display: none;">
-            <form id="book-form" onsubmit="handleSaveBook(event)">
-              <input type="hidden" id="form-book-id" value="">
-              
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label" data-i18n="formTitle">Название книги *</label>
-                  <input type="text" class="form-input" id="form-title" required placeholder="Например: Мастер и Маргарита">
+              <div class="settings-list">
+                <div class="settings-row">
+                  <div class="settings-row-info">
+                    <div class="settings-row-title" data-i18n="themeLabel">Палитра</div>
+                  </div>
+                  <div class="segmented-control liquid-glass-pill-group">
+                    <button type="button" class="seg-btn" id="seg-theme-light" onclick="setTheme('light')">Молочная</button>
+                    <button type="button" class="seg-btn" id="seg-theme-dark" onclick="setTheme('dark')">Тёмная</button>
+                  </div>
                 </div>
-                <div class="form-group">
-                  <label class="form-label" data-i18n="formAuthor">Автор *</label>
-                  <input type="text" class="form-input" id="form-author" required placeholder="Например: Михаил Булгаков">
-                </div>
-              </div>
 
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label" data-i18n="formGenre">Жанр / Категория *</label>
-                  <select class="form-select" id="form-genre" required>
-                    <option value="history">🏛️ История</option>
-                    <option value="poetry">📜 Поэзия</option>
-                    <option value="philosophy">🗿 Философия</option>
-                    <option value="education">🎓 Образование</option>
-                    <option value="business">💼 Бизнес</option>
-                    <option value="math">🧮 Математика</option>
-                    <option value="science">🔬 Наука</option>
-                    <option value="english">🇬🇧 Английский язык</option>
-                    <option value="biography">👤 Биография</option>
-                    <option value="art">🎨 Искусство</option>
+                <div class="settings-row">
+                  <div class="settings-row-info">
+                    <div class="settings-row-title" data-i18n="langLabel">Язык</div>
+                  </div>
+                  <select class="form-select settings-select" id="settings-lang-select" onchange="changeLanguage(this.value)">
+                    <option value="ru">Русский</option>
+                    <option value="tg">Тоҷикӣ</option>
+                    <option value="en">English</option>
                   </select>
                 </div>
-                <div class="form-group">
-                  <label class="form-label">🖼️ Загрузить обложку книги (Файл с устройства)</label>
-                  <input type="hidden" id="form-cover-data" value="">
-                  <div class="cover-dropzone" id="cover-dropzone" onclick="document.getElementById('form-cover-file').click()">
-                    <div id="cover-dropzone-empty" style="text-align: center; padding: 14px;">
-                      <span style="font-size: 26px; display: block; margin-bottom: 4px;">📁</span>
-                      <span style="font-size: 13px; font-weight: 600; color: var(--primary-light);">Нажмите, чтобы выбрать файл обложки</span>
-                      <p style="font-size: 11px; color: var(--text-sub); margin-top: 2px;">PNG, JPG, WebP с вашего Mac или телефона</p>
-                    </div>
-                    <div id="cover-dropzone-filled" style="display: none; align-items: center; gap: 14px; padding: 10px; width: 100%;">
-                      <img id="cover-preview-img" src="" alt="preview" style="width: 50px; height: 68px; object-fit: cover; border-radius: 6px; box-shadow: var(--shadow-sm); border: 1px solid var(--border);">
-                      <div>
-                        <div style="font-size: 13px; font-weight: 700; color: var(--success);">✓ Обложка загружена</div>
-                        <button type="button" class="btn-secondary" style="height: 28px; padding: 0 10px; font-size: 11px; border-radius: 6px; margin-top: 6px;" onclick="event.stopPropagation(); clearUploadedCover()">Заменить фото</button>
-                      </div>
-                    </div>
+
+                <div class="settings-row">
+                  <div class="settings-row-info">
+                    <div class="settings-row-title" data-i18n="fontSizeLabel">Кегль текста</div>
                   </div>
-                  <input type="file" id="form-cover-file" accept="image/*" onchange="handleCoverFileSelected(event)" style="display: none;">
+                  <div class="stepper-control">
+                    <button type="button" class="stepper-btn" onclick="adjustFontSize(-1)">A−</button>
+                    <span id="settings-font-size" class="stepper-value">18px</span>
+                    <button type="button" class="stepper-btn" onclick="adjustFontSize(1)">A+</button>
+                  </div>
                 </div>
               </div>
-
-              <div class="form-group">
-                <label class="form-label" data-i18n="formSynopsis">Краткое описание / О книге</label>
-                <textarea class="form-textarea" id="form-synopsis" rows="3" placeholder="Аннотация к произведению..."></textarea>
-              </div>
-
-              <!-- Google Drive Audio Integration -->
-              <div class="form-group" style="background: rgba(56, 189, 248, 0.05); padding: 16px; border-radius: var(--radius-md); border: 1px solid rgba(56, 189, 248, 0.2);">
-                <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
-                  <span>🎧 Аудиокнига (Ссылка Google Drive или прямая ссылка)</span>
-                  <span class="badge" style="background: var(--primary-glow); color: var(--primary-light);">Google Drive Ready</span>
-                </label>
-                <input type="text" class="form-input" id="form-audio-url" placeholder="https://drive.google.com/file/d/1A2B3C.../view?usp=sharing">
-                <div class="form-hint">
-                  ✓ Поддерживает любые ссылки Google Drive (файл должен иметь доступ «Все, у кого есть ссылка»).
-                </div>
-                <div style="margin-top: 10px; display: flex; gap: 8px; align-items: center;">
-                  <button type="button" class="btn-icon" style="width: auto; padding: 6px 14px; font-size: 12px; border-radius: var(--radius-sm);" onclick="testAudioInput()">
-                    Проверить аудио
-                  </button>
-                  <span id="audio-test-status" style="font-size: 12px; color: var(--text-muted);"></span>
-                </div>
-              </div>
-
-              <!-- Book Text Content -->
-              <div class="form-group">
-                <label class="form-label" data-i18n="formText">Текст книги (для чтения)</label>
-                <textarea class="form-textarea" id="form-text" rows="8" placeholder="Вставьте полный текст книги или главы..."></textarea>
-              </div>
-
-              <!-- Quiz Questions Editor -->
-              <div class="form-group" style="background: rgba(16, 185, 129, 0.05); padding: 16px; border-radius: var(--radius-md); border: 1px solid rgba(16, 185, 129, 0.2);">
-                <label class="form-label" style="color: #10b981;">🎯 Вопросы для теста в конце книги (Формат JSON или авто-тест)</label>
-                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">
-                  Если оставить пустым, система автоматически создаст тест на проверку понимания ключевых мыслей.
-                </p>
-                <textarea class="form-textarea" id="form-quiz-json" rows="4" placeholder='[{"q":"Какой главный вывод главы?","options":["Ответ А","Ответ Б","Ответ В"],"answer":0}]'></textarea>
-              </div>
-
-              <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
-                <button type="button" class="btn-icon" style="width: auto; padding: 8px 16px; border-radius: var(--radius-md);" onclick="switchAdminTab('books')" data-i18n="cancelBtn">Отмена</button>
-                <button type="submit" class="btn-primary" data-i18n="saveBookBtn">💾 Сохранить книгу</button>
-              </div>
-            </form>
-          </div>
-
-          <!-- Admin Sub-tab 3: User & Roles Management -->
-          <div id="adm-content-users" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-              <h3 style="font-size: 16px; font-weight: 700;">Пользователи системы и управление ролями</h3>
-              <button class="btn-primary" style="font-size: 12px; padding: 6px 14px;" onclick="openCreateUserModal()">➕ Создать пользователя</button>
-            </div>
-
-            <div style="overflow-x: auto;">
-              <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
-                <thead>
-                  <tr style="border-bottom: 2px solid var(--border); color: var(--text-muted);">
-                    <th style="padding: 10px 8px;">Аватар</th>
-                    <th style="padding: 10px 8px;">Имя</th>
-                    <th style="padding: 10px 8px;">Email</th>
-                    <th style="padding: 10px 8px;">Роль</th>
-                    <th style="padding: 10px 8px; text-align: right;">Действия</th>
-                  </tr>
-                </thead>
-                <tbody id="admin-users-table-body">
-                  <!-- Populated by app.js -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Admin Sub-tab 4: Backup & Reset -->
-          <div id="adm-content-backup" style="display: none;">
-            <h3 style="font-size: 16px; margin-bottom: 12px;">Резервное копирование и безопасность</h3>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
-              Экспортируйте базу книг в файл JSON для бэкапа или переноса на другие устройства.
-            </p>
-
-            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 30px;">
-              <button class="btn-primary" onclick="exportLibraryJSON()">📥 Экспортировать библиотеку (JSON)</button>
-              <label class="btn-primary" style="background: var(--bg-surface-elevated); cursor: pointer;">
-                📤 Импортировать JSON
-                <input type="file" accept=".json" onchange="importLibraryJSON(event)" style="display: none;">
-              </label>
-            </div>
-
-            <div style="border-top: 1px solid var(--border); padding-top: 20px;">
-              <h4 style="color: var(--danger); font-size: 15px; margin-bottom: 8px;">Опасная зона</h4>
-              <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 12px;">Удаление всех книг из локального хранилища браузера.</p>
-              <button class="btn-icon" style="width: auto; padding: 8px 16px; border-radius: var(--radius-md); border-color: var(--danger); color: var(--danger);" onclick="confirmClearAllBooks()">
-                🗑️ Очистить все книги
-              </button>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Persistent Mini Audio Player Bar (Visible whenever audio is active) -->
-    <div id="mini-player">
-      <div class="mini-progress-line" onclick="seekMiniAudio(event)">
+      <!-- Page 9: ADMIN PANEL -->
+      <section class="screen" id="screen-admin">
+        <div class="page-container">
+          <div class="screen-top-nav">
+            <button class="btn-back liquid-glass-btn" onclick="navigate('settings')">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+              <span data-i18n="btnBack">Назад</span>
+            </button>
+            <h2 class="section-title text-reveal" data-i18n="adminHeaderTitle">Управление фондом</h2>
+          </div>
+          <div class="liquid-divider"></div>
+
+          <div class="admin-card soft-gradient-card">
+            <div class="admin-tabs">
+              <button class="admin-tab active" id="adm-tab-books" onclick="switchAdminTab('books')">Каталог</button>
+              <button class="admin-tab" id="adm-tab-add" onclick="openAddBookTab()">Издание</button>
+              <button class="admin-tab" id="adm-tab-users" onclick="switchAdminTab('users')">Пользователи</button>
+              <button class="admin-tab" id="adm-tab-backup" onclick="switchAdminTab('backup')">Экспорт</button>
+            </div>
+
+            <!-- Sub-tab 1: Books -->
+            <div id="adm-content-books">
+              <div style="overflow-x: auto;">
+                <table class="clean-table">
+                  <thead>
+                    <tr>
+                      <th>Обложка</th>
+                      <th>Название</th>
+                      <th>Автор</th>
+                      <th>Направление</th>
+                      <th>Аудио</th>
+                      <th style="text-align: right;">Действия</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-books-table-body"></tbody>
+                </table>
+              </div>
+              <div id="admin-empty-books" style="padding: 36px; text-align: center; color: var(--text-muted);">
+                Каталог пуст.
+              </div>
+            </div>
+
+            <!-- Sub-tab 2: Add / Edit Form -->
+            <div id="adm-content-add" style="display: none;">
+              <form id="book-form" onsubmit="handleSaveBook(event)">
+                <input type="hidden" id="form-book-id" value="">
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="formTitle">Название *</label>
+                    <input type="text" class="form-input" id="form-title" required placeholder="Название издания">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="formAuthor">Автор *</label>
+                    <input type="text" class="form-input" id="form-author" required placeholder="Автор">
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" data-i18n="formGenre">Направление *</label>
+                    <select class="form-select" id="form-genre" required>
+                      <option value="history">Таърих / История</option>
+                      <option value="poetry">Назм / Поэзия</option>
+                      <option value="science">Илм / Наука</option>
+                      <option value="literature">Адабиёт / Литература</option>
+                      <option value="business">Тиҷорат / Бизнес</option>
+                      <option value="psychology">Равоншиносӣ / Психология</option>
+                      <option value="philosophy">Фалсафа / Философия</option>
+                      <option value="tech">Технология / Технологии</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Обложка издания (Файл)</label>
+                    <input type="hidden" id="form-cover-data" value="">
+                    <div class="cover-dropzone" id="cover-dropzone" onclick="document.getElementById('form-cover-file').click()">
+                      <div id="cover-dropzone-empty" style="text-align: center; padding: 12px;">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.75" style="margin: 0 auto 4px; display: block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <span style="font-size: 12px; font-weight: 600; color: var(--primary);">Выбрать изображение</span>
+                      </div>
+                      <div id="cover-dropzone-filled" style="display: none; align-items: center; gap: 14px; padding: 10px; width: 100%;">
+                        <img id="cover-preview-img" src="" alt="preview" style="width: 46px; height: 62px; object-fit: cover; border-radius: 6px;">
+                        <div>
+                          <div style="font-size: 12px; font-weight: 600; color: var(--success);">Обложка готова</div>
+                          <button type="button" class="btn-secondary btn-sm" style="margin-top: 6px;" onclick="event.stopPropagation(); clearUploadedCover()">Заменить</button>
+                        </div>
+                      </div>
+                    </div>
+                    <input type="file" id="form-cover-file" accept="image/*" onchange="handleCoverFileSelected(event)" style="display: none;">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" data-i18n="formSynopsis">Аннотация</label>
+                  <input type="text" class="form-input" id="form-synopsis" placeholder="Краткое содержание">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" data-i18n="formAudioUrl">Аудиофайл (Google Drive)</label>
+                  <div style="display: flex; gap: 8px;">
+                    <input type="text" class="form-input" id="form-audio-url" placeholder="https://drive.google.com/file/d/.../view">
+                    <button type="button" class="btn-secondary" onclick="testAudioInput()">Проверить</button>
+                  </div>
+                  <p id="audio-test-status" style="font-size: 12px; margin-top: 6px; font-weight: 600;"></p>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" data-i18n="formText">Текст издания</label>
+                  <textarea class="form-textarea" id="form-text" placeholder="Полный текст..."></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Вопросы аттестации (JSON)</label>
+                  <textarea class="form-textarea" id="form-quiz-json" style="min-height: 90px; font-family: monospace; font-size: 12px;" placeholder='[{"q": "Вопрос?", "options": ["А", "Б", "В"], "correct": 0}]'></textarea>
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px;">
+                  <button type="button" class="btn-secondary" onclick="switchAdminTab('books')">Отмена</button>
+                  <button type="submit" class="btn-primary">Сохранить</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Sub-tab 3: Users -->
+            <div id="adm-content-users" style="display: none;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+                <h4 style="font-size: 15px; font-weight: 600;">Пользователи</h4>
+                <button class="btn-primary btn-sm" onclick="openAdminCreateUserModal()">+ Создать</button>
+              </div>
+              <div style="overflow-x: auto;">
+                <table class="clean-table">
+                  <thead>
+                    <tr>
+                      <th>Профиль</th>
+                      <th>Email</th>
+                      <th>Роль</th>
+                      <th style="text-align: right;">Управление</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-users-table-body"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Sub-tab 4: Backup -->
+            <div id="adm-content-backup" style="display: none;">
+              <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="btn-primary" onclick="exportLibraryJson()">Экспорт JSON</button>
+                <label class="btn-secondary" style="cursor: pointer;">
+                  Импорт JSON
+                  <input type="file" accept=".json" style="display: none;" onchange="importLibraryJson(event)">
+                </label>
+                <button class="btn-danger" onclick="clearAllBooksConfirm()">Очистить каталог</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ======================= PERSISTENT MINI AUDIO PLAYER ======================= -->
+    <div class="mini-player liquid-glass-panel" id="mini-player">
+      <div class="mini-progress-top">
         <div class="mini-progress-fill" id="mini-progress-fill"></div>
       </div>
-      <div class="mini-thumb" id="mini-thumb" onclick="openFullPlayer()"><img src="icons/icon-192.png" alt="cover" style="width: 100%; height: 100%; object-fit: cover;"></div>
-      <div class="mini-info" onclick="openFullPlayer()">
+      <div class="mini-thumb" id="mini-thumb" onclick="openFullPlayer()">
+        <img src="icons/icon-192.png" alt="cover">
+      </div>
+      <div class="mini-meta" onclick="openFullPlayer()">
         <div class="mini-title" id="mini-title">Аудиокнига</div>
         <div class="mini-author" id="mini-author">Автор</div>
       </div>
       <div class="mini-controls">
-        <button class="mini-btn" onclick="skipAudio(-15)" title="Назад 15с">⏮</button>
-        <button class="play-pause-btn" style="width: 42px; height: 42px; font-size: 18px;" id="mini-play-btn" onclick="toggleAudioPlay()">▶</button>
-        <button class="mini-btn" onclick="skipAudio(15)" title="Вперёд 15с">⏭</button>
-        <button class="mini-btn" onclick="openFullPlayer()" title="Развернуть плеер">⛶</button>
+        <button class="btn-icon liquid-glass-btn" onclick="openFullPlayer()" title="Плеер">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </button>
       </div>
     </div>
-  </main>
-</div>
 
-<!-- Mobile Bottom Navigation Bar (Floating Liquid Glass Dock) -->
-<nav id="mobile-nav">
-  <div class="nav-pill-indicator"></div>
-  <button class="mobile-nav-item active" data-screen="home" onclick="navigate('home')">
-    <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9.5z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    <span data-i18n="navHome">Главная</span>
-  </button>
-  <button class="mobile-nav-item" data-screen="genres" onclick="navigate('genres')">
-    <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/></svg>
-    <span data-i18n="navGenres">Самтҳо</span>
-  </button>
-  <button class="mobile-nav-item" data-screen="bookmarks" onclick="navigate('bookmarks')">
-    <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-    <span data-i18n="navBookmarks">Захираҳо</span>
-  </button>
-  <button class="mobile-nav-item" data-screen="stats" onclick="navigate('stats')">
-    <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-    <span data-i18n="navStats">Таҳлил</span>
-  </button>
-  <button class="mobile-nav-item" data-screen="settings" onclick="navigate('settings')">
-    <svg class="nav-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-    <span data-i18n="navSettings">Профил</span>
-  </button>
-</nav>
+    <!-- ======================= FLOATING BOTTOM NAVIGATION (UltraReal Liquid Glass, NO Gradient, Sliding Refractive Pill) ======================= -->
+    <nav class="mobile-bottom-nav liquid-glass-dock" id="bottom-nav">
+      <!-- Sliding Refractive Glass Pill inside Bottom Dock -->
+      <div class="dock-liquid-pill" id="dock-liquid-indicator"></div>
 
-<!-- MODALS -->
-
-<!-- 1. Authentication Modal (Google Sign In & Email) -->
-<div class="modal-overlay" id="auth-modal">
-  <div class="modal-box">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-      <h3 style="font-size: 18px; font-weight: 800;">Вход в eLibrary</h3>
-      <button class="btn-icon" onclick="closeAuthModal()">✕</button>
-    </div>
-
-    <!-- Official Google One-Click Sign In -->
-    <button class="btn-google" onclick="triggerGoogleSignIn()">
-      <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-      <span>Продолжить с Google</span>
-    </button>
-
-    <div class="auth-divider">
-      <span>или по Email</span>
-    </div>
-
-    <!-- Auth Tabs: Login vs Register -->
-    <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-      <button class="admin-tab active" id="auth-tab-login" onclick="switchAuthTab('login')">Вход</button>
-      <button class="admin-tab" id="auth-tab-reg" onclick="switchAuthTab('reg')">Регистрация</button>
-    </div>
-
-    <form id="auth-form" onsubmit="handleAuthSubmit(event)">
-      <div class="form-group" id="auth-name-group" style="display: none;">
-        <label class="form-label">Ваше имя</label>
-        <input type="text" class="form-input" id="auth-name" placeholder="Например: Иван">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Email</label>
-        <input type="email" class="form-input" id="auth-email" required placeholder="name@example.com">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Пароль</label>
-        <input type="password" class="form-input" id="auth-password" required placeholder="••••••••">
-      </div>
-
-      <div id="auth-error-hint" style="color: var(--danger); font-size: 12px; margin-bottom: 12px; display: none;"></div>
-
-      <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 12px;" id="auth-submit-btn">
-        Войти в аккаунт
+      <button class="mob-nav-btn active" id="mob-home" data-index="0" onclick="navigate('home')">
+        <span class="mob-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-9z"/><path d="M9 21V13h6v8"/></svg>
+        </span>
+        <span class="mob-label" data-i18n="navHome">Обзор</span>
       </button>
-    </form>
-  </div>
-</div>
 
-<!-- 2. Profile & Avatar Edit Modal -->
-<div class="modal-overlay" id="profile-modal">
-  <div class="modal-box">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-      <h3 style="font-size: 18px; font-weight: 800;">Редактирование профиля</h3>
-      <button class="btn-icon" onclick="closeProfileModal()">✕</button>
-    </div>
-
-    <form onsubmit="handleSaveProfile(event)">
-      <div class="form-group">
-        <label class="form-label">Выберите иконку профиля (Аватар)</label>
-        <div class="avatar-grid" id="avatar-presets-grid">
-          <!-- Populated by app.js with emoji / icons -->
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Или укажите ссылку на своё фото</label>
-        <input type="text" class="form-input" id="profile-custom-avatar" placeholder="https://example.com/avatar.jpg">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Ваше отображаемое имя</label>
-        <input type="text" class="form-input" id="profile-name" required>
-      </div>
-
-      <div class="form-group" style="border-top: 1px solid var(--border); padding-top: 14px;">
-        <label class="form-label">Сменить пароль (необязательно)</label>
-        <input type="password" class="form-input" id="profile-new-password" placeholder="Новый пароль">
-      </div>
-
-      <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 16px;">
-        💾 Сохранить изменения
+      <button class="mob-nav-btn" id="mob-categories" data-index="1" onclick="navigate('categories')">
+        <span class="mob-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/></svg>
+        </span>
+        <span class="mob-label" data-i18n="navCategories">Направления</span>
       </button>
-    </form>
-  </div>
-</div>
 
-<!-- 3. Create User Modal (by Admin) -->
-<div class="modal-overlay" id="create-user-modal">
-  <div class="modal-box">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-      <h3 style="font-size: 18px; font-weight: 800;">Создать пользователя</h3>
-      <button class="btn-icon" onclick="closeCreateUserModal()">✕</button>
-    </div>
-
-    <form onsubmit="handleAdminCreateUser(event)">
-      <div class="form-group">
-        <label class="form-label">Имя</label>
-        <input type="text" class="form-input" id="admin-new-user-name" required placeholder="Имя читателя">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Email</label>
-        <input type="email" class="form-input" id="admin-new-user-email" required placeholder="email@example.com">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Пароль</label>
-        <input type="password" class="form-input" id="admin-new-user-password" required placeholder="Минимум 6 символов">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Роль в системе</label>
-        <select class="form-select" id="admin-new-user-role">
-          <option value="reader">📖 Читатель (Только чтение)</option>
-          <option value="admin">👑 Администратор (Полный доступ к панели)</option>
-        </select>
-      </div>
-
-      <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 16px;">
-        Создать аккаунт
+      <button class="mob-nav-btn" id="mob-bookmarks" data-index="2" onclick="navigate('bookmarks')">
+        <span class="mob-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </span>
+        <span class="mob-label" data-i18n="navBookmarks">Закладки</span>
       </button>
-    </form>
-  </div>
-</div>
 
-<!-- 4. Certificate of Completion Modal -->
-<div class="modal-overlay" id="certificate-modal">
-  <div class="modal-box" style="max-width: 640px;">
-    <div style="text-align: right; margin-bottom: 8px;">
-      <button class="btn-icon" onclick="closeCertificateModal()">✕</button>
-    </div>
-    
-    <div class="certificate-frame" id="certificate-print-area">
-      <div class="cert-header">🏆 СЕРТИФИКАТ УСПЕХА eLibrary</div>
-      <h2 class="cert-title">Подтверждение усвоения знаний</h2>
-      <p style="font-size: 14px; color: #64748b; margin-bottom: 8px;">Настоящим подтверждается, что читатель</p>
-      <div class="cert-name" id="cert-user-name">Мехровар</div>
-      <p style="font-size: 14px; color: #475569; line-height: 1.6; margin-bottom: 20px;">
-        успешно изучил материал произведения <br>
-        <b style="color: #0284c7; font-size: 16px;" id="cert-book-title">«Законы победителей»</b><br>
-        и сдал итоговый тест на <b style="color: #10b981;" id="cert-score-percent">100%</b>!
+      <button class="mob-nav-btn" id="mob-stats" data-index="3" onclick="navigate('stats')">
+        <span class="mob-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+        </span>
+        <span class="mob-label" data-i18n="navStats">Аналитика</span>
+      </button>
+
+      <button class="mob-nav-btn" id="mob-settings" data-index="4" onclick="navigate('settings')">
+        <span class="mob-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </span>
+        <span class="mob-label" data-i18n="navSettings">Параметры</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- ======================= PROGRESS SAVE WARNING MODAL (Point 7) ======================= -->
+  <div class="modal-backdrop" id="progress-warning-modal">
+    <div class="modal-card liquid-glass-card" style="max-width: 380px; text-align: center;">
+      <div class="modal-icon-circle">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      </div>
+      <h3 class="modal-title" style="justify-content: center; margin-top: 10px;" data-i18n="saveWarningTitle">Сохранение прогресса</h3>
+      <div class="liquid-divider" style="margin: 12px auto; max-width: 140px;"></div>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;" data-i18n="saveWarningDesc">
+        Ваш текущий прогресс чтения и тестирования автоматически сохранён. Выйти из раздела?
       </p>
-      <div style="display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 12px;">
-        <span>Дата: <span id="cert-date">17.11.2026</span></span>
-        <span>Верифицировано: eLibrary Digital Network</span>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn-secondary" style="flex: 1; justify-content: center;" onclick="closeProgressWarningModal()" data-i18n="btnStay">Остаться</button>
+        <button class="btn-primary" style="flex: 1; justify-content: center;" onclick="confirmExitAndSaveProgress()" data-i18n="btnSaveAndExit">Сохранить и выйти</button>
       </div>
     </div>
+  </div>
 
-    <div style="display: flex; gap: 12px; justify-content: center; margin-top: 20px;">
-      <button class="btn-primary" onclick="shareCertificate()">📤 Поделиться сертификатом</button>
-      <button class="btn-icon" style="width: auto; padding: 0 16px; border-radius: var(--radius-md);" onclick="closeCertificateModal()">Закрыть</button>
+  <!-- ======================= AUTH MODAL ======================= -->
+  <div class="modal-backdrop" id="auth-modal">
+    <div class="modal-card liquid-glass-card">
+      <div class="modal-header">
+        <h3 class="modal-title" id="auth-modal-title">Авторизация</h3>
+        <button class="modal-close" onclick="closeAuthModal()">✕</button>
+      </div>
+
+      <button type="button" class="btn-google" onclick="handleGoogleSignIn()">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        <span>Google ID</span>
+      </button>
+
+      <div class="auth-divider">или</div>
+
+      <form id="auth-form" onsubmit="handleEmailAuth(event)">
+        <div class="form-group" id="auth-name-group" style="display: none;">
+          <label class="form-label">Имя</label>
+          <input type="text" class="form-input" id="auth-name" placeholder="Имя">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email *</label>
+          <input type="email" class="form-input" id="auth-email" required placeholder="user@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Пароль *</label>
+          <input type="password" class="form-input" id="auth-password" required placeholder="••••••••">
+        </div>
+
+        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 8px;">
+          Продолжить
+        </button>
+      </form>
     </div>
   </div>
-</div>
 
-<!-- 5. Quote Share Card Modal (Viral Stories Generator) -->
-<div class="modal-overlay" id="quote-modal">
-  <div class="modal-box" style="max-width: 480px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-      <h3 style="font-size: 16px; font-weight: 800;">Открытка с цитатой для соцсетей</h3>
-      <button class="btn-icon" onclick="closeQuoteModal()">✕</button>
-    </div>
+  <!-- ======================= GOOGLE ACCOUNT CHOOSER MODAL ======================= -->
+  <div class="modal-backdrop" id="google-chooser-modal">
+    <div class="modal-card liquid-glass-card" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+          <span>Google ID</span>
+        </h3>
+        <button class="modal-close" onclick="closeGoogleChooser()">✕</button>
+      </div>
+      <div id="google-accounts-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;"></div>
 
-    <!-- The card preview -->
-    <div id="quote-card-preview" style="background: linear-gradient(145deg, #09203f, #1e3c72); border-radius: 18px; padding: 32px 24px; color: #fff; box-shadow: var(--shadow-md); position: relative; overflow: hidden;">
-      <div style="font-size: 36px; line-height: 1; opacity: 0.3; margin-bottom: 8px;">“</div>
-      <p id="quote-card-text" style="font-size: 16px; line-height: 1.6; font-style: italic; font-family: Georgia, serif; margin-bottom: 20px;">
-        Цитата из книги...
-      </p>
-      <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 14px;">
-        <div>
-          <div style="font-size: 13px; font-weight: 700;" id="quote-card-author">Автор</div>
-          <div style="font-size: 11px; opacity: 0.7;" id="quote-card-title">Книга</div>
+      <form onsubmit="submitCustomGoogleAccount(event)" style="border-top: 1px solid var(--border); padding-top: 14px;">
+        <div class="form-group">
+          <label class="form-label">Имя</label>
+          <input type="text" class="form-input" id="google-custom-name" required placeholder="Алишер">
         </div>
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <img src="icons/icon-192.png" style="width: 22px; height: 22px; border-radius: 6px;">
-          <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.5px;">eLibrary</span>
+        <div class="form-group">
+          <label class="form-label">Gmail</label>
+          <input type="email" class="form-input" id="google-custom-email" required placeholder="user@gmail.com">
+        </div>
+        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">Войти</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================= EDIT PROFILE MODAL ======================= -->
+  <div class="modal-backdrop" id="profile-edit-modal">
+    <div class="modal-card liquid-glass-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Профиль</h3>
+        <button class="modal-close" onclick="closeEditProfileModal()">✕</button>
+      </div>
+      <form onsubmit="handleSaveProfile(event)">
+        <div class="form-group">
+          <label class="form-label">Аватар</label>
+          <div class="avatar-picker-grid" id="avatar-picker"></div>
+          <input type="text" class="form-input" id="profile-avatar-input" placeholder="Инициалы или URL">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Имя *</label>
+          <input type="text" class="form-input" id="profile-name-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Новый пароль</label>
+          <input type="password" class="form-input" id="profile-password-input" placeholder="Без изменений">
+        </div>
+        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">Сохранить</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================= ADMIN CREATE USER MODAL ======================= -->
+  <div class="modal-backdrop" id="admin-user-modal">
+    <div class="modal-card liquid-glass-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Новый профиль</h3>
+        <button class="modal-close" onclick="closeAdminCreateUserModal()">✕</button>
+      </div>
+      <form onsubmit="handleAdminCreateUser(event)">
+        <div class="form-group">
+          <label class="form-label">Имя *</label>
+          <input type="text" class="form-input" id="adm-user-name" required placeholder="Имя">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email *</label>
+          <input type="email" class="form-input" id="adm-user-email" required placeholder="reader@elibrary.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Пароль *</label>
+          <input type="text" class="form-input" id="adm-user-pass" required placeholder="123456">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Роль *</label>
+          <select class="form-select" id="adm-user-role">
+            <option value="reader">Читатель</option>
+            <option value="admin">Администратор</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">Создать</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================= CERTIFICATE MODAL ======================= -->
+  <div class="modal-backdrop" id="certificate-modal">
+    <div class="modal-card liquid-glass-card" style="max-width: 560px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Сертификат</h3>
+        <button class="modal-close" onclick="closeCertificateModal()">✕</button>
+      </div>
+      <div class="certificate-box soft-gradient-card" id="certificate-print-area">
+        <div class="cert-badge">АКАДЕМИЧЕСКИЙ СЕРТИФИКАТ</div>
+        <div class="cert-title">СЕРТИФИКАТ</div>
+        <p style="font-size: 12px; color: var(--text-muted);">Подтверждает успешную аттестацию:</p>
+        <div class="cert-user" id="cert-user-name">Имя</div>
+        <p style="font-size: 13px; color: var(--text-muted);">Издание:</p>
+        <div class="cert-book" id="cert-book-name">«Название»</div>
+        <div class="liquid-divider" style="margin: 16px auto;"></div>
+        <div class="cert-footer">
+          <div>Дата: <strong id="cert-date"></strong></div>
+          <div>Результат: <strong>100%</strong></div>
+          <div>eLibrary</div>
         </div>
       </div>
-    </div>
-
-    <div style="display: flex; gap: 12px; margin-top: 20px;">
-      <button class="btn-primary" style="flex: 1; justify-content: center;" onclick="copyQuoteText()">📋 Скопировать текст</button>
-      <button class="btn-icon" style="width: auto; padding: 0 16px; border-radius: var(--radius-md);" onclick="closeQuoteModal()">Готово</button>
+      <div style="display: flex; gap: 10px; justify-content: center; margin-top: 16px;">
+        <button class="btn-primary" onclick="window.print()">Печать / PDF</button>
+        <button class="btn-secondary" onclick="closeCertificateModal()">Закрыть</button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Hidden Global Audio Element -->
-<audio id="global-audio" preload="auto"></audio>
-
-<!-- Application Scripts -->
-<script src="app.js"></script>
-
-<!-- PWA Service Worker Registration -->
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').then((reg) => {
-        console.log('eLibrary ServiceWorker registered successfully:', reg.scope);
-      }).catch((err) => {
-        console.warn('eLibrary ServiceWorker registration failed:', err);
-      });
-    });
-  }
-</script>
-
+  <script src="app.js"></script>
 </body>
 </html>
