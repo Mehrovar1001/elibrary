@@ -47,6 +47,29 @@ for (const [, decl] of css.matchAll(/(?:^|[;{\s])((?:animation|transition)\s*:[^
   const share = long / stats.length;
   console.log(`frames: ${stats.length}, dropped (>50ms): ${long} (${Math.round(share * 100)}%)`);
   if (share > 0.05) failures.push(`home page drops ${Math.round(share * 100)}% of frames on a slow phone`);
+
+  /* 4) a modal sliding up over the animated category cards (video: it "catches") */
+  const measureOpen = async (name, open) => {
+    await page.goto(url + '#/categories');
+    await page.waitForTimeout(3000);
+    const gaps = await page.evaluate(src => new Promise(resolve => {
+      const g = []; let last = performance.now(); const end = last + 700;
+      (0, eval)(src)();
+      const tick = now => { g.push(now - last); last = now; if (now < end) requestAnimationFrame(tick); else resolve(g); };
+      requestAnimationFrame(tick);
+    }), open);
+    const fps = Math.round(gaps.length / 0.7);
+    console.log(`${name}: ${fps} fps while opening, worst frame ${Math.round(Math.max(...gaps))}ms`);
+    if (fps < 45) failures.push(`${name}: only ${fps} fps while the modal slides up (needs >= 45)`);
+  };
+  await measureOpen('sign-in modal', '() => openAuthModal()');
+  if (process.env.ELIB_ADMIN_EMAIL && process.env.ELIB_ADMIN_PASSWORD) {
+    await page.evaluate(([e, p]) => sb.auth.signInWithPassword({ email: e, password: p }), [process.env.ELIB_ADMIN_EMAIL, process.env.ELIB_ADMIN_PASSWORD]);
+    await page.waitForTimeout(2000);
+    await measureOpen('category editor', "() => openCategoryEditorModal('literature')");
+    await page.evaluate(() => sb.auth.signOut());
+  }
+
   await browser.close();
   server.close();
 
