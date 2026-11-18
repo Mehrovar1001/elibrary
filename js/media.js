@@ -429,7 +429,17 @@ function getAudioEl() {
 
 function loadAudio(book, lang, level) {
   const audio = getAudioEl();
-  const raw = mediaUrl(book.audioUrls, lang, level);
+  /* Drive books: one audio file per topic; resume the topic listened to last */
+  if (state.topicFor !== book.id) { state.topicIdx = null; state.topicFor = book.id; }
+  const topics = bookTopics(book, lang, level);
+  const saved = readLocalProgress(book.id, 'listen', lang, level);
+  if (topics.length && state.topicIdx == null) {
+    const n = (state.resumeBookId === book.id && state.resumeTopicN) || (saved && saved.page);
+    state.topicIdx = Math.max(0, topics.findIndex(x => x.n === n));
+  }
+  state.resumeTopicN = 0;
+  const topic = topics[Math.min(state.topicIdx || 0, topics.length - 1)];
+  const raw = topic ? topic.audio : mediaUrl(book.audioUrls, lang, level);
   const direct = driveDirectUrl(raw);
   const key = `${book.id}|${lang}|${level}|${direct}`;
   const fallback = document.getElementById('audio-fallback');
@@ -443,13 +453,14 @@ function loadAudio(book, lang, level) {
   audioState.bookId = book.id;
   audioState.lang = lang;
   audioState.level = level;
+  audioState.topicN = topic ? topic.n : 1;
 
   if (fallback) { fallback.style.display = 'none'; fallback.innerHTML = ''; }
   if (custom) custom.style.display = 'block';
 
   if (!audio || !direct) { showAudioFallback(raw); return; }
-  const saved = readLocalProgress(book.id, 'listen', lang, level);
-  const startAt = (state.resumePosition && state.resumeBookId === book.id) ? state.resumePosition : (saved && saved.position) || 0;
+  const startAt = (state.resumePosition && state.resumeBookId === book.id) ? state.resumePosition
+    : (saved && (!topic || saved.page === topic.n) && saved.position) || 0;
   state.resumePosition = 0;
 
   audio.onerror = () => { if (audioState.key === key) showAudioFallback(raw); };
@@ -485,7 +496,7 @@ function saveAudioPosition(force) {
   const now = Date.now();
   if (!force && now - audioState.lastSave < 10000) return;
   audioState.lastSave = now;
-  progressSaver.queue(audioState.bookId, 'listen', audioState.lang, audioState.level, { position: Math.floor(audio.currentTime), page: 1 });
+  progressSaver.queue(audioState.bookId, 'listen', audioState.lang, audioState.level, { position: Math.floor(audio.currentTime), page: audioState.topicN || 1 });
 }
 
 function formatTime(sec) {
@@ -591,6 +602,7 @@ function setupAudioEvents() {
   ['play', 'pause', 'ended', 'waiting', 'canplay', 'durationchange'].forEach(ev => audio.addEventListener(ev, () => {
     updatePlayerUI();
     if (ev === 'pause' || ev === 'ended') saveAudioPosition(true);
+    if (ev === 'ended') stepTopic(1);
   }));
   audio.addEventListener('timeupdate', () => {
     updatePlayerUI();
@@ -602,6 +614,8 @@ function setupAudioEvents() {
       navigator.mediaSession.setActionHandler('seekforward', () => skipAudio(15));
       navigator.mediaSession.setActionHandler('play', () => audio.play());
       navigator.mediaSession.setActionHandler('pause', () => audio.pause());
+      navigator.mediaSession.setActionHandler('previoustrack', () => stepTopic(-1));
+      navigator.mediaSession.setActionHandler('nexttrack', () => stepTopic(1));
     } catch (e) {}
   }
 }
@@ -616,6 +630,16 @@ function updateMediaSession(book, lang, level) {
       artwork: [{ src: resolveCover(book.cover), sizes: '512x512' }]
     });
   } catch (e) {}
+}
+
+/* Previous / next topic; the next one starts by itself when a topic ends */
+function stepTopic(d) {
+  const b = state.activeAudioBook;
+  if (!b || !bookTopics(b, audioState.lang, audioState.level)[(state.topicIdx || 0) + d]) return;
+  state.topicIdx = (state.topicIdx || 0) + d;
+  renderFullPlayerScreen();
+  const audio = getAudioEl();
+  if (audio) audio.play().catch(() => {});
 }
 
 function stopAudio() {

@@ -2,7 +2,7 @@
   "name": "elibrary",
   "private": true,
   "scripts": {
-    "test": "node tests/layout.test.js && node tests/animations.test.js && node tests/auth-buttons.test.js && node tests/drive-direct.test.js && node tests/relay-off.test.js && node tests/category-cutout.test.js"
+    "test": "node tests/layout.test.js && node tests/animations.test.js && node tests/auth-buttons.test.js && node tests/drive-direct.test.js && node tests/relay-off.test.js && node tests/category-cutout.test.js && node tests/drive-import.test.js"
   },
   "devDependencies": {
     "playwright": "^1.49.0"
