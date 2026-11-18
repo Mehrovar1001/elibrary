@@ -44,7 +44,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=11">
+  <link rel="stylesheet" href="style.css?v=12">
 </head>
 <body>
   <a class="skip-link" href="#main-scroll" data-i18n="skipToContent">Перейти к содержимому</a>
@@ -1380,27 +1380,34 @@
   </div>
 
   <script>
-    /* Offline PWA + automatic update without clearing cookies */
+    /* Offline PWA + quiet automatic updates.
+       The page reloads ONLY when a newer version replaces an existing one
+       (never on the very first visit), at most once a minute, and never while
+       the visitor is reading or listening — then the update waits for next time. */
     if ('serviceWorker' in navigator) {
+      const hadController = !!navigator.serviceWorker.controller;
       let reloading = false;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (reloading) return;
+        if (reloading || !hadController) return;
+        const busy = document.body.classList.contains('on-reader') || document.body.classList.contains('on-player')
+          || (function () { const a = document.getElementById('native-audio'); return !!(a && !a.paused); })();
+        if (busy) return;
+        let last = 0;
+        try { last = Number(sessionStorage.getItem('elib_sw_reload_at')) || 0; } catch (e) {}
+        if (Date.now() - last < 60000) return;
+        try { sessionStorage.setItem('elib_sw_reload_at', String(Date.now())); } catch (e) {}
         reloading = true;
         window.location.reload();
       });
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => {
-          reg.update();
-          if (reg.waiting) reg.waiting.postMessage('SKIP_WAITING');
-          reg.addEventListener('updatefound', () => {
-            const nw = reg.installing;
-            if (!nw) return;
-            nw.addEventListener('statechange', () => {
-              if (nw.state === 'installed' && navigator.serviceWorker.controller) nw.postMessage('SKIP_WAITING');
-            });
-          });
+          let lastCheck = Date.now();
           document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') reg.update();
+            /* look for updates when coming back to the tab, at most every 30 min */
+            if (document.visibilityState === 'visible' && Date.now() - lastCheck > 30 * 60000) {
+              lastCheck = Date.now();
+              reg.update().catch(() => {});
+            }
           });
         }).catch(() => {});
       });
@@ -1409,13 +1416,13 @@
   <script src="vendor/supabase-2.45.4.js"></script>
   <script src="vendor/qrcode-1.4.4.js"></script>
   <script src="vendor/pdf-3.11.174.min.js"></script>
-  <script src="js/config.js?v=11"></script>
-  <script src="js/i18n.js?v=11"></script>
-  <script src="js/api.js?v=11"></script>
-  <script src="js/render3d.js?v=11"></script>
-  <script src="js/category-editor.js?v=11"></script>
-  <script src="js/media.js?v=11"></script>
-  <script src="js/focus.js?v=11"></script>
-  <script src="js/app.js?v=11"></script>
+  <script src="js/config.js?v=12"></script>
+  <script src="js/i18n.js?v=12"></script>
+  <script src="js/api.js?v=12"></script>
+  <script src="js/render3d.js?v=12"></script>
+  <script src="js/category-editor.js?v=12"></script>
+  <script src="js/media.js?v=12"></script>
+  <script src="js/focus.js?v=12"></script>
+  <script src="js/app.js?v=12"></script>
 </body>
 </html>

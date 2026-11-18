@@ -61,6 +61,19 @@ function L(obj) {
   return obj[state.currentLang] || obj.ru || obj.en || obj.tg || '';
 }
 
+/* Replace an element's content only when it really changed.
+   Re-writing identical HTML would replay the entrance animations and redraw the
+   3D canvases, which looks like the page "reloading" several times. After the
+   first paint, later updates appear without the fly-in animation. */
+function setHtml(el, html) {
+  if (!el) return false;
+  if (el.__html === html) return false;
+  if (el.__html !== undefined) el.classList.add('no-enter-anim');
+  el.__html = html;
+  el.innerHTML = html;
+  return true;
+}
+
 function escapeHtml(str) {
   if (str === null || str === undefined) return '';
   return String(str)
@@ -882,14 +895,14 @@ function renderHeaderUser() {
   if (!zone) return;
   if (state.currentUser) {
     const u = state.currentUser;
-    zone.innerHTML = `
+    setHtml(zone, `
       <button type="button" class="streak-pill liquid-glass-btn user-pill" onclick="navigate('settings')" aria-label="${escapeHtml(t('navSettings'))}: ${escapeHtml(u.name || u.email)}">
         <span class="user-pill-avatar">${avatarHtml(u)}</span>
         <span class="user-pill-name">${escapeHtml(u.name || '')}</span>
         ${admin ? '<span class="badge badge-admin user-pill-badge">Admin</span>' : ''}
-      </button>`;
+      </button>`);
   } else {
-    zone.innerHTML = `<button class="btn-primary btn-sm" onclick="openAuthModal()">${escapeHtml(t('signIn'))}</button>`;
+    setHtml(zone, `<button class="btn-primary btn-sm" onclick="openAuthModal()">${escapeHtml(t('signIn'))}</button>`);
   }
 }
 
@@ -966,8 +979,9 @@ function renderHome() {
 
   const homeCatGrid = document.getElementById('home-categories-3d-grid');
   if (homeCatGrid) {
-    homeCatGrid.innerHTML = cats.slice(0, 6).map((g, i) => create3DCategoryCardHtml(g, i, 'openCategoryFromHome')).join('');
-    renderAll3DCategoryCanvases(homeCatGrid);
+    if (setHtml(homeCatGrid, cats.slice(0, 6).map((g, i) => create3DCategoryCardHtml(g, i, 'openCategoryFromHome')).join(''))) {
+      renderAll3DCategoryCanvases(homeCatGrid);
+    }
   }
 
   const pills = document.getElementById('home-genre-pills');
@@ -977,7 +991,7 @@ function renderHome() {
       const active = state.selectedGenre === g.id;
       html += `<button class="genre-pill ${active ? 'active' : ''}" aria-pressed="${active}" onclick="selectGenreFilter('${escapeHtml(g.id)}')">${escapeHtml(L(g.name) || g.id)}</button>`;
     });
-    pills.innerHTML = html;
+    setHtml(pills, html);
   }
 
   const grid = document.getElementById('home-books-grid');
@@ -998,7 +1012,7 @@ function renderHome() {
   }
 
   if (filtered.length === 0) {
-    grid.innerHTML = '';
+    setHtml(grid, '');
     emptyState.style.display = 'block';
     const title = document.getElementById('home-empty-title');
     const desc = document.getElementById('home-empty-desc');
@@ -1015,7 +1029,7 @@ function renderHome() {
     return;
   }
   emptyState.style.display = 'none';
-  grid.innerHTML = filtered.map((b, i) => createBookCardHtml(b, i)).join('');
+  setHtml(grid, filtered.map((b, i) => createBookCardHtml(b, i)).join(''));
 }
 
 function openCategoryFromHome(genreId) { navigate('categories', genreId); }
@@ -1041,8 +1055,9 @@ function handleEmptyStateAction() {
 function renderCategoriesScreen() {
   const grid = document.getElementById('categories-grid');
   if (!grid) return;
-  grid.innerHTML = getCategories().map((g, i) => create3DCategoryCardHtml(g, i, 'selectCategoryCard')).join('');
-  renderAll3DCategoryCanvases(grid);
+  if (setHtml(grid, getCategories().map((g, i) => create3DCategoryCardHtml(g, i, 'selectCategoryCard')).join(''))) {
+    renderAll3DCategoryCanvases(grid);
+  }
 }
 
 function selectCategoryCard(genreId, fromRoute) {
