@@ -33,7 +33,7 @@
   </script>
 
   <!-- Content Security Policy: Supabase API, Google Drive viewer, Google/Apple avatars -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://vdohgnxcqdlewwghxnqp.supabase.co wss://vdohgnxcqdlewwghxnqp.supabase.co; worker-src 'self' blob:; img-src 'self' https: data: blob:; media-src 'self' https: blob:; frame-src https://drive.google.com https://docs.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; script-src 'self' 'unsafe-inline'; base-uri 'self'; form-action 'self'; object-src 'none';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://vdohgnxcqdlewwghxnqp.supabase.co wss://vdohgnxcqdlewwghxnqp.supabase.co https://www.googleapis.com; worker-src 'self' blob:; img-src 'self' https: data: blob:; media-src 'self' https: blob:; frame-src https://drive.google.com https://docs.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; script-src 'self' 'unsafe-inline'; base-uri 'self'; form-action 'self'; object-src 'none';">
   <meta name="referrer" content="strict-origin-when-cross-origin">
 
   <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon.png">
@@ -44,7 +44,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=8">
+  <link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
   <a class="skip-link" href="#main-scroll" data-i18n="skipToContent">Перейти к содержимому</a>
@@ -463,31 +463,43 @@
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
               <span data-i18n="btnBack">Назад</span>
             </button>
-            <h2 class="section-title text-reveal" data-i18n="playerHeader">Аудиокнига</h2>
           </div>
-          <div class="liquid-divider"></div>
 
-          <div class="player-page-card liquid-glass-card">
+          <div class="player-page-card">
+            <div class="player-backdrop" id="player-backdrop" aria-hidden="true"></div>
             <div class="player-cover-large" id="player-cover-box">
               <img src="icons/icon-512.png" alt="">
             </div>
-            <h1 class="player-title" id="player-title">Аудиокнига</h1>
-            <p class="player-author" id="player-author"></p>
-            <p class="player-level" id="player-level-label"></p>
-            <div id="player-lang-chips" class="player-lang-chips"></div>
-            <div class="liquid-divider" style="max-width: 220px; margin: 16px auto;"></div>
+            <div class="player-meta">
+              <h1 class="player-title" id="player-title">Аудиокнига</h1>
+              <p class="player-author" id="player-author"></p>
+              <span class="player-level" id="player-level-label"></span>
+            </div>
 
-            <div id="native-audio-box" class="native-audio-box">
-              <audio id="native-audio" controls preload="metadata" playsinline></audio>
-              <div class="audio-extra-controls">
-                <button type="button" class="font-btn" onclick="skipAudio(-15)" data-i18n-aria="back15" aria-label="−15">−15</button>
-                <div class="speed-group" role="group" data-i18n-aria="speed" aria-label="Speed">
-                  <button type="button" class="speed-btn" data-rate="0.75" onclick="setPlaybackRate(0.75)">0.75×</button>
-                  <button type="button" class="speed-btn active" data-rate="1" onclick="setPlaybackRate(1)">1×</button>
-                  <button type="button" class="speed-btn" data-rate="1.25" onclick="setPlaybackRate(1.25)">1.25×</button>
-                  <button type="button" class="speed-btn" data-rate="1.5" onclick="setPlaybackRate(1.5)">1.5×</button>
-                </div>
-                <button type="button" class="font-btn" onclick="skipAudio(15)" data-i18n-aria="fwd15" aria-label="+15">+15</button>
+            <audio id="native-audio" preload="metadata" playsinline></audio>
+            <div id="custom-player" class="custom-player">
+              <div class="pl-seek-row">
+                <input type="range" id="pl-seek" class="pl-seek" min="0" max="1000" value="0" step="1"
+                       oninput="onSeekInput(this.value)" onchange="onSeekChange(this.value)" data-i18n-aria="seek" aria-label="Seek">
+                <div class="pl-times"><span id="pl-current">0:00</span><span id="pl-loading" class="pl-loading" style="display:none;">•••</span><span id="pl-duration">0:00</span></div>
+              </div>
+              <div class="pl-transport">
+                <button type="button" class="pl-play" id="pl-play" onclick="toggleAudioPlay()" aria-label="Play">
+                  <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor" aria-hidden="true"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11.04-6.86a1 1 0 0 0 0-1.72L9.5 4.28A1 1 0 0 0 8 5.14z"/></svg>
+                </button>
+              </div>
+              <div class="pl-control-row" role="group" data-i18n-aria="speed" aria-label="Speed">
+                <button type="button" class="pl-skip" onclick="skipAudio(-15)" data-i18n-aria="back15" aria-label="−15">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 3 3 9 9 9"/></svg><span>15</span>
+                </button>
+                <button type="button" class="speed-btn" data-rate="0.75" onclick="setPlaybackRate(0.75)">0.75</button>
+                <button type="button" class="speed-btn active" data-rate="1" onclick="setPlaybackRate(1)">1×</button>
+                <button type="button" class="speed-btn" data-rate="1.25" onclick="setPlaybackRate(1.25)">1.25</button>
+                <button type="button" class="speed-btn" data-rate="1.5" onclick="setPlaybackRate(1.5)">1.5</button>
+                <button type="button" class="speed-btn" data-rate="1.75" onclick="setPlaybackRate(1.75)">1.75</button>
+                <button type="button" class="pl-skip" onclick="skipAudio(15)" data-i18n-aria="fwd15" aria-label="+15">
+                  <span>15</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 3 21 9 15 9"/></svg>
+                </button>
               </div>
             </div>
             <div id="audio-fallback" style="display: none;"></div>
@@ -1377,12 +1389,12 @@
   <script src="vendor/supabase-2.45.4.js"></script>
   <script src="vendor/qrcode-1.4.4.js"></script>
   <script src="vendor/pdf-3.11.174.min.js"></script>
-  <script src="js/config.js?v=8"></script>
-  <script src="js/i18n.js?v=8"></script>
-  <script src="js/api.js?v=8"></script>
-  <script src="js/render3d.js?v=8"></script>
-  <script src="js/category-editor.js?v=8"></script>
-  <script src="js/media.js?v=8"></script>
-  <script src="js/app.js?v=8"></script>
+  <script src="js/config.js?v=9"></script>
+  <script src="js/i18n.js?v=9"></script>
+  <script src="js/api.js?v=9"></script>
+  <script src="js/render3d.js?v=9"></script>
+  <script src="js/category-editor.js?v=9"></script>
+  <script src="js/media.js?v=9"></script>
+  <script src="js/app.js?v=9"></script>
 </body>
 </html>

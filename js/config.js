@@ -5,5 +5,9 @@ const ELIB_CONFIG = {
   supabaseUrl: 'https://vdohgnxcqdlewwghxnqp.supabase.co',
   supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkb2hnbnhjcWRsZXd3Z2h4bnFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5NjA1ODgsImV4cCI6MjExMDUzNjU4OH0.89aZS6d0V4ZkK4XZHQF593dJhoUBbswUcsnnG3QMRbI',
   siteUrl: 'https://mehrovar1001.github.io/elibrary/',
-  coversBucket: 'covers'
+  coversBucket: 'covers',
+  /* Optional: a Google API key (Drive API enabled, restricted to this site).
+     When set, books and audio stream straight from Google and do not pass
+     through Supabase at all. Leave empty to use the Supabase relay. */
+  googleApiKey: ''
 };

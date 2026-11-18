@@ -649,6 +649,7 @@ function showScreen(screen, param) {
   state.currentScreen = screen;
   state.routeParam = param || '';
   document.body.classList.toggle('on-player', screen === 'player');
+  document.body.classList.toggle('on-reader', screen === 'reader');
 
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const target = document.getElementById(`screen-${screen}`);
@@ -1225,7 +1226,8 @@ function renderReaderScreen() {
   const level = pickLevel(b.textUrls, lang);
   state.mediaLevel = level;
   const raw = mediaUrl(b.textUrls, lang, level);
-  const picker = mediaPickerHtml(availableLangs(b.textUrls), l => availableLevels(b.textUrls, l), lang, level, 'setReaderLang', 'setReaderLevel');
+  /* Language and level are chosen on the book page; here only a caption */
+  const picker = `<button type="button" class="media-caption" onclick="navigate('book-detail','${b.id}')" aria-label="${escapeHtml(t('changeLangLevel'))}">${escapeHtml(langName(lang))} · ${escapeHtml(t('level' + level))} <span aria-hidden="true">✎</span></button>`;
 
   if (!raw) {
     pdfDestroy();
@@ -1241,13 +1243,16 @@ function renderReaderScreen() {
     bodyEl.innerHTML = `
       <div id="reader-picker-host"></div>
       <div class="reader-doc-actions">
+        <span id="reader-picker-slot"></span>
         <a class="btn-link" id="reader-open-drive" target="_blank" rel="noopener">${escapeHtml(t('openInDrive'))} ↗</a>
       </div>
       <div id="reader-doc-host" class="reader-doc-host"></div>`;
     pickerHost = document.getElementById('reader-picker-host');
     docHost = document.getElementById('reader-doc-host');
   }
-  pickerHost.innerHTML = picker;
+  pickerHost.innerHTML = '';
+  const slot = document.getElementById('reader-picker-slot');
+  if (slot) slot.innerHTML = picker;
   const openLink = document.getElementById('reader-open-drive');
   if (openLink) openLink.href = driveOpenUrl(raw);
 
@@ -1305,12 +1310,13 @@ function renderFullPlayerScreen() {
     coverBox.innerHTML = `<img src="${escapeHtml(resolveCover(b.cover))}" alt="" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" onerror="this.onerror=null;this.src='icons/icon-512.png';">`;
   }
 
+  /* Language and level are chosen on the book page before pressing "Listen" */
   const lang = pickMediaLang(b.audioUrls);
   state.mediaLang = lang;
   const level = pickLevel(b.audioUrls, lang);
   state.mediaLevel = level;
-  const chips = document.getElementById('player-lang-chips');
-  if (chips) chips.innerHTML = mediaPickerHtml(availableLangs(b.audioUrls), l => availableLevels(b.audioUrls, l), lang, level, 'setAudioLang', 'setAudioLevel');
+  const backdrop = document.getElementById('player-backdrop');
+  if (backdrop) backdrop.style.backgroundImage = `url("${resolveCover(b.cover).replace(/"/g, '%22')}")`;
   const levelEl = document.getElementById('player-level-label');
   if (levelEl) levelEl.textContent = `${langName(lang)} · ${t('level' + level)}`;
 

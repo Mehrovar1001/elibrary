@@ -1,6 +1,12 @@
 /* eLibrary — interface translations (Русский / Тоҷикӣ / English) */
 const I18N = {
   ru: {
+    prevPage: 'Предыдущая страница',
+    nextPage: 'Следующая страница',
+    goToPage: 'Перейти на страницу',
+    audioError: 'Не удалось воспроизвести аудио',
+    changeLangLevel: 'Изменить язык или уровень',
+    seek: 'Перемотка',
     langName_ru: 'Русский',
     langName_tg: 'Таджикский',
     langName_en: 'Английский',
@@ -185,6 +191,12 @@ const I18N = {
   },
 
   tg: {
+    prevPage: 'Саҳифаи қаблӣ',
+    nextPage: 'Саҳифаи навбатӣ',
+    goToPage: 'Гузариш ба саҳифа',
+    audioError: 'Аудио пахш нашуд',
+    changeLangLevel: 'Иваз кардани забон ё сатҳ',
+    seek: 'Ҳаракат дар аудио',
     langName_ru: 'Русӣ',
     langName_tg: 'Тоҷикӣ',
     langName_en: 'Англисӣ',
@@ -369,6 +381,12 @@ const I18N = {
   },
 
   en: {
+    prevPage: 'Previous page',
+    nextPage: 'Next page',
+    goToPage: 'Go to page',
+    audioError: 'Could not play the audio',
+    changeLangLevel: 'Change language or level',
+    seek: 'Seek',
     langName_ru: 'Russian',
     langName_tg: 'Tajik',
     langName_en: 'English',
