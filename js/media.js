@@ -128,6 +128,7 @@ async function openPdfReader(host, rawUrl, opts) {
           </div>
         </div>
         <button type="button" class="book-edge book-edge-prev" onclick="pdfTurn(-1)" aria-label="${escapeHtml(t('prevPage'))}"></button>
+        <button type="button" class="book-center" onclick="toggleFocusControls()" aria-label="${escapeHtml(t('focusControls'))}" tabindex="-1"></button>
         <button type="button" class="book-edge book-edge-next" onclick="pdfTurn(1)" aria-label="${escapeHtml(t('nextPage'))}"></button>
       </div>
       <div class="book-controls" role="toolbar" aria-label="${escapeHtml(t('readBook'))}">
@@ -136,7 +137,9 @@ async function openPdfReader(host, rawUrl, opts) {
         <button type="button" class="book-page-indicator" id="pdf-page-indicator" onclick="pdfJumpPrompt()" aria-live="polite" aria-label="${escapeHtml(t('goToPage'))}">…</button>
         <button type="button" class="book-ctl book-ctl-arrow" onclick="pdfTurn(1)" aria-label="${escapeHtml(t('nextPage'))}">›</button>
         <button type="button" class="book-ctl" onclick="pdfZoom(1)" aria-label="${escapeHtml(t('zoomIn'))}">+</button>
+        <button type="button" class="book-ctl focus-toggle-btn" onclick="toggleFocusMode()" aria-pressed="false" aria-label="${escapeHtml(t('focusMode'))}" title="${escapeHtml(t('focusMode'))}"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/><path d="M12 9.2a2.8 2.8 0 1 0 2.8 2.8"/><path d="M14.5 7.5l-.3 1.8 1.8-.3"/></svg></button>
       </div>
+      <button type="button" class="focus-exit-btn" onclick="exitFocusMode()" aria-label="${escapeHtml(t('focusExit'))}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg><span>${escapeHtml(t('focusExitShort'))}</span></button>
       <div class="book-progress" aria-hidden="true"><div class="book-progress-fill" id="book-progress-fill"></div></div>
     </div>`;
 
@@ -189,6 +192,15 @@ async function openPdfReader(host, rawUrl, opts) {
 
 /* Size of one page on screen: fill the width, but never taller than the screen */
 function bookPageSize() {
+  /* Focus mode: the page gets the whole screen */
+  if (typeof isFocusMode === 'function' && isFocusMode()) {
+    const w0 = window.innerWidth - 12;
+    const h0 = window.innerHeight - 12;
+    let fw = w0;
+    if (fw * pdfReader.ratio > h0) fw = h0 / pdfReader.ratio;
+    fw = Math.floor(fw);
+    return { w: fw, h: Math.floor(fw * pdfReader.ratio) };
+  }
   const wrap = document.getElementById('book-stage-wrap');
   const availW = wrap ? wrap.clientWidth : 360;
   /* header + page controls (+ mini player when audio is open) stay visible */
@@ -349,6 +361,7 @@ function pdfJumpPrompt() {
 }
 
 function updatePdfIndicator(n) {
+  if (typeof focusNotePage === 'function') focusNotePage(n);
   const ind = document.getElementById('pdf-page-indicator');
   if (ind) ind.textContent = t('pageOf', { n, total: pdfReader.total || '…' });
   const fill = document.getElementById('book-progress-fill');
