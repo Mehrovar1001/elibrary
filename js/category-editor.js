@@ -188,20 +188,116 @@ function restoreCategoryDefault3D() {
   syncCategoryEditorPreviewLayers();
 }
 
+/* ---------- Background removal (U²-Net, runs in the admin's browser) ---------- */
+let bgSession = null;
+
+function loadScriptOnce(src) {
+  return new Promise((resolve, reject) => {
+    if (window.ort) return resolve();
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('cannot load ' + src));
+    document.head.appendChild(s);
+  });
+}
+
+async function getBgSession() {
+  if (bgSession) return bgSession;
+  await loadScriptOnce('vendor/ort/ort.wasm.min.js');
+  ort.env.wasm.wasmPaths = new URL('vendor/ort/', location.href).href;
+  ort.env.wasm.numThreads = 1;
+  bgSession = await ort.InferenceSession.create('vendor/ort/u2netp.onnx', { executionProviders: ['wasm'] });
+  return bgSession;
+}
+
+function loadImageEl(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    if (!/^data:/.test(src)) img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('cannot read image'));
+    img.src = src;
+  });
+}
+
+/* Returns a PNG data URL: the main object of the photo on a transparent background */
+async function removeImageBackground(src, maxSide = 720) {
+  const [session, img] = await Promise.all([getBgSession(), loadImageEl(src)]);
+  const S = 320;
+  const small = document.createElement('canvas');
+  small.width = S; small.height = S;
+  small.getContext('2d').drawImage(img, 0, 0, S, S);
+  const px = small.getContext('2d').getImageData(0, 0, S, S).data;
+  const mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225];
+  const input = new Float32Array(3 * S * S);
+  for (let i = 0; i < S * S; i++) {
+    for (let ch = 0; ch < 3; ch++) input[ch * S * S + i] = (px[i * 4 + ch] / 255 - mean[ch]) / std[ch];
+  }
+  const out = await session.run({ [session.inputNames[0]]: new ort.Tensor('float32', input, [1, 3, S, S]) });
+  const pred = out[session.outputNames[0]].data;
+  let lo = Infinity, hi = -Infinity;
+  for (const v of pred) { if (v < lo) lo = v; if (v > hi) hi = v; }
+
+  /* mask → alpha (soft edge, clean background) */
+  const maskCanvas = document.createElement('canvas');
+  maskCanvas.width = S; maskCanvas.height = S;
+  const mctx = maskCanvas.getContext('2d');
+  const mask = mctx.createImageData(S, S);
+  for (let i = 0; i < S * S; i++) {
+    const m = (pred[i] - lo) / ((hi - lo) || 1);
+    mask.data[i * 4 + 3] = Math.round(255 * Math.min(1, Math.max(0, (m - 0.15) / 0.7)));
+  }
+  mctx.putImageData(mask, 0, 0);
+
+  const k = Math.min(1, maxSide / Math.max(img.width, img.height));
+  const w = Math.round(img.width * k), h = Math.round(img.height * k);
+  const cut = document.createElement('canvas');
+  cut.width = w; cut.height = h;
+  const cctx = cut.getContext('2d');
+  cctx.drawImage(img, 0, 0, w, h);
+  cctx.globalCompositeOperation = 'destination-in';
+  cctx.drawImage(maskCanvas, 0, 0, w, h);
+
+  /* trim to the object, keep a small transparent margin */
+  const a = cctx.getImageData(0, 0, w, h).data;
+  let x0 = w, y0 = h, x1 = -1, y1 = -1;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    if (a[(y * w + x) * 4 + 3] > 20) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  }
+  if (x1 < 0) throw new Error('no object found');
+  const pad = Math.round(Math.max(x1 - x0, y1 - y0) * 0.04) + 2;
+  const out2 = document.createElement('canvas');
+  out2.width = x1 - x0 + 1 + pad * 2;
+  out2.height = y1 - y0 + 1 + pad * 2;
+  out2.getContext('2d').drawImage(cut, x0, y0, x1 - x0 + 1, y1 - y0 + 1, pad, pad, x1 - x0 + 1, y1 - y0 + 1);
+  return out2.toDataURL('image/png');
+}
+
 function handleCategoryPhotoSelected(event) {
   const file = event.target.files && event.target.files[0];
   if (!file) return;
 
   const reader = new FileReader();
-  reader.onload = function(e) {
+  reader.onload = async function(e) {
     const rawData = e.target.result;
-    /* Compress to max 720x720 so multi-object photos stay sharp when panning & zooming */
-    compressImage(rawData, 720, 720, 0.86, function(compressedData) {
-      catEditorState.customImage = compressedData;
-      catEditorState.panX = 0;
-      catEditorState.panY = 0;
-      syncCategoryEditorPreviewLayers();
-    });
+    const saveBtn = document.getElementById('cat-save-btn');
+    if (saveBtn) saveBtn.disabled = true;
+    showToast('Убираю фон с фото…');
+    try {
+      /* the object without background floats like the 3D objects */
+      catEditorState.customImage = await removeImageBackground(rawData);
+      catEditorState.displayMode = 'object';
+      showToast('Фон убран', 'online');
+    } catch (err) {
+      /* fall back to the plain photo */
+      catEditorState.customImage = await new Promise(r => compressImage(rawData, 720, 720, 0.86, r));
+      showToast('Не удалось убрать фон, загружено обычное фото', 'offline');
+    }
+    if (saveBtn) saveBtn.disabled = false;
+    catEditorState.panX = 0;
+    catEditorState.panY = 0;
+    syncCategoryEditorPreviewLayers();
   };
   reader.readAsDataURL(file);
 }
