@@ -3213,3 +3213,6 @@ body.focus-reading.focus-controls-hidden .focus-exit-btn { opacity: 0; pointer-e
 .pl-speed-row .speed-btn.active { background: var(--primary); color: #fff; box-shadow: 0 4px 10px rgba(91, 70, 229, 0.3); }
 /* Updates after the first paint appear in place, without replaying the fly-in */
 .no-enter-anim > .stagger-item, .no-enter-anim .stagger-item { animation: none !important; }
+/* Admin-only buttons inside cards: hidden for readers (the server enforces rights anyway) */
+.admin-only { display: none !important; }
+body.is-admin .admin-only { display: inline-flex !important; }

@@ -674,9 +674,13 @@ function showScreen(screen, param) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const target = document.getElementById(`screen-${screen}`);
   if (target) {
+    const switched = !target.classList.contains('active') || state.lastShownScreen !== screen;
     target.classList.add('active');
+    target.__revealAgain = switched && state.lastShownScreen !== undefined;
     triggerSequentialTextReveal(target);
+    target.__revealAgain = false;
   }
+  state.lastShownScreen = screen;
   updateLiquidNavIndicators(screen);
 
   const globalBack = document.getElementById('global-back-btn');
@@ -768,7 +772,8 @@ function updateLiquidNavIndicators(screenName) {
         pillGlass.classList.add('stretch');
       }
     }
-    if (mobBtn) {
+    /* the "pop" plays only when the user actually moves to another tab */
+    if (mobBtn && prevIdx !== activeIdx) {
       mobBtn.classList.remove('tap-pop');
       void mobBtn.offsetWidth;
       mobBtn.classList.add('tap-pop');
@@ -782,6 +787,9 @@ function triggerSequentialTextReveal(container) {
   if (!container) return;
   container.querySelectorAll('.text-reveal').forEach(h => {
     const rawText = h.getAttribute('data-raw-text') || h.textContent.trim();
+    /* same heading, same text, still on screen → don't replay the word animation */
+    if (h.dataset.revealed === rawText && !container.__revealAgain) return;
+    h.dataset.revealed = rawText;
     h.setAttribute('data-raw-text', rawText);
     h.setAttribute('aria-label', rawText);
     h.innerHTML = rawText.split(/\s+/).map((word, idx) =>
@@ -886,6 +894,8 @@ function renderHeaderUser() {
   if (streakEl && state.currentUser) streakEl.textContent = t('daysShort', { n: state.currentUser.streak_count || 1 });
 
   const admin = isAdmin();
+  /* admin-only controls are shown with CSS, so cards don't need rebuilding */
+  document.body.classList.toggle('is-admin', admin);
   ['home-add-cat-btn', 'cats-add-cat-btn'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = admin ? 'inline-flex' : 'none';
@@ -929,7 +939,7 @@ function create3DCategoryCardHtml(g, idx, clickFn) {
       <div class="cat-3d-header">
         <div class="cat-3d-title">${escapeHtml(label)}</div>
         <div class="cat-header-right">
-          ${isAdmin() ? `<button type="button" class="cat-edit-btn" aria-label="${escapeHtml(t('editCategory'))}" title="${escapeHtml(t('editCategory'))}" onclick="event.stopPropagation(); openCategoryEditorModal('${id}')">✎</button>` : ''}
+          <button type="button" class="cat-edit-btn admin-only" aria-label="${escapeHtml(t('editCategory'))}" title="${escapeHtml(t('editCategory'))}" onclick="event.stopPropagation(); openCategoryEditorModal('${id}')">✎</button>
           <span class="cat-3d-count">${count}</span>
         </div>
       </div>
