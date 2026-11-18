@@ -2775,3 +2775,31 @@ fieldset.quiz-card legend { padding: 0; margin-bottom: 10px; }
     background: #fff !important; color: #000 !important; box-shadow: none !important; border: 2px solid #5B46E5;
   }
 }
+
+/* ---------- v7.1: difficulty levels & first-visit language ---------- */
+.media-picker { display: flex; flex-direction: column; gap: 10px; margin: 6px 0 14px; }
+.chip-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.chip-group-label { font-size: 12px; font-weight: 700; color: var(--text-muted); min-width: 110px; }
+.media-toolbar .media-picker { margin: 0; }
+.player-level { font-size: 12.5px; color: var(--text-muted); margin-top: 4px; }
+.player-lang-chips .media-picker { align-items: center; }
+.player-lang-chips .chip-group { justify-content: center; }
+.level-block { border-top: 1px dashed var(--border-strong); padding-top: 10px; margin-top: 6px; }
+.level-block-title { font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; }
+.welcome-card { max-width: 420px; text-align: center; }
+.welcome-logo { width: 56px; height: 56px; border-radius: 14px; margin: 0 auto 10px; display: block; }
+.welcome-title { justify-content: center; font-size: 16px; line-height: 1.5; margin-bottom: 16px; }
+.welcome-lang-list { display: flex; flex-direction: column; gap: 10px; }
+.welcome-lang-btn {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 18px; border-radius: 14px;
+  border: 1px solid var(--border-strong); background: var(--input-bg);
+  color: var(--text-main); font-size: 15px; cursor: pointer;
+}
+.welcome-lang-btn span { font-size: 12px; font-weight: 700; color: var(--primary); }
+.welcome-lang-btn:hover { border-color: var(--primary); background: var(--primary-soft); }
+@media (max-width: 920px) { .chip-group-label { min-width: 0; width: 100%; } }
+/* Mini player never covers the full Drive player; content gets room for it elsewhere */
+body.on-player .mini-player { display: none !important; }
+body.has-mini-player:not(.on-player) .main-content { padding-bottom: calc(var(--mini-player-space, 96px) + 110px); }
+.gdrive-player-box { margin-bottom: 8px; }

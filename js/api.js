@@ -110,8 +110,8 @@ const api = {
     throwIf(error);
     return data;
   },
-  async addBookmark(bookId, lang) {
-    const { data, error } = await sb.from('bookmarks').upsert({ book_id: bookId, lang }, { onConflict: 'user_id,book_id' }).select().single();
+  async addBookmark(bookId, lang, level) {
+    const { data, error } = await sb.from('bookmarks').upsert({ book_id: bookId, lang, level: level || 1 }, { onConflict: 'user_id,book_id' }).select().single();
     throwIf(error);
     return data;
   },
@@ -129,9 +129,9 @@ const api = {
     throwIf(error);
     return data && data[0] ? data[0] : null;
   },
-  async saveProgress(bookId, mode, lang) {
+  async saveProgress(bookId, mode, lang, level) {
     await sb.from('reading_progress').upsert(
-      { book_id: bookId, mode, lang, updated_at: new Date().toISOString() },
+      { book_id: bookId, mode, lang, level: level || 1, updated_at: new Date().toISOString() },
       { onConflict: 'user_id,book_id' }
     );
   },

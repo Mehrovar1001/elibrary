@@ -1,6 +1,11 @@
 /* eLibrary — interface translations (Русский / Тоҷикӣ / English) */
 const I18N = {
   ru: {
+    chooseLanguage: 'Язык',
+    chooseLevel: 'Уровень сложности',
+    level1: 'Лёгкий',
+    level2: 'Средний',
+    level3: 'Сложный',
     navMenu: 'Навигация',
     navHome: 'Обзор',
     navCategories: 'Направления',
@@ -162,6 +167,11 @@ const I18N = {
   },
 
   tg: {
+    chooseLanguage: 'Забон',
+    chooseLevel: 'Сатҳи душворӣ',
+    level1: 'Осон',
+    level2: 'Миёна',
+    level3: 'Душвор',
     navMenu: 'Роҳнамо',
     navHome: 'Асосӣ',
     navCategories: 'Самтҳо',
@@ -323,6 +333,11 @@ const I18N = {
   },
 
   en: {
+    chooseLanguage: 'Language',
+    chooseLevel: 'Difficulty',
+    level1: 'Easy',
+    level2: 'Medium',
+    level3: 'Hard',
     navMenu: 'Navigation',
     navHome: 'Overview',
     navCategories: 'Disciplines',

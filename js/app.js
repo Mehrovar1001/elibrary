@@ -5,6 +5,7 @@
    ========================================================================== */
 
 const LANGS = ['ru', 'tg', 'en'];
+const LEVELS = [1, 2, 3];
 const LANG_LABELS = { ru: 'Русский', tg: 'Тоҷикӣ', en: 'English' };
 const AVATAR_CHOICES = ['АД', 'МН', 'ИЛ', 'ФК', 'СМ', 'ДТ', 'РШ', 'АН'];
 const ROOT_ADMIN_EMAIL = 'admin@elibrary.com';
@@ -31,6 +32,7 @@ let state = {
   searchQuery: '',
   currentBook: null,
   mediaLang: 'ru',
+  mediaLevel: 1,
   activeAudioBook: null,
   quizAnswers: {},
   authMode: 'login',
@@ -150,15 +152,51 @@ function resolveCover(cover, fallback) {
   return url;
 }
 
-function availableLangs(obj) {
-  return LANGS.filter(l => obj && sanitizeUrl(obj[l]));
+/* Media links are stored per language and per difficulty level:
+   { ru: { "1": url, "2": url, "3": url }, tg: {...}, en: {...} }
+   (a plain string per language is still accepted and treated as level 1) */
+function langLevels(urls, lang) {
+  const v = urls && urls[lang];
+  if (!v) return {};
+  if (typeof v === 'string') return sanitizeUrl(v) ? { 1: v } : {};
+  const o = {};
+  LEVELS.forEach(lv => { if (sanitizeUrl(v[lv])) o[lv] = v[lv]; });
+  return o;
 }
 
-function pickMediaLang(obj) {
-  const langs = availableLangs(obj);
+function availableLangs(urls) {
+  return LANGS.filter(l => Object.keys(langLevels(urls, l)).length > 0);
+}
+
+function availableLevels(urls, lang) {
+  const o = langLevels(urls, lang);
+  return LEVELS.filter(lv => o[lv]);
+}
+
+function mediaUrl(urls, lang, level) {
+  return langLevels(urls, lang)[level] || '';
+}
+
+function pickMediaLang(urls) {
+  const langs = availableLangs(urls);
   if (langs.includes(state.mediaLang)) return state.mediaLang;
   if (langs.includes(state.currentLang)) return state.currentLang;
   return langs[0] || state.currentLang;
+}
+
+function pickLevel(urls, lang) {
+  const lv = availableLevels(urls, lang);
+  if (lv.includes(state.mediaLevel)) return state.mediaLevel;
+  return lv[0] || 1;
+}
+
+/* Languages/levels offered on the book page = union of text and audio */
+function bookLangs(b) {
+  return LANGS.filter(l => availableLangs(b.textUrls).includes(l) || availableLangs(b.audioUrls).includes(l));
+}
+
+function bookLevels(b, lang) {
+  return LEVELS.filter(lv => mediaUrl(b.textUrls, lang, lv) || mediaUrl(b.audioUrls, lang, lv));
 }
 
 function getCategories() {
@@ -194,13 +232,27 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.addEventListener('hashchange', route);
   route();
 
+  if (state.firstVisit) {
+    const m = document.getElementById('welcome-lang-modal');
+    if (m) m.classList.add('open');
+  }
+
   refreshCatalog();
   await initAuth();
 });
 
+/* First visit: the reader picks the interface language (also the default book/audio language) */
+function chooseInitialLanguage(lang) {
+  state.firstVisit = false;
+  const m = document.getElementById('welcome-lang-modal');
+  if (m) m.classList.remove('open');
+  changeLanguage(lang);
+}
+
 function loadSettings() {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+    if (!raw) state.firstVisit = true;
     if (raw) {
       const p = JSON.parse(raw);
       if (LANGS.includes(p.lang)) state.currentLang = p.lang;
@@ -584,6 +636,7 @@ function route() {
 function showScreen(screen, param) {
   state.currentScreen = screen;
   state.routeParam = param || '';
+  document.body.classList.toggle('on-player', screen === 'player');
 
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const target = document.getElementById(`screen-${screen}`);
@@ -996,16 +1049,39 @@ function clearCategorySelection() {
 /* ==========================================================================
    8. Book detail, reader (Google Drive), audio, quiz & certificates
    ========================================================================== */
-function langChipsHtml(urls, onPick) {
-  const langs = availableLangs(urls);
-  if (langs.length <= 1) {
-    return langs.length === 1 ? `<span class="lang-chip active" aria-current="true">${LANG_LABELS[langs[0]]}</span>` : '';
-  }
-  const current = pickMediaLang(urls);
-  return `<div class="lang-chips" role="group" aria-label="${escapeHtml(t('languages'))}">` + langs.map(l =>
-    `<button type="button" class="lang-chip ${l === current ? 'active' : ''}" aria-pressed="${l === current}" onclick="${onPick}('${l}')">${LANG_LABELS[l]}</button>`
-  ).join('') + '</div>';
+function chipGroupHtml(label, items, current, onPick) {
+  return `
+    <div class="chip-group">
+      <span class="chip-group-label">${escapeHtml(label)}</span>
+      <div class="lang-chips" role="group" aria-label="${escapeHtml(label)}">
+        ${items.map(it => `<button type="button" class="lang-chip ${it.value === current ? 'active' : ''}" aria-pressed="${it.value === current}" onclick="${onPick}(${JSON.stringify(it.value).replace(/"/g, '&quot;')})">${escapeHtml(it.label)}</button>`).join('')}
+      </div>
+    </div>`;
 }
+
+/* Language + difficulty selectors. `langs`/`levelsFor` decide what is offered. */
+function mediaPickerHtml(langs, levelsFor, lang, level, onLang, onLevel) {
+  if (!langs.length) return '';
+  const levels = levelsFor(lang);
+  return `<div class="media-picker">
+    ${chipGroupHtml(t('chooseLanguage'), langs.map(l => ({ value: l, label: LANG_LABELS[l] })), lang, onLang)}
+    ${levels.length ? chipGroupHtml(t('chooseLevel'), levels.map(lv => ({ value: lv, label: t('level' + lv) })), level, onLevel) : ''}
+  </div>`;
+}
+
+/* Resolve the language/level to use on the book page */
+function resolveBookSelection(b) {
+  const langs = bookLangs(b);
+  let lang = langs.includes(state.mediaLang) ? state.mediaLang : (langs.includes(state.currentLang) ? state.currentLang : (langs[0] || state.currentLang));
+  const levels = bookLevels(b, lang);
+  const level = levels.includes(state.mediaLevel) ? state.mediaLevel : (levels[0] || 1);
+  state.mediaLang = lang;
+  state.mediaLevel = level;
+  return { langs, lang, level };
+}
+
+function setDetailLang(lang) { state.mediaLang = lang; renderBookDetail(); }
+function setDetailLevel(level) { state.mediaLevel = Number(level) || 1; renderBookDetail(); }
 
 function renderBookDetail() {
   const b = state.currentBook;
@@ -1018,6 +1094,10 @@ function renderBookDetail() {
   const marked = isBookmarked(b.id);
   const hasQuiz = Array.isArray(b.quiz) && b.quiz.length > 0;
   const cert = state.certificates.find(c => c.book_id === b.id);
+  const sel = resolveBookSelection(b);
+  const hasTextHere = !!mediaUrl(b.textUrls, sel.lang, sel.level);
+  const hasAudioHere = !!mediaUrl(b.audioUrls, sel.lang, sel.level);
+  const picker = mediaPickerHtml(sel.langs, l => bookLevels(b, l), sel.lang, sel.level, 'setDetailLang', 'setDetailLevel');
 
   container.innerHTML = `
     <div class="book-detail-hero liquid-glass-card">
@@ -1036,9 +1116,11 @@ function renderBookDetail() {
         <p class="book-detail-author">${escapeHtml(L(b.author))}</p>
         <div class="liquid-divider"></div>
 
+        ${picker}
+
         <div class="book-detail-cta">
-          ${textLangs.length ? `<button class="btn-primary" onclick="openReader()"><span>${escapeHtml(t('readBook'))}</span></button>` : ''}
-          ${audioLangs.length ? `<button class="btn-secondary liquid-glass-btn" onclick="playAudioBook()"><span>${escapeHtml(t('listenBook'))}</span></button>` : ''}
+          ${hasTextHere ? `<button class="btn-primary" onclick="openReader()"><span>${escapeHtml(t('readBook'))}</span></button>` : ''}
+          ${hasAudioHere ? `<button class="btn-secondary liquid-glass-btn" onclick="playAudioBook()"><span>${escapeHtml(t('listenBook'))}</span></button>` : ''}
           ${state.currentUser ? `
             <button class="btn-icon ${marked ? 'is-active' : ''}" onclick="toggleBookmark('${b.id}')" aria-pressed="${marked}" aria-label="${escapeHtml(marked ? t('removeBookmark') : t('addBookmark'))}" title="${escapeHtml(marked ? t('removeBookmark') : t('addBookmark'))}">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="${marked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
@@ -1051,7 +1133,7 @@ function renderBookDetail() {
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
             </button>` : ''}
         </div>
-        ${!textLangs.length && !audioLangs.length ? `<p class="muted-text">${escapeHtml(t('noMediaYet'))}</p>` : ''}
+        ${!sel.langs.length ? `<p class="muted-text">${escapeHtml(t('noMediaYet'))}</p>` : ''}
         <p class="book-detail-synopsis">${escapeHtml(L(b.synopsis))}</p>
       </div>
     </div>`;
@@ -1083,7 +1165,7 @@ async function toggleBookmark(bookId) {
       state.bookmarks = state.bookmarks.filter(b => b.book_id !== bookId);
       showToast(t('bookmarkRemoved'));
     } else {
-      const row = await api.addBookmark(bookId, state.mediaLang);
+      const row = await api.addBookmark(bookId, state.mediaLang, state.mediaLevel);
       state.bookmarks.unshift(row);
       showToast(t('bookmarkSaved'), 'online');
     }
@@ -1100,6 +1182,11 @@ function openReader() {
 
 function setReaderLang(lang) {
   state.mediaLang = lang;
+  renderReaderScreen();
+}
+
+function setReaderLevel(level) {
+  state.mediaLevel = Number(level) || 1;
   renderReaderScreen();
 }
 
@@ -1131,20 +1218,23 @@ function renderReaderScreen() {
   paywallEl.style.display = 'none';
   const lang = pickMediaLang(b.textUrls);
   state.mediaLang = lang;
-  const raw = b.textUrls[lang];
+  const level = pickLevel(b.textUrls, lang);
+  state.mediaLevel = level;
+  const raw = mediaUrl(b.textUrls, lang, level);
   const embed = driveEmbedUrl(raw);
+  const picker = mediaPickerHtml(availableLangs(b.textUrls), l => availableLevels(b.textUrls, l), lang, level, 'setReaderLang', 'setReaderLevel');
 
   bodyEl.innerHTML = embed ? `
     <div class="media-toolbar">
-      ${langChipsHtml(b.textUrls, 'setReaderLang')}
+      ${picker}
       <a class="btn-link" href="${escapeHtml(driveOpenUrl(raw))}" target="_blank" rel="noopener">${escapeHtml(t('openInDrive'))} ↗</a>
     </div>
     <div class="drive-doc-frame">
       <iframe src="${escapeHtml(embed)}" title="${escapeHtml(L(b.title))}" loading="lazy" allow="autoplay; fullscreen" referrerpolicy="no-referrer"></iframe>
     </div>` : `<p class="muted-text">${escapeHtml(t('noTextYet'))}</p>`;
 
-  api.saveProgress(b.id, 'read', lang);
-  state.latestProgress = { book_id: b.id, mode: 'read', lang };
+  api.saveProgress(b.id, 'read', lang, level);
+  state.latestProgress = { book_id: b.id, mode: 'read', lang, level };
   checkSavedProgressBanner();
   renderBookQuiz(b);
 }
@@ -1168,8 +1258,11 @@ function playAudioBook(book) {
 
 function setAudioLang(lang) {
   state.mediaLang = lang;
-  const iframe = document.getElementById('gdrive-embed-iframe');
-  if (iframe) iframe.dataset.src = '';
+  renderFullPlayerScreen();
+}
+
+function setAudioLevel(level) {
+  state.mediaLevel = Number(level) || 1;
   renderFullPlayerScreen();
 }
 
@@ -1198,18 +1291,24 @@ function renderFullPlayerScreen() {
 
   const lang = pickMediaLang(b.audioUrls);
   state.mediaLang = lang;
-  if (chips) chips.innerHTML = langChipsHtml(b.audioUrls, 'setAudioLang');
+  const level = pickLevel(b.audioUrls, lang);
+  state.mediaLevel = level;
+  if (chips) chips.innerHTML = mediaPickerHtml(availableLangs(b.audioUrls), l => availableLevels(b.audioUrls, l), lang, level, 'setAudioLang', 'setAudioLevel');
 
   const iframe = document.getElementById('gdrive-embed-iframe');
-  const target = driveEmbedUrl(b.audioUrls[lang]);
-  if (iframe && target && iframe.dataset.src !== target) {
+  const target = driveEmbedUrl(mediaUrl(b.audioUrls, lang, level));
+  /* Same Drive file can be reused across languages/levels: key the reload on lang+level too */
+  const key = `${target}#${lang}-${level}`;
+  if (iframe && target && iframe.dataset.src !== key) {
     iframe.src = target;
-    iframe.dataset.src = target;
-    iframe.title = `${t('listenBook')}: ${L(b.title)}`;
+    iframe.dataset.src = key;
+    iframe.title = `${t('listenBook')}: ${L(b.title)} (${LANG_LABELS[lang]}, ${t('level' + level)})`;
   }
+  const levelEl = document.getElementById('player-level-label');
+  if (levelEl) levelEl.textContent = `${LANG_LABELS[lang]} · ${t('level' + level)}`;
   showMiniPlayer(b);
-  api.saveProgress(b.id, 'listen', lang);
-  state.latestProgress = { book_id: b.id, mode: 'listen', lang };
+  api.saveProgress(b.id, 'listen', lang, level);
+  state.latestProgress = { book_id: b.id, mode: 'listen', lang, level };
 }
 
 function showMiniPlayer(book) {
@@ -1220,6 +1319,7 @@ function showMiniPlayer(book) {
   document.getElementById('mini-thumb').innerHTML =
     `<img src="${escapeHtml(resolveCover(book.cover, 'icons/icon-192.png'))}" alt="" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="this.onerror=null;this.src='icons/icon-192.png';">`;
   mini.classList.add('visible');
+  document.body.classList.add('has-mini-player');
 }
 
 function openFullPlayer() {
@@ -1229,6 +1329,7 @@ function openFullPlayer() {
 function closeMiniPlayer() {
   const mini = document.getElementById('mini-player');
   if (mini) mini.classList.remove('visible');
+  document.body.classList.remove('has-mini-player');
   const iframe = document.getElementById('gdrive-embed-iframe');
   if (iframe) { iframe.src = 'about:blank'; iframe.dataset.src = ''; }
   state.activeAudioBook = null;
@@ -1243,7 +1344,7 @@ function checkSavedProgressBanner() {
   const book = p && findBook(p.book_id);
   const onSameBook = state.currentBook && p && state.currentBook.id === p.book_id && ['reader', 'player'].includes(state.currentScreen);
   if (state.currentUser && book && !onSameBook) {
-    titleEl.textContent = `${L(book.title)} · ${p.mode === 'listen' ? t('listenBook') : t('readBook')} · ${(p.lang || '').toUpperCase()}`;
+    titleEl.textContent = `${L(book.title)} · ${p.mode === 'listen' ? t('listenBook') : t('readBook')} · ${(p.lang || '').toUpperCase()} · ${t('level' + (p.level || 1))}`;
     bar.style.display = 'flex';
   } else {
     bar.style.display = 'none';
@@ -1256,6 +1357,7 @@ function restoreSavedProgress() {
   if (!book) return dismissSavedProgress();
   state.currentBook = book;
   state.mediaLang = p.lang || state.currentLang;
+  state.mediaLevel = p.level || 1;
   navigate(p.mode === 'listen' ? 'player' : 'reader', book.id);
 }
 
@@ -1626,7 +1728,7 @@ function renderAdminBooksTable() {
   emptyEl.style.display = 'none';
   const langsCell = urls => {
     const l = availableLangs(urls);
-    return l.length ? l.map(x => x.toUpperCase()).join(' ') : '—';
+    return l.length ? l.map(x => `${x.toUpperCase()}×${availableLevels(urls, x).length}`).join(' ') : '—';
   };
   tbody.innerHTML = state.books.map(b => `
     <tr>
@@ -1855,8 +1957,12 @@ async function editBookInAdmin(bookId) {
     document.getElementById(`form-title-${l}`).value = (book.title || {})[l] || '';
     document.getElementById(`form-author-${l}`).value = (book.author || {})[l] || '';
     document.getElementById(`form-synopsis-${l}`).value = (book.synopsis || {})[l] || '';
-    document.getElementById(`form-text-${l}`).value = (book.textUrls || {})[l] || '';
-    document.getElementById(`form-audio-${l}`).value = (book.audioUrls || {})[l] || '';
+    const tx = langLevels(book.textUrls, l);
+    const au = langLevels(book.audioUrls, l);
+    LEVELS.forEach(lv => {
+      document.getElementById(`form-text-${l}-${lv}`).value = tx[lv] || '';
+      document.getElementById(`form-audio-${l}-${lv}`).value = au[lv] || '';
+    });
   });
   let keys = [];
   try { keys = await api.fetchQuizKeys(book.id); } catch (e) {}
@@ -1881,6 +1987,18 @@ function testDriveLink(inputId) {
     ? `✓ Google Drive: <a href="${escapeHtml(driveEmbedUrl(url))}" target="_blank" rel="noopener">открыть просмотр</a> · убедитесь, что доступ «Все, у кого есть ссылка»`
     : '✓ Внешняя ссылка';
   status.style.color = 'var(--success)';
+}
+
+/* Test helper: copy the first filled book/audio link into every empty language/level field */
+function fillEmptyMediaFromFirst() {
+  ['form-text', 'form-audio'].forEach(prefix => {
+    const ids = [];
+    LANGS.forEach(l => LEVELS.forEach(lv => ids.push(`${prefix}-${l}-${lv}`)));
+    const first = ids.map(id => document.getElementById(id).value.trim()).find(v => v);
+    if (!first) return;
+    ids.forEach(id => { const el = document.getElementById(id); if (!el.value.trim()) el.value = first; });
+  });
+  showToast('Пустые поля заполнены', 'online');
 }
 
 function parseQuizJson(text) {
@@ -1916,11 +2034,14 @@ async function handleSaveBook(event) {
   const pickUrls = prefix => {
     const o = {};
     for (const l of LANGS) {
-      const raw = document.getElementById(`${prefix}-${l}`).value.trim();
-      if (!raw) continue;
-      const v = sanitizeUrl(raw);
-      if (!v) throw new Error(`Ссылка (${l.toUpperCase()}) должна начинаться с https://`);
-      o[l] = v;
+      for (const lv of LEVELS) {
+        const raw = document.getElementById(`${prefix}-${l}-${lv}`).value.trim();
+        if (!raw) continue;
+        const v = sanitizeUrl(raw);
+        if (!v) throw new Error(`Ссылка (${l.toUpperCase()}, уровень ${lv}) должна начинаться с https://`);
+        o[l] = o[l] || {};
+        o[l][lv] = v;
+      }
     }
     return o;
   };

@@ -473,6 +473,7 @@
             </div>
             <h1 class="player-title" id="player-title">Аудиокнига</h1>
             <p class="player-author" id="player-author"></p>
+            <p class="player-level" id="player-level-label"></p>
             <div id="player-lang-chips" class="player-lang-chips"></div>
             <div class="liquid-divider" style="max-width: 220px; margin: 16px auto;"></div>
 
@@ -650,11 +651,15 @@
                       </div>
                     </div>
                     <input type="file" id="form-cover-file" accept="image/jpeg,image/png,image/webp" onchange="handleCoverFileSelected(event)" style="display: none;">
-                    <input type="url" class="form-input" id="form-cover-url" style="margin-top: 8px;" placeholder="…или ссылка на картинку (Google Drive / https)" onchange="handleCoverUrlInput(this.value)">
+                    <input type="url" class="form-input" id="form-cover-url" style="margin-top: 8px;" placeholder="…или ссылка на картинку (Google Drive / https)" oninput="handleCoverUrlInput(this.value)">
                   </div>
                 </div>
 
                 <label class="checkbox-row"><input type="checkbox" id="form-published" checked> Опубликовано (видно всем читателям)</label>
+                <div class="admin-hint">
+                  У каждого языка 3 уровня сложности, у каждого уровня свой файл книги и своё аудио. Пустые уровни читателю не показываются.
+                  <div style="margin-top: 8px;"><button type="button" class="btn-secondary btn-sm" onclick="fillEmptyMediaFromFirst()">Заполнить пустые поля первой ссылкой (для теста)</button></div>
+                </div>
 
                 <fieldset class="lang-fieldset">
                   <legend>Русский</legend>
@@ -672,21 +677,68 @@
                     <label class="form-label" for="form-synopsis-ru">Аннотация (RU)</label>
                     <textarea class="form-textarea form-textarea-sm" id="form-synopsis-ru" maxlength="2000"></textarea>
                   </div>
-                  <div class="form-group">
-                    <label class="form-label" for="form-text-ru">Книга в Google Drive (RU) — PDF, Google Docs или DOCX</label>
-                    <div class="input-with-btn">
-                      <input type="url" class="form-input" id="form-text-ru" placeholder="https://drive.google.com/file/d/.../view">
-                      <button type="button" class="btn-secondary" onclick="testDriveLink('form-text-ru')">Проверить</button>
+                  <div class="level-block">
+                    <div class="level-block-title">Уровень 1 — Лёгкий</div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label" for="form-text-ru-1">Книга (Google Drive) — RU, ур. 1</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-text-ru-1" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-text-ru-1')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-text-ru-1-status"></p>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="form-audio-ru-1">Аудио (Google Drive) — RU, ур. 1</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-audio-ru-1" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-audio-ru-1')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-audio-ru-1-status"></p>
+                      </div>
                     </div>
-                    <p class="drive-test-status" id="form-text-ru-status"></p>
                   </div>
-                  <div class="form-group">
-                    <label class="form-label" for="form-audio-ru">Аудио в Google Drive (RU) — MP3 / M4A</label>
-                    <div class="input-with-btn">
-                      <input type="url" class="form-input" id="form-audio-ru" placeholder="https://drive.google.com/file/d/.../view">
-                      <button type="button" class="btn-secondary" onclick="testDriveLink('form-audio-ru')">Проверить</button>
+                  <div class="level-block">
+                    <div class="level-block-title">Уровень 2 — Средний</div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label" for="form-text-ru-2">Книга (Google Drive) — RU, ур. 2</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-text-ru-2" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-text-ru-2')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-text-ru-2-status"></p>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="form-audio-ru-2">Аудио (Google Drive) — RU, ур. 2</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-audio-ru-2" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-audio-ru-2')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-audio-ru-2-status"></p>
+                      </div>
                     </div>
-                    <p class="drive-test-status" id="form-audio-ru-status"></p>
+                  </div>
+                  <div class="level-block">
+                    <div class="level-block-title">Уровень 3 — Сложный</div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label" for="form-text-ru-3">Книга (Google Drive) — RU, ур. 3</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-text-ru-3" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-text-ru-3')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-text-ru-3-status"></p>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="form-audio-ru-3">Аудио (Google Drive) — RU, ур. 3</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-audio-ru-3" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-audio-ru-3')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-audio-ru-3-status"></p>
+                      </div>
+                    </div>
                   </div>
                 </fieldset>
 
@@ -706,21 +758,68 @@
                     <label class="form-label" for="form-synopsis-tg">Аннотация (TG)</label>
                     <textarea class="form-textarea form-textarea-sm" id="form-synopsis-tg" maxlength="2000"></textarea>
                   </div>
-                  <div class="form-group">
-                    <label class="form-label" for="form-text-tg">Книга в Google Drive (TG) — PDF, Google Docs или DOCX</label>
-                    <div class="input-with-btn">
-                      <input type="url" class="form-input" id="form-text-tg" placeholder="https://drive.google.com/file/d/.../view">
-                      <button type="button" class="btn-secondary" onclick="testDriveLink('form-text-tg')">Проверить</button>
+                  <div class="level-block">
+                    <div class="level-block-title">Уровень 1 — Лёгкий</div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label" for="form-text-tg-1">Книга (Google Drive) — TG, ур. 1</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-text-tg-1" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-text-tg-1')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-text-tg-1-status"></p>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="form-audio-tg-1">Аудио (Google Drive) — TG, ур. 1</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-audio-tg-1" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-audio-tg-1')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-audio-tg-1-status"></p>
+                      </div>
                     </div>
-                    <p class="drive-test-status" id="form-text-tg-status"></p>
                   </div>
-                  <div class="form-group">
-                    <label class="form-label" for="form-audio-tg">Аудио в Google Drive (TG) — MP3 / M4A</label>
-                    <div class="input-with-btn">
-                      <input type="url" class="form-input" id="form-audio-tg" placeholder="https://drive.google.com/file/d/.../view">
-                      <button type="button" class="btn-secondary" onclick="testDriveLink('form-audio-tg')">Проверить</button>
+                  <div class="level-block">
+                    <div class="level-block-title">Уровень 2 — Средний</div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label" for="form-text-tg-2">Книга (Google Drive) — TG, ур. 2</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-text-tg-2" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-text-tg-2')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-text-tg-2-status"></p>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="form-audio-tg-2">Аудио (Google Drive) — TG, ур. 2</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-audio-tg-2" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-audio-tg-2')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-audio-tg-2-status"></p>
+                      </div>
                     </div>
-                    <p class="drive-test-status" id="form-audio-tg-status"></p>
+                  </div>
+                  <div class="level-block">
+                    <div class="level-block-title">Уровень 3 — Сложный</div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label" for="form-text-tg-3">Книга (Google Drive) — TG, ур. 3</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-text-tg-3" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-text-tg-3')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-text-tg-3-status"></p>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="form-audio-tg-3">Аудио (Google Drive) — TG, ур. 3</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-audio-tg-3" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-audio-tg-3')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-audio-tg-3-status"></p>
+                      </div>
+                    </div>
                   </div>
                 </fieldset>
 
@@ -740,21 +839,68 @@
                     <label class="form-label" for="form-synopsis-en">Аннотация (EN)</label>
                     <textarea class="form-textarea form-textarea-sm" id="form-synopsis-en" maxlength="2000"></textarea>
                   </div>
-                  <div class="form-group">
-                    <label class="form-label" for="form-text-en">Книга в Google Drive (EN) — PDF, Google Docs или DOCX</label>
-                    <div class="input-with-btn">
-                      <input type="url" class="form-input" id="form-text-en" placeholder="https://drive.google.com/file/d/.../view">
-                      <button type="button" class="btn-secondary" onclick="testDriveLink('form-text-en')">Проверить</button>
+                  <div class="level-block">
+                    <div class="level-block-title">Уровень 1 — Лёгкий</div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label" for="form-text-en-1">Книга (Google Drive) — EN, ур. 1</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-text-en-1" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-text-en-1')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-text-en-1-status"></p>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="form-audio-en-1">Аудио (Google Drive) — EN, ур. 1</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-audio-en-1" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-audio-en-1')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-audio-en-1-status"></p>
+                      </div>
                     </div>
-                    <p class="drive-test-status" id="form-text-en-status"></p>
                   </div>
-                  <div class="form-group">
-                    <label class="form-label" for="form-audio-en">Аудио в Google Drive (EN) — MP3 / M4A</label>
-                    <div class="input-with-btn">
-                      <input type="url" class="form-input" id="form-audio-en" placeholder="https://drive.google.com/file/d/.../view">
-                      <button type="button" class="btn-secondary" onclick="testDriveLink('form-audio-en')">Проверить</button>
+                  <div class="level-block">
+                    <div class="level-block-title">Уровень 2 — Средний</div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label" for="form-text-en-2">Книга (Google Drive) — EN, ур. 2</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-text-en-2" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-text-en-2')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-text-en-2-status"></p>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="form-audio-en-2">Аудио (Google Drive) — EN, ур. 2</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-audio-en-2" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-audio-en-2')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-audio-en-2-status"></p>
+                      </div>
                     </div>
-                    <p class="drive-test-status" id="form-audio-en-status"></p>
+                  </div>
+                  <div class="level-block">
+                    <div class="level-block-title">Уровень 3 — Сложный</div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label" for="form-text-en-3">Книга (Google Drive) — EN, ур. 3</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-text-en-3" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-text-en-3')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-text-en-3-status"></p>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="form-audio-en-3">Аудио (Google Drive) — EN, ур. 3</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-audio-en-3" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-audio-en-3')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-audio-en-3-status"></p>
+                      </div>
+                    </div>
                   </div>
                 </fieldset>
 
@@ -1048,6 +1194,19 @@
   </div>
 
   <div class="net-toast" id="net-toast" role="status" aria-live="polite"></div>
+
+  <!-- ======================= FIRST-VISIT LANGUAGE CHOOSER ======================= -->
+  <div class="modal-backdrop" id="welcome-lang-modal">
+    <div class="modal-card liquid-glass-card welcome-card" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+      <img src="icons/icon-192.png" alt="" class="welcome-logo">
+      <h2 class="modal-title welcome-title" id="welcome-title">Выберите язык · Забонро интихоб кунед · Choose language</h2>
+      <div class="welcome-lang-list">
+        <button type="button" class="welcome-lang-btn" onclick="chooseInitialLanguage('tg')"><strong>Тоҷикӣ</strong><span>TG</span></button>
+        <button type="button" class="welcome-lang-btn" onclick="chooseInitialLanguage('ru')"><strong>Русский</strong><span>RU</span></button>
+        <button type="button" class="welcome-lang-btn" onclick="chooseInitialLanguage('en')"><strong>English</strong><span>EN</span></button>
+      </div>
+    </div>
+  </div>
 
   <!-- ======================= AUTH MODAL (Supabase) ======================= -->
   <div class="modal-backdrop" id="auth-modal">
