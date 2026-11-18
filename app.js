@@ -219,17 +219,21 @@ const AVATAR_CHOICES = ['АД', 'МН', 'ИЛ', 'ФК', 'СМ', 'ДТ', 'РШ', 
 
 const STORAGE_KEYS = {
   BOOKS: 'elibrary_books_v2',
+  CATEGORIES: 'elibrary_categories_v5',
   USERS: 'elibrary_users_v2',
   SESSION: 'elibrary_session_v2',
   BOOKMARKS: 'elibrary_bookmarks_v2',
   CERTS: 'elibrary_certificates_v2',
   STREAK: 'elibrary_streak_v2',
   SETTINGS: 'elibrary_settings_v2',
-  PROGRESS: 'elibrary_progress_v3'
+  PROGRESS: 'elibrary_progress_v3',
+  GH_CONFIG: 'elibrary_gh_sync_v5',
+  CATALOG_TS: 'elibrary_catalog_ts_v5'
 };
 
 let state = {
   books: [],
+  categories: [],
   users: [],
   currentUser: null,
   bookmarks: [],
@@ -250,10 +254,31 @@ let state = {
   audioDuration: 0,
   quizAnswers: {},
   savedProgress: null,
-  pendingBackTarget: null
+  pendingBackTarget: null,
+  catalogUpdatedAt: 0
+};
+
+let catEditorState = {
+  id: null,
+  isNew: false,
+  customImage: '',
+  displayMode: 'full',
+  panX: 0,
+  panY: 0,
+  scale: 1.0,
+  isDragging: false,
+  startX: 0,
+  startY: 0,
+  initialPanX: 0,
+  initialPanY: 0
 };
 
 const globalAudio = new Audio();
+
+function getCategories() {
+  if (state.categories && state.categories.length > 0) return state.categories;
+  return GENRES;
+}
 
 /* ==========================================================================
    3. Initialization & Lifecycle
@@ -263,12 +288,45 @@ document.addEventListener('DOMContentLoaded', () => {
   applySettings();
   setupOpticalLiquidScroll();
   setupHardwareBackProtection();
+  setupCategoryPreviewDrag();
+  loadGithubSyncConfigUI();
   renderAll();
   initHero3DCanvas();
   checkSavedProgressBanner();
+  syncWithServerCatalog(false);
 });
 
 function loadAllState() {
+  try {
+    const rawCats = localStorage.getItem(STORAGE_KEYS.CATEGORIES);
+    if (rawCats) {
+      const parsedCats = JSON.parse(rawCats);
+      if (Array.isArray(parsedCats) && parsedCats.length > 0) {
+        state.categories = parsedCats;
+      }
+    }
+  } catch (e) {}
+
+  if (!state.categories || state.categories.length === 0) {
+    state.categories = GENRES.map(g => ({
+      id: g.id,
+      glow: g.glow,
+      name: { ...g.name },
+      customImage: '',
+      displayMode: 'object',
+      panX: 0,
+      panY: 0,
+      scale: 1.0
+    }));
+  }
+
+  try {
+    const rawTs = localStorage.getItem(STORAGE_KEYS.CATALOG_TS);
+    state.catalogUpdatedAt = rawTs ? Number(rawTs) : 0;
+  } catch (e) {
+    state.catalogUpdatedAt = 0;
+  }
+
   try {
     const rawBooks = localStorage.getItem(STORAGE_KEYS.BOOKS);
     state.books = rawBooks ? JSON.parse(rawBooks) : [];
@@ -360,7 +418,17 @@ function updateDailyStreak() {
 }
 
 function saveBooksToStorage() {
+  state.catalogUpdatedAt = Date.now();
   localStorage.setItem(STORAGE_KEYS.BOOKS, JSON.stringify(state.books));
+  localStorage.setItem(STORAGE_KEYS.CATALOG_TS, String(state.catalogUpdatedAt));
+  autoPublishCatalogIfConfigured();
+}
+
+function saveCategoriesToStorage() {
+  state.catalogUpdatedAt = Date.now();
+  localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(state.categories));
+  localStorage.setItem(STORAGE_KEYS.CATALOG_TS, String(state.catalogUpdatedAt));
+  autoPublishCatalogIfConfigured();
 }
 
 function saveUsersToStorage() {
@@ -1265,13 +1333,29 @@ function adjustFontSize(delta) {
    11. Rendering Screens
    ========================================================================== */
 function renderAll() {
+  populateGenreSelectDropdown();
   renderHeaderUser();
   renderHome();
   renderCategoriesScreen();
   renderBookmarksScreen();
   renderStatsScreen();
   renderSettingsScreen();
+  if (state.currentScreen === 'admin') renderAdminScreen();
   updateLiquidNavIndicators(state.currentScreen);
+}
+
+function populateGenreSelectDropdown() {
+  const sel = document.getElementById('form-genre');
+  if (!sel) return;
+  const currentVal = sel.value;
+  const cats = getCategories();
+  sel.innerHTML = cats.map(c => {
+    const label = (c.name && (c.name[state.currentLang] || c.name.ru)) || c.id;
+    return `<option value="${escapeHtml(c.id)}">${escapeHtml(label)}</option>`;
+  }).join('');
+  if (currentVal && cats.some(c => c.id === currentVal)) {
+    sel.value = currentVal;
+  }
 }
 
 function renderHeaderUser() {
@@ -1280,12 +1364,17 @@ function renderHeaderUser() {
     streakEl.textContent = `${state.streak.count} дн.`;
   }
 
+  const isAdmin = !!(state.currentUser && state.currentUser.role === 'admin');
+  const homeAddCatBtn = document.getElementById('home-add-cat-btn');
+  const catsAddCatBtn = document.getElementById('cats-add-cat-btn');
+  if (homeAddCatBtn) homeAddCatBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+  if (catsAddCatBtn) catsAddCatBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+
   const zone = document.getElementById('header-user-zone');
   if (!zone) return;
 
   if (state.currentUser) {
     const u = state.currentUser;
-    const isAdmin = u.role === 'admin';
     zone.innerHTML = `
       <div class="streak-pill liquid-glass-btn" onclick="navigate('settings')">
         <span style="font-weight:700; color:var(--primary);">${escapeHtml((u.avatar || u.name || 'U').slice(0, 2).toUpperCase())}</span>
@@ -1300,27 +1389,54 @@ function renderHeaderUser() {
   }
 }
 
+function getCategoryImageTransformStyle(g) {
+  const px = Number(g.panX) || 0;
+  const py = Number(g.panY) || 0;
+  const sc = Number(g.scale) || 1;
+  const mode = g.displayMode || 'full';
+  if (mode === 'full') {
+    return `transform: translate3d(calc(-50% + ${px}px), calc(-50% + ${py}px), 0) scale(${sc});`;
+  }
+  return `transform: translate3d(${px}px, ${py}px, 0) scale(${sc});`;
+}
+
 function create3DCategoryCardHtml(g, idx, clickFn) {
   const count = state.books.filter(b => b.genre === g.id).length;
-  const label = g.name[state.currentLang] || g.name.ru;
+  const label = (g.name && (g.name[state.currentLang] || g.name.ru)) || g.id;
+  const isAdmin = !!(state.currentUser && state.currentUser.role === 'admin');
+  const hasCustomImg = !!(g.customImage && g.customImage.trim().length > 0);
+  const modeClass = (g.displayMode === 'object') ? 'mode-object' : 'mode-full';
+  const imgTransform = getCategoryImageTransformStyle(g);
+
   return `
-    <div class="cat-3d-card stagger-item" style="--i:${idx}; --cat-glow:${g.glow};" onclick="${clickFn}('${g.id}')">
+    <div class="cat-3d-card stagger-item" style="--i:${idx}; --cat-glow:${g.glow || 'rgba(138, 92, 246, 0.34)'};" onclick="${clickFn}('${escapeHtml(g.id)}')">
       <div class="cat-3d-header">
         <div class="cat-3d-title">${escapeHtml(label)}</div>
-        <span class="cat-3d-count">${count}</span>
+        <div class="cat-header-right">
+          ${isAdmin ? `<button type="button" class="cat-edit-btn" title="Изменить фото и позицию категории" onclick="event.stopPropagation(); openCategoryEditorModal('${escapeHtml(g.id)}')">✎</button>` : ''}
+          <span class="cat-3d-count">${count}</span>
+        </div>
       </div>
-      <div class="cat-3d-stage">
-        <canvas class="cat-3d-canvas" data-genre="${g.id}" width="154" height="154"></canvas>
-      </div>
+      ${hasCustomImg ? `
+        <div class="cat-custom-img-layer ${modeClass}">
+          <img src="${escapeHtml(g.customImage)}" alt="${escapeHtml(label)}" style="${imgTransform}" draggable="false">
+        </div>
+      ` : `
+        <div class="cat-3d-stage">
+          <canvas class="cat-3d-canvas" data-genre="${escapeHtml(g.id)}" width="154" height="154"></canvas>
+        </div>
+      `}
     </div>
   `;
 }
 
 function renderHome() {
-  /* 1. Render 3D Categories Preview (first 6) */
+  const cats = getCategories();
+
+  /* 1. Render 3D / Custom Categories Preview (first 6) */
   const homeCatGrid = document.getElementById('home-categories-3d-grid');
   if (homeCatGrid) {
-    homeCatGrid.innerHTML = GENRES.slice(0, 6).map((g, i) =>
+    homeCatGrid.innerHTML = cats.slice(0, 6).map((g, i) =>
       create3DCategoryCardHtml(g, i, 'openCategoryFromHome')
     ).join('');
     renderAll3DCategoryCanvases(homeCatGrid);
@@ -1331,10 +1447,10 @@ function renderHome() {
   if (pillsContainer) {
     const dict = I18N[state.currentLang] || I18N.ru;
     let html = `<button class="genre-pill ${state.selectedGenre === 'all' ? 'active' : ''}" onclick="selectGenreFilter('all')">${dict.filterAll}</button>`;
-    GENRES.forEach(g => {
-      const gName = g.name[state.currentLang] || g.name.ru;
+    cats.forEach(g => {
+      const gName = (g.name && (g.name[state.currentLang] || g.name.ru)) || g.id;
       const active = state.selectedGenre === g.id ? 'active' : '';
-      html += `<button class="genre-pill ${active}" onclick="selectGenreFilter('${g.id}')">${escapeHtml(gName)}</button>`;
+      html += `<button class="genre-pill ${active}" onclick="selectGenreFilter('${escapeHtml(g.id)}')">${escapeHtml(gName)}</button>`;
     });
     pillsContainer.innerHTML = html;
   }
@@ -1380,7 +1496,8 @@ function openCategoryFromHome(genreId) {
 }
 
 function createBookCardHtml(book, idx = 0) {
-  const genreObj = GENRES.find(g => g.id === book.genre);
+  const cats = getCategories();
+  const genreObj = cats.find(g => g.id === book.genre);
   const genreName = genreObj ? (genreObj.name[state.currentLang] || genreObj.name.ru) : (book.genre || '');
   const hasAudio = !!book.audioUrl;
 
@@ -1431,20 +1548,22 @@ function handleEmptyStateAction() {
 }
 
 /* ==========================================================================
-   12. Categories Screen (3D Objects Grid - Reference Image 1)
+   12. Categories Screen (3D Objects & Custom Framed Photos Grid)
    ========================================================================== */
 function renderCategoriesScreen() {
   const grid = document.getElementById('categories-grid');
   if (!grid) return;
 
-  grid.innerHTML = GENRES.map((g, idx) =>
+  const cats = getCategories();
+  grid.innerHTML = cats.map((g, idx) =>
     create3DCategoryCardHtml(g, idx, 'selectCategoryCard')
   ).join('');
   renderAll3DCategoryCanvases(grid);
 }
 
 function selectCategoryCard(genreId) {
-  const genreObj = GENRES.find(g => g.id === genreId);
+  const cats = getCategories();
+  const genreObj = cats.find(g => g.id === genreId);
   const wrap = document.getElementById('category-filtered-results');
   const title = document.getElementById('selected-category-title');
   const grid = document.getElementById('category-books-grid');
@@ -1483,7 +1602,8 @@ function renderBookDetail() {
   const container = document.getElementById('book-detail-content');
   if (!b || !container) return;
 
-  const genreObj = GENRES.find(g => g.id === b.genre);
+  const cats = getCategories();
+  const genreObj = cats.find(g => g.id === b.genre);
   const genreName = genreObj ? (genreObj.name[state.currentLang] || genreObj.name.ru) : (b.genre || '');
   const hasAudio = !!b.audioUrl;
   const hasText = !!b.text;
@@ -1889,16 +2009,31 @@ function switchAdminTab(tab) {
 
   document.getElementById('adm-content-books').style.display = (tab === 'books') ? 'block' : 'none';
   document.getElementById('adm-content-add').style.display = (tab === 'add') ? 'block' : 'none';
+  const catContent = document.getElementById('adm-content-categories');
+  if (catContent) catContent.style.display = (tab === 'categories') ? 'block' : 'none';
   document.getElementById('adm-content-users').style.display = (tab === 'users') ? 'block' : 'none';
   document.getElementById('adm-content-backup').style.display = (tab === 'backup') ? 'block' : 'none';
 
   if (tab === 'books') renderAdminBooksTable();
+  if (tab === 'categories') renderAdminCategoriesGrid();
   if (tab === 'users') renderAdminUsersTable();
 }
 
 function renderAdminScreen() {
+  populateGenreSelectDropdown();
   renderAdminBooksTable();
+  renderAdminCategoriesGrid();
   renderAdminUsersTable();
+}
+
+function renderAdminCategoriesGrid() {
+  const grid = document.getElementById('admin-categories-grid');
+  if (!grid) return;
+  const cats = getCategories();
+  grid.innerHTML = cats.map((g, idx) =>
+    create3DCategoryCardHtml(g, idx, 'openCategoryEditorModal')
+  ).join('');
+  renderAll3DCategoryCanvases(grid);
 }
 
 function renderAdminBooksTable() {
@@ -1913,8 +2048,9 @@ function renderAdminBooksTable() {
   }
 
   emptyEl.style.display = 'none';
+  const cats = getCategories();
   tbody.innerHTML = state.books.map(b => {
-    const genreObj = GENRES.find(g => g.id === b.genre);
+    const genreObj = cats.find(g => g.id === b.genre);
     const genreName = genreObj ? (genreObj.name[state.currentLang] || genreObj.name.ru) : b.genre;
     const isGDrive = b.audioUrl && (b.audioUrl.includes('drive.google.com') || b.audioUrl.includes('docs.google.com'));
 
@@ -2170,12 +2306,18 @@ function clearAllBooksConfirm() {
 }
 
 function exportLibraryJson() {
-  const data = JSON.stringify(state.books, null, 2);
+  const payload = {
+    version: 5,
+    updatedAt: Date.now(),
+    categories: getCategories(),
+    books: state.books
+  };
+  const data = JSON.stringify(payload, null, 2);
   const blob = new Blob([data], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `elibrary_export_${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = `catalog.json`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -2190,9 +2332,19 @@ function importLibraryJson(event) {
       if (Array.isArray(imported)) {
         state.books = imported;
         saveBooksToStorage();
-        renderAll();
-        renderAdminBooksTable();
+      } else if (imported && typeof imported === 'object') {
+        if (Array.isArray(imported.categories) && imported.categories.length > 0) {
+          state.categories = imported.categories;
+          saveCategoriesToStorage();
+        }
+        if (Array.isArray(imported.books)) {
+          state.books = imported.books;
+          saveBooksToStorage();
+        }
       }
+      renderAll();
+      renderAdminBooksTable();
+      alert('Каталог и категории успешно импортированы!');
     } catch (err) {
       alert('Ошибка чтения JSON.');
     }
@@ -2398,4 +2550,482 @@ function handleAdminCreateUser(event) {
   saveUsersToStorage();
   closeAdminCreateUserModal();
   renderAdminUsersTable();
+}
+
+
+/* ==========================================================================
+   18. Interactive Category Photo & Touch-Drag Framing Studio
+   ========================================================================== */
+function openCategoryEditorModal(catId) {
+  if (!state.currentUser || state.currentUser.role !== 'admin') {
+    alert('Только администратор может редактировать категории.');
+    return;
+  }
+
+  const cats = getCategories();
+  const existing = catId ? cats.find(c => c.id === catId) : null;
+
+  const heading = document.getElementById('cat-modal-heading');
+  const idInput = document.getElementById('cat-edit-id');
+  const nameRu = document.getElementById('cat-name-ru');
+  const nameTg = document.getElementById('cat-name-tg');
+  const nameEn = document.getElementById('cat-name-en');
+  const glowSel = document.getElementById('cat-glow-select');
+  const delBtn = document.getElementById('cat-delete-btn');
+  const countEl = document.getElementById('cat-live-preview-count');
+
+  if (existing) {
+    catEditorState.id = existing.id;
+    catEditorState.isNew = false;
+    catEditorState.customImage = existing.customImage || '';
+    catEditorState.displayMode = existing.displayMode || 'full';
+    catEditorState.panX = Number(existing.panX) || 0;
+    catEditorState.panY = Number(existing.panY) || 0;
+    catEditorState.scale = Number(existing.scale) || 1.0;
+
+    if (heading) heading.textContent = `Редактировать: ${existing.name.ru || existing.id}`;
+    if (idInput) idInput.value = existing.id;
+    if (nameRu) nameRu.value = existing.name.ru || '';
+    if (nameTg) nameTg.value = existing.name.tg || '';
+    if (nameEn) nameEn.value = existing.name.en || '';
+    if (glowSel) glowSel.value = existing.glow || 'rgba(138, 92, 246, 0.34)';
+    if (delBtn) delBtn.style.display = cats.length > 1 ? 'inline-flex' : 'none';
+    if (countEl) countEl.textContent = state.books.filter(b => b.genre === existing.id).length;
+  } else {
+    const newId = 'cat_' + Date.now();
+    catEditorState.id = newId;
+    catEditorState.isNew = true;
+    catEditorState.customImage = '';
+    catEditorState.displayMode = 'full';
+    catEditorState.panX = 0;
+    catEditorState.panY = 0;
+    catEditorState.scale = 1.0;
+
+    if (heading) heading.textContent = 'Новая категория';
+    if (idInput) idInput.value = newId;
+    if (nameRu) nameRu.value = '';
+    if (nameTg) nameTg.value = '';
+    if (nameEn) nameEn.value = '';
+    if (glowSel) glowSel.value = 'rgba(138, 92, 246, 0.34)';
+    if (delBtn) delBtn.style.display = 'none';
+    if (countEl) countEl.textContent = '0';
+  }
+
+  const slider = document.getElementById('cat-scale-slider');
+  const scaleVal = document.getElementById('cat-scale-value');
+  if (slider) slider.value = catEditorState.scale;
+  if (scaleVal) scaleVal.textContent = Math.round(catEditorState.scale * 100) + '%';
+
+  updateLiveCategoryTitle();
+  updateLiveCategoryGlow(glowSel ? glowSel.value : 'rgba(138, 92, 246, 0.34)');
+  syncCategoryEditorPreviewLayers();
+
+  const modal = document.getElementById('category-editor-modal');
+  if (modal) modal.classList.add('open');
+}
+
+function closeCategoryEditorModal() {
+  const modal = document.getElementById('category-editor-modal');
+  if (modal) modal.classList.remove('open');
+}
+
+function updateLiveCategoryTitle() {
+  const nameRu = document.getElementById('cat-name-ru');
+  const nameTg = document.getElementById('cat-name-tg');
+  const nameEn = document.getElementById('cat-name-en');
+  const titleEl = document.getElementById('cat-live-preview-title');
+  if (!titleEl) return;
+
+  let val = (nameRu && nameRu.value.trim()) || 'Категория';
+  if (state.currentLang === 'tg' && nameTg && nameTg.value.trim()) val = nameTg.value.trim();
+  if (state.currentLang === 'en' && nameEn && nameEn.value.trim()) val = nameEn.value.trim();
+  titleEl.textContent = val;
+}
+
+function updateLiveCategoryGlow(glowVal) {
+  const card = document.getElementById('cat-live-preview-card');
+  if (card) card.style.setProperty('--cat-glow', glowVal);
+}
+
+function syncCategoryEditorPreviewLayers() {
+  const imgLayer = document.getElementById('cat-live-img-layer');
+  const imgEl = document.getElementById('cat-live-img-el');
+  const stage3d = document.getElementById('cat-live-3d-stage');
+  const canvas3d = document.getElementById('cat-live-3d-canvas');
+  const modeFullBtn = document.getElementById('cat-mode-full');
+  const modeObjBtn = document.getElementById('cat-mode-object');
+
+  if (modeFullBtn && modeObjBtn) {
+    modeFullBtn.classList.toggle('active', catEditorState.displayMode === 'full');
+    modeObjBtn.classList.toggle('active', catEditorState.displayMode === 'object');
+  }
+
+  const hasPhoto = !!(catEditorState.customImage && catEditorState.customImage.trim().length > 0);
+  if (hasPhoto) {
+    if (imgLayer) {
+      imgLayer.style.display = 'block';
+      imgLayer.className = 'cat-custom-img-layer ' + (catEditorState.displayMode === 'object' ? 'mode-object' : 'mode-full');
+    }
+    if (imgEl) {
+      imgEl.src = catEditorState.customImage;
+      applyLiveCategoryTransform();
+    }
+    if (stage3d) stage3d.style.display = 'none';
+  } else {
+    if (imgLayer) imgLayer.style.display = 'none';
+    if (stage3d) stage3d.style.display = 'flex';
+    if (canvas3d) {
+      draw3DStudioGenreObject(canvas3d, catEditorState.id || 'history');
+      canvas3d.style.transform = `translate3d(${catEditorState.panX}px, ${catEditorState.panY}px, 0) scale(${catEditorState.scale})`;
+    }
+  }
+}
+
+function applyLiveCategoryTransform() {
+  const imgEl = document.getElementById('cat-live-img-el');
+  const canvas3d = document.getElementById('cat-live-3d-canvas');
+  const px = catEditorState.panX;
+  const py = catEditorState.panY;
+  const sc = catEditorState.scale;
+
+  if (catEditorState.customImage) {
+    if (imgEl) {
+      if (catEditorState.displayMode === 'full') {
+        imgEl.style.transform = `translate3d(calc(-50% + ${px}px), calc(-50% + ${py}px), 0) scale(${sc})`;
+      } else {
+        imgEl.style.transform = `translate3d(${px}px, ${py}px, 0) scale(${sc})`;
+      }
+    }
+  } else if (canvas3d) {
+    canvas3d.style.transform = `translate3d(${px}px, ${py}px, 0) scale(${sc})`;
+  }
+}
+
+function setCategoryDisplayMode(mode) {
+  catEditorState.displayMode = mode;
+  syncCategoryEditorPreviewLayers();
+}
+
+function handleCategoryScaleChange(val) {
+  catEditorState.scale = parseFloat(val) || 1.0;
+  const scaleVal = document.getElementById('cat-scale-value');
+  if (scaleVal) scaleVal.textContent = Math.round(catEditorState.scale * 100) + '%';
+  applyLiveCategoryTransform();
+}
+
+function resetCategoryPanZoom() {
+  catEditorState.panX = 0;
+  catEditorState.panY = 0;
+  catEditorState.scale = 1.0;
+  const slider = document.getElementById('cat-scale-slider');
+  const scaleVal = document.getElementById('cat-scale-value');
+  if (slider) slider.value = 1.0;
+  if (scaleVal) scaleVal.textContent = '100%';
+  applyLiveCategoryTransform();
+}
+
+function restoreCategoryDefault3D() {
+  catEditorState.customImage = '';
+  resetCategoryPanZoom();
+  syncCategoryEditorPreviewLayers();
+}
+
+function handleCategoryPhotoSelected(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const rawData = e.target.result;
+    /* Compress to max 720x720 so multi-object photos stay sharp when panning & zooming */
+    compressImage(rawData, 720, 720, 0.86, function(compressedData) {
+      catEditorState.customImage = compressedData;
+      catEditorState.panX = 0;
+      catEditorState.panY = 0;
+      syncCategoryEditorPreviewLayers();
+    });
+  };
+  reader.readAsDataURL(file);
+}
+
+/* Finger Touch & Mouse Drag-to-Pan on Live Category Card Preview */
+function setupCategoryPreviewDrag() {
+  const card = document.getElementById('cat-live-preview-card');
+  if (!card) return;
+
+  const startDrag = (clientX, clientY) => {
+    catEditorState.isDragging = true;
+    catEditorState.startX = clientX;
+    catEditorState.startY = clientY;
+    catEditorState.initialPanX = catEditorState.panX;
+    catEditorState.initialPanY = catEditorState.panY;
+  };
+
+  const moveDrag = (clientX, clientY) => {
+    if (!catEditorState.isDragging) return;
+    const dx = clientX - catEditorState.startX;
+    const dy = clientY - catEditorState.startY;
+    catEditorState.panX = Math.round(catEditorState.initialPanX + dx);
+    catEditorState.panY = Math.round(catEditorState.initialPanY + dy);
+    applyLiveCategoryTransform();
+  };
+
+  const endDrag = () => {
+    catEditorState.isDragging = false;
+  };
+
+  card.addEventListener('mousedown', e => {
+    e.preventDefault();
+    startDrag(e.clientX, e.clientY);
+  });
+
+  window.addEventListener('mousemove', e => {
+    if (catEditorState.isDragging) moveDrag(e.clientX, e.clientY);
+  });
+
+  window.addEventListener('mouseup', endDrag);
+
+  card.addEventListener('touchstart', e => {
+    if (e.touches && e.touches.length === 1) {
+      startDrag(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  }, { passive: true });
+
+  card.addEventListener('touchmove', e => {
+    if (catEditorState.isDragging && e.touches && e.touches.length === 1) {
+      e.preventDefault();
+      moveDrag(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  }, { passive: false });
+
+  card.addEventListener('touchend', endDrag);
+
+  /* Mouse Wheel Zoom inside Live Preview Card */
+  card.addEventListener('wheel', e => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 0.08 : -0.08;
+    const nextScale = Math.min(3.0, Math.max(0.5, Number((catEditorState.scale + delta).toFixed(2))));
+    catEditorState.scale = nextScale;
+    const slider = document.getElementById('cat-scale-slider');
+    const scaleVal = document.getElementById('cat-scale-value');
+    if (slider) slider.value = nextScale;
+    if (scaleVal) scaleVal.textContent = Math.round(nextScale * 100) + '%';
+    applyLiveCategoryTransform();
+  }, { passive: false });
+}
+
+function handleSaveCategory(event) {
+  event.preventDefault();
+  const id = document.getElementById('cat-edit-id').value || ('cat_' + Date.now());
+  const ru = document.getElementById('cat-name-ru').value.trim();
+  const tg = document.getElementById('cat-name-tg').value.trim() || ru;
+  const en = document.getElementById('cat-name-en').value.trim() || ru;
+  const glow = document.getElementById('cat-glow-select').value;
+
+  if (!ru) return;
+
+  const catObj = {
+    id,
+    glow,
+    name: { ru, tg, en },
+    customImage: catEditorState.customImage || '',
+    displayMode: catEditorState.displayMode || 'full',
+    panX: catEditorState.panX || 0,
+    panY: catEditorState.panY || 0,
+    scale: catEditorState.scale || 1.0
+  };
+
+  const idx = state.categories.findIndex(c => c.id === id);
+  if (idx >= 0) {
+    state.categories[idx] = catObj;
+  } else {
+    state.categories.push(catObj);
+  }
+
+  saveCategoriesToStorage();
+  closeCategoryEditorModal();
+  renderAll();
+}
+
+function handleDeleteCategory() {
+  const id = catEditorState.id;
+  if (!id || state.categories.length <= 1) return;
+  if (!confirm('Удалить эту категорию?')) return;
+
+  state.categories = state.categories.filter(c => c.id !== id);
+  saveCategoriesToStorage();
+  closeCategoryEditorModal();
+  renderAll();
+}
+
+/* ==========================================================================
+   19. Server Catalog Sync & GitHub Pages Cloud Publish (All Browsers/Devices)
+   ========================================================================== */
+async function syncWithServerCatalog(forceOverwrite) {
+  try {
+    const res = await fetch(`data/catalog.json?t=${Date.now()}`, { cache: 'no-store' });
+    if (!res.ok) return;
+    const serverData = await res.json();
+    if (!serverData || typeof serverData !== 'object') return;
+
+    const serverTs = Number(serverData.updatedAt) || 0;
+    const localTs = Number(state.catalogUpdatedAt) || 0;
+
+    /* Update from server if forced, or if server is newer, or if local catalog is empty */
+    if (forceOverwrite || serverTs > localTs || (state.books.length === 0 && Array.isArray(serverData.books) && serverData.books.length > 0)) {
+      if (Array.isArray(serverData.categories) && serverData.categories.length > 0) {
+        state.categories = serverData.categories;
+        localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(state.categories));
+      }
+      if (Array.isArray(serverData.books)) {
+        /* Merge books so any locally added book is preserved unless forceOverwrite */
+        if (forceOverwrite || state.books.length === 0) {
+          state.books = serverData.books;
+        } else {
+          const map = new Map();
+          serverData.books.forEach(b => map.set(b.id, b));
+          state.books.forEach(b => {
+            const existing = map.get(b.id);
+            if (!existing || (b.updatedAt || 0) >= (existing.updatedAt || 0)) {
+              map.set(b.id, b);
+            }
+          });
+          state.books = Array.from(map.values());
+        }
+        localStorage.setItem(STORAGE_KEYS.BOOKS, JSON.stringify(state.books));
+      }
+      state.catalogUpdatedAt = Math.max(serverTs, localTs);
+      localStorage.setItem(STORAGE_KEYS.CATALOG_TS, String(state.catalogUpdatedAt));
+      renderAll();
+    }
+  } catch (e) {}
+}
+
+async function forceRefreshFromServer() {
+  if ('serviceWorker' in navigator) {
+    try {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      for (const r of regs) await r.update();
+    } catch (e) {}
+  }
+  await syncWithServerCatalog(true);
+  const statusEl = document.getElementById('gh-sync-status');
+  if (statusEl) {
+    statusEl.textContent = '✓ Данные синхронизированы с сервером';
+    statusEl.style.color = 'var(--success)';
+  } else {
+    alert('Данные и интерфейс синхронизированы с сервером.');
+  }
+}
+
+function loadGithubSyncConfigUI() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.GH_CONFIG);
+    if (!raw) return;
+    const cfg = JSON.parse(raw);
+    const repoInput = document.getElementById('gh-sync-repo');
+    const tokenInput = document.getElementById('gh-sync-token');
+    if (repoInput && cfg.repo) repoInput.value = cfg.repo;
+    if (tokenInput && cfg.token) tokenInput.value = cfg.token;
+  } catch (e) {}
+}
+
+function saveGithubSyncConfig() {
+  const repoInput = document.getElementById('gh-sync-repo');
+  const tokenInput = document.getElementById('gh-sync-token');
+  const cfg = {
+    repo: repoInput ? repoInput.value.trim() : 'Mehrovar1001/elibrary',
+    token: tokenInput ? tokenInput.value.trim() : ''
+  };
+  localStorage.setItem(STORAGE_KEYS.GH_CONFIG, JSON.stringify(cfg));
+}
+
+function autoPublishCatalogIfConfigured() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.GH_CONFIG);
+    if (!raw) return;
+    const cfg = JSON.parse(raw);
+    if (cfg && cfg.token && cfg.token.length > 10) {
+      publishCatalogToGitHub(true);
+    }
+  } catch (e) {}
+}
+
+async function publishCatalogToGitHub(silent) {
+  saveGithubSyncConfig();
+  const statusEl = document.getElementById('gh-sync-status');
+  let cfg = { repo: 'Mehrovar1001/elibrary', token: '' };
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.GH_CONFIG);
+    if (raw) cfg = JSON.parse(raw);
+  } catch (e) {}
+
+  if (!cfg.token) {
+    if (!silent) {
+      alert('Введите GitHub Personal Access Token в поле выше для автоматической публикации на сайт.');
+    }
+    return;
+  }
+
+  if (statusEl) {
+    statusEl.textContent = '⏳ Публикация на сервер...';
+    statusEl.style.color = 'var(--primary)';
+  }
+
+  const payloadObj = {
+    version: 5,
+    updatedAt: Date.now(),
+    categories: getCategories(),
+    books: state.books
+  };
+
+  const jsonStr = JSON.stringify(payloadObj, null, 2);
+  const base64Content = btoa(unescape(encodeURIComponent(jsonStr)));
+  const apiUrl = `https://api.github.com/repos/${cfg.repo || 'Mehrovar1001/elibrary'}/contents/data/catalog.json`;
+
+  try {
+    let sha = undefined;
+    const getRes = await fetch(apiUrl, {
+      headers: {
+        'Authorization': `Bearer ${cfg.token}`,
+        'Accept': 'application/vnd.github+json'
+      }
+    });
+    if (getRes.ok) {
+      const existingFile = await getRes.json();
+      sha = existingFile.sha;
+    }
+
+    const putRes = await fetch(apiUrl, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${cfg.token}`,
+        'Accept': 'application/vnd.github+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: 'Sync catalog books and categories from Admin Panel',
+        content: base64Content,
+        sha
+      })
+    });
+
+    if (putRes.ok) {
+      if (statusEl) {
+        statusEl.textContent = '✓ Опубликовано! Доступно на всех устройствах.';
+        statusEl.style.color = 'var(--success)';
+      }
+      if (!silent) alert('Каталог книг и категорий успешно опубликован на сервер для всех браузеров!');
+    } else {
+      if (statusEl) {
+        statusEl.textContent = 'Ошибка доступа токена GitHub';
+        statusEl.style.color = 'var(--danger)';
+      }
+    }
+  } catch (err) {
+    if (statusEl) {
+      statusEl.textContent = 'Ошибка сети при синхронизации';
+      statusEl.style.color = 'var(--danger)';
+    }
+  }
 }

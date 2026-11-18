@@ -1,0 +1,87 @@
+{
+  "version": 5,
+  "updatedAt": 1794966800000,
+  "categories": [
+    {
+      "id": "history",
+      "glow": "rgba(138, 92, 246, 0.34)",
+      "name": { "ru": "История", "tg": "Таърих", "en": "History" },
+      "customImage": "",
+      "displayMode": "object",
+      "panX": 0,
+      "panY": 0,
+      "scale": 1
+    },
+    {
+      "id": "science",
+      "glow": "rgba(68, 215, 246, 0.34)",
+      "name": { "ru": "Наука и медицина", "tg": "Илм ва тиб", "en": "Science & Health" },
+      "customImage": "",
+      "displayMode": "object",
+      "panX": 0,
+      "panY": 0,
+      "scale": 1
+    },
+    {
+      "id": "literature",
+      "glow": "rgba(228, 184, 255, 0.32)",
+      "name": { "ru": "Литература", "tg": "Адабиёт", "en": "Literature" },
+      "customImage": "",
+      "displayMode": "object",
+      "panX": 0,
+      "panY": 0,
+      "scale": 1
+    },
+    {
+      "id": "business",
+      "glow": "rgba(255, 77, 141, 0.34)",
+      "name": { "ru": "Экономика", "tg": "Иқтисодиёт", "en": "Economics" },
+      "customImage": "",
+      "displayMode": "object",
+      "panX": 0,
+      "panY": 0,
+      "scale": 1
+    },
+    {
+      "id": "psychology",
+      "glow": "rgba(218, 150, 95, 0.34)",
+      "name": { "ru": "Психология", "tg": "Равоншиносӣ", "en": "Psychology" },
+      "customImage": "",
+      "displayMode": "object",
+      "panX": 0,
+      "panY": 0,
+      "scale": 1
+    },
+    {
+      "id": "philosophy",
+      "glow": "rgba(76, 217, 149, 0.32)",
+      "name": { "ru": "Философия", "tg": "Фалсафа", "en": "Philosophy" },
+      "customImage": "",
+      "displayMode": "object",
+      "panX": 0,
+      "panY": 0,
+      "scale": 1
+    },
+    {
+      "id": "poetry",
+      "glow": "rgba(196, 130, 255, 0.32)",
+      "name": { "ru": "Поэзия", "tg": "Назм", "en": "Poetry" },
+      "customImage": "",
+      "displayMode": "object",
+      "panX": 0,
+      "panY": 0,
+      "scale": 1
+    },
+    {
+      "id": "tech",
+      "glow": "rgba(96, 165, 250, 0.34)",
+      "name": { "ru": "Технологии", "tg": "Технология", "en": "Technology" },
+      "customImage": "",
+      "displayMode": "object",
+      "panX": 0,
+      "panY": 0,
+      "scale": 1
+    }
+  ],
+  "books": []
+}

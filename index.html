@@ -3,26 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
-  <meta name="theme-color" content="#F5F2EB">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="theme-color" content="#F4F0E6">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="eLibrary">
   <meta name="description" content="eLibrary — Академическая цифровая платформа.">
   
-  <!-- Content Security Policy -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; img-src 'self' https: data: blob:; media-src 'self' https: data: blob: https://*.googleusercontent.com https://drive.google.com https://docs.google.com; frame-src 'self' https://drive.google.com https://docs.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; script-src 'self' 'unsafe-inline';">
+  <!-- Content Security Policy (Allows GitHub API Cloud Sync & Google Drive Player) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; connect-src 'self' https://api.github.com https://raw.githubusercontent.com https:; img-src 'self' https: data: blob:; media-src 'self' https: data: blob: https://*.googleusercontent.com https://drive.google.com https://docs.google.com; frame-src 'self' https://drive.google.com https://docs.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; script-src 'self' 'unsafe-inline';">
 
   <title>eLibrary — Научная платформа</title>
 
   <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="manifest.json?v=5">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 
@@ -42,16 +45,10 @@
           <feMergeNode in="specularMask" />
         </feMerge>
       </filter>
-
-      <filter id="liquid-pill-refract" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
-        <feTurbulence type="turbulence" baseFrequency="0.025" numOctaves="2" seed="3" result="pillWaves" />
-        <feGaussianBlur in="pillWaves" stdDeviation="2" result="softWaves" />
-        <feDisplacementMap in="SourceGraphic" in2="softWaves" scale="8" xChannelSelector="R" yChannelSelector="B" />
-      </filter>
     </defs>
   </svg>
 
-  <!-- Ambient Background Refraction Shapes (visible through UltraReal Liquid Glass) -->
+  <!-- Ambient Background Refraction Shapes -->
   <div class="ambient-refraction-stage" aria-hidden="true">
     <div class="ambient-orb orb-1"></div>
     <div class="ambient-orb orb-2"></div>
@@ -74,7 +71,6 @@
 
       <div class="nav-section-title" data-i18n="navMenu">Навигация</div>
       <div class="sidebar-nav-track" id="sidebar-nav-track">
-        <!-- Sliding Liquid Glass Indicator for Sidebar -->
         <div class="sidebar-liquid-pill" id="sidebar-liquid-indicator"></div>
 
         <button class="nav-item active" id="nav-home" data-screen="home" onclick="navigate('home')">
@@ -144,10 +140,14 @@
         <span class="search-icon">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
         </span>
-        <input type="text" class="search-input" id="search-input" placeholder="Поиск литературы..." data-i18n-placeholder="searchPlaceholder" oninput="handleSearch(this.value)">
+        <input type="text" class="search-input" id="search-input" placeholder="Поиск изданий, авторов..." data-i18n-placeholder="searchPlaceholder" oninput="handleSearch(this.value)">
       </div>
 
       <div class="header-actions">
+        <button class="btn-icon liquid-glass-btn" onclick="forceRefreshFromServer()" title="Синхронизировать с сервером">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        </button>
+
         <div class="streak-pill liquid-glass-btn" id="header-streak" onclick="navigate('stats')">
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
           <span id="streak-days-text">1 дн.</span>
@@ -160,7 +160,7 @@
     <!-- ======================= MAIN CONTENT AREA ======================= -->
     <main class="main-content" id="main-scroll">
 
-      <!-- Resume Progress Banner (Auto-Restored Session) -->
+      <!-- Resume Progress Banner -->
       <div class="resume-progress-bar liquid-glass-card" id="resume-session-bar" style="display: none;">
         <div class="resume-info">
           <span class="resume-dot"></span>
@@ -181,14 +181,13 @@
       <section class="screen active" id="screen-home">
         <div class="page-container">
           
-          <!-- Minimal Academic Hero (Liquid Glass + Soft Two-Tone) -->
           <div class="hero-banner liquid-glass-hero stagger-item" style="--i: 0;">
             <div class="hero-content">
               <div class="hero-tag">
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
                 <span data-i18n="heroBadge">Академический фонд</span>
               </div>
-              <h1 class="hero-title text-reveal" data-i18n="heroTitle">Цифровая библиотека</h1>
+              <h1 class="hero-title text-reveal" data-i18n="heroTitle">Цифровая научная библиотека</h1>
               <div class="liquid-divider hero-divider"></div>
               <div class="hero-actions">
                 <button class="btn-primary" onclick="document.getElementById('catalog-section').scrollIntoView({behavior:'smooth'})">
@@ -206,14 +205,17 @@
             </div>
           </div>
 
-          <!-- 3D Disciplines Preview Grid (Reference Image 1 Style) -->
+          <!-- 3D / Custom Photo Disciplines Preview Grid -->
           <div class="section-block stagger-item" style="--i: 1;">
             <div class="section-header">
-              <h2 class="section-title text-reveal" data-i18n="navCategories">Обучение направлениям</h2>
-              <button class="btn-link" onclick="navigate('categories')">
-                <span data-i18n="filterAll">Все</span>
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </button>
+              <h2 class="section-title text-reveal" data-i18n="navCategories">Направления</h2>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <button class="btn-secondary btn-sm admin-only-btn" id="home-add-cat-btn" style="display: none;" onclick="openCategoryEditorModal(null)">+ Категория</button>
+                <button class="btn-link" onclick="navigate('categories')">
+                  <span data-i18n="filterAll">Все</span>
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+              </div>
             </div>
             <div class="liquid-divider"></div>
             <div class="categories-3d-grid home-categories-preview" id="home-categories-3d-grid"></div>
@@ -222,17 +224,13 @@
           <!-- Catalog Section -->
           <div id="catalog-section" class="section-block stagger-item" style="--i: 2;">
             <div class="section-header">
-              <h2 class="section-title text-reveal" data-i18n="catalogTitle">Литература</h2>
+              <h2 class="section-title text-reveal" data-i18n="catalogTitle">Издания</h2>
             </div>
             <div class="liquid-divider"></div>
 
-            <!-- Genre Filter Track with Sliding Pill -->
             <div class="genre-pills" id="home-genre-pills"></div>
-
-            <!-- Books Grid -->
             <div class="books-grid" id="home-books-grid"></div>
 
-            <!-- Empty State -->
             <div class="empty-state soft-gradient-card" id="home-empty-state" style="display: none;">
               <div class="empty-icon-svg">
                 <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
@@ -249,15 +247,18 @@
         </div>
       </section>
 
-      <!-- Page 2: CATEGORIES (3D Floating Objects Grid - Reference Image 1) -->
+      <!-- Page 2: CATEGORIES -->
       <section class="screen" id="screen-categories">
         <div class="page-container">
-          <div class="screen-top-nav">
-            <button class="btn-back liquid-glass-btn" onclick="handleScreenBack()">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-              <span data-i18n="btnBack">Назад</span>
-            </button>
-            <h2 class="section-title text-reveal" data-i18n="categoriesTitle">Обучение направлениям</h2>
+          <div class="screen-top-nav" style="justify-content: space-between; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <button class="btn-back liquid-glass-btn" onclick="handleScreenBack()">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+                <span data-i18n="btnBack">Назад</span>
+              </button>
+              <h2 class="section-title text-reveal" data-i18n="categoriesTitle">Обучение направлениям</h2>
+            </div>
+            <button class="btn-primary btn-sm admin-only-btn" id="cats-add-cat-btn" style="display: none;" onclick="openCategoryEditorModal(null)">+ Добавить категорию</button>
           </div>
           <div class="liquid-divider"></div>
 
@@ -386,7 +387,6 @@
             <div class="liquid-divider"></div>
             <div class="reader-text" id="reader-body"></div>
 
-            <!-- Paywall for Guests -->
             <div class="paywall-overlay liquid-glass-card" id="reader-paywall-box" style="display: none;">
               <div class="paywall-icon-svg">
                 <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -405,7 +405,6 @@
               </div>
             </div>
 
-            <!-- Interactive Quiz Section -->
             <div class="quiz-section" id="reader-quiz-container" style="display: none;">
               <div class="quiz-header">
                 <span class="badge" data-i18n="quizBadge">Аттестация</span>
@@ -428,7 +427,7 @@
         </div>
       </section>
 
-      <!-- Page 7: AUDIO PLAYER (100% Native Google Drive Player) -->
+      <!-- Page 7: AUDIO PLAYER -->
       <section class="screen" id="screen-player">
         <div class="page-container">
           <div class="screen-top-nav">
@@ -450,7 +449,6 @@
 
             <div class="liquid-divider" style="max-width: 220px; margin: 16px auto;"></div>
 
-            <!-- Seamless In-App Google Drive Player Iframe -->
             <div class="gdrive-player-box" id="gdrive-player-wrapper">
               <iframe id="gdrive-embed-iframe" src="" allow="autoplay"></iframe>
             </div>
@@ -471,16 +469,14 @@
           <div class="liquid-divider"></div>
 
           <div class="settings-stack">
-            <!-- Account Card -->
             <div class="settings-card soft-gradient-card" id="settings-user-card"></div>
 
-            <!-- Admin Portal Card (Visible ONLY when Admin is logged in) -->
             <div class="settings-card liquid-glass-card" id="settings-admin-card" style="display: none;">
               <div class="settings-row">
                 <div class="settings-row-info">
                   <div class="settings-row-title" style="display: flex; align-items: center; gap: 10px;">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    <span data-i18n="adminPanelTitle">Управление</span>
+                    <span data-i18n="adminPanelTitle">Управление фондом</span>
                     <span class="badge badge-admin">Admin</span>
                   </div>
                 </div>
@@ -490,7 +486,6 @@
               </div>
             </div>
 
-            <!-- Appearance & Reading Card -->
             <div class="settings-card soft-gradient-card">
               <h3 class="settings-section-heading" data-i18n="appearanceTitle">Интерфейс</h3>
               <div class="liquid-divider" style="margin: 12px 0;"></div>
@@ -548,9 +543,10 @@
           <div class="admin-card soft-gradient-card">
             <div class="admin-tabs">
               <button class="admin-tab active" id="adm-tab-books" onclick="switchAdminTab('books')">Каталог</button>
-              <button class="admin-tab" id="adm-tab-add" onclick="openAddBookTab()">Издание</button>
+              <button class="admin-tab" id="adm-tab-add" onclick="openAddBookTab()">+ Издание</button>
+              <button class="admin-tab" id="adm-tab-categories" onclick="switchAdminTab('categories')">Направления (Категории)</button>
               <button class="admin-tab" id="adm-tab-users" onclick="switchAdminTab('users')">Пользователи</button>
-              <button class="admin-tab" id="adm-tab-backup" onclick="switchAdminTab('backup')">Экспорт</button>
+              <button class="admin-tab" id="adm-tab-backup" onclick="switchAdminTab('backup')">Синхронизация с сайтом</button>
             </div>
 
             <!-- Sub-tab 1: Books -->
@@ -575,7 +571,7 @@
               </div>
             </div>
 
-            <!-- Sub-tab 2: Add / Edit Form -->
+            <!-- Sub-tab 2: Add / Edit Book Form -->
             <div id="adm-content-add" style="display: none;">
               <form id="book-form" onsubmit="handleSaveBook(event)">
                 <input type="hidden" id="form-book-id" value="">
@@ -594,16 +590,7 @@
                 <div class="form-row">
                   <div class="form-group">
                     <label class="form-label" data-i18n="formGenre">Направление *</label>
-                    <select class="form-select" id="form-genre" required>
-                      <option value="history">Таърих / История</option>
-                      <option value="poetry">Назм / Поэзия</option>
-                      <option value="science">Илм / Наука</option>
-                      <option value="literature">Адабиёт / Литература</option>
-                      <option value="business">Тиҷорат / Бизнес</option>
-                      <option value="psychology">Равоншиносӣ / Психология</option>
-                      <option value="philosophy">Фалсафа / Философия</option>
-                      <option value="tech">Технология / Технологии</option>
-                    </select>
+                    <select class="form-select" id="form-genre" required></select>
                   </div>
                   <div class="form-group">
                     <label class="form-label">Обложка издания (Файл)</label>
@@ -656,6 +643,18 @@
               </form>
             </div>
 
+            <!-- Sub-tab 2b: Categories Management (Add / Edit Photo & Framing Position) -->
+            <div id="adm-content-categories" style="display: none;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px;">
+                <div>
+                  <h4 style="font-size: 15px; font-weight: 700;">Направления и обложки категорий</h4>
+                  <p style="font-size: 12px; color: var(--text-muted);">Нажмите «Изменить фото и позицию» на любой категории, чтобы загрузить фото и настроить отображение объекта пальцем или мышью.</p>
+                </div>
+                <button class="btn-primary btn-sm" onclick="openCategoryEditorModal(null)">+ Добавить категорию</button>
+              </div>
+              <div class="categories-3d-grid" id="admin-categories-grid"></div>
+            </div>
+
             <!-- Sub-tab 3: Users -->
             <div id="adm-content-users" style="display: none;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
@@ -677,12 +676,38 @@
               </div>
             </div>
 
-            <!-- Sub-tab 4: Backup -->
+            <!-- Sub-tab 4: Global Cloud Sync & Backup -->
             <div id="adm-content-backup" style="display: none;">
+              <div class="liquid-glass-card" style="padding: 20px; border-radius: var(--radius-md); margin-bottom: 18px;">
+                <h4 style="font-size: 15px; font-weight: 700; margin-bottom: 6px;">Глобальная публикация на GitHub Pages (Для всех браузеров и телефонов)</h4>
+                <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 14px;">
+                  Чтобы добавленные вами книги и изменённые фотографии категорий сразу отображались по ссылке на всех других устройствах и в других браузерах, укажите ваш GitHub Token (один раз) и нажмите «Опубликовать на сайт».
+                </p>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">GitHub репозитории</label>
+                    <input type="text" class="form-input" id="gh-sync-repo" value="Mehrovar1001/elibrary" placeholder="Mehrovar1001/elibrary">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">GitHub Personal Access Token (repo)</label>
+                    <input type="password" class="form-input" id="gh-sync-token" placeholder="ghp_..." oninput="saveGithubSyncConfig()">
+                  </div>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                  <button type="button" class="btn-primary" onclick="publishCatalogToGitHub()">
+                    Опубликовать книги и категории на сайт
+                  </button>
+                  <button type="button" class="btn-secondary" onclick="forceRefreshFromServer()">
+                    Загрузить с сервера
+                  </button>
+                  <span id="gh-sync-status" style="font-size: 12px; font-weight: 600;"></span>
+                </div>
+              </div>
+
               <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                <button class="btn-primary" onclick="exportLibraryJson()">Экспорт JSON</button>
+                <button class="btn-secondary" onclick="exportLibraryJson()">Скачать файл catalog.json</button>
                 <label class="btn-secondary" style="cursor: pointer;">
-                  Импорт JSON
+                  Загрузить из JSON
                   <input type="file" accept=".json" style="display: none;" onchange="importLibraryJson(event)">
                 </label>
                 <button class="btn-danger" onclick="clearAllBooksConfirm()">Очистить каталог</button>
@@ -714,9 +739,8 @@
       </div>
     </div>
 
-    <!-- ======================= FLOATING BOTTOM NAVIGATION (UltraReal Liquid Glass, NO Gradient, Sliding Refractive Pill) ======================= -->
+    <!-- ======================= FLOATING BOTTOM NAVIGATION (UltraReal Liquid Glass) ======================= -->
     <nav class="mobile-bottom-nav liquid-glass-dock" id="bottom-nav">
-      <!-- Sliding Refractive Glass Pill inside Bottom Dock -->
       <div class="dock-liquid-pill" id="dock-liquid-indicator"></div>
 
       <button class="mob-nav-btn active" id="mob-home" data-index="0" onclick="navigate('home')">
@@ -757,7 +781,112 @@
 
   </div>
 
-  <!-- ======================= PROGRESS SAVE WARNING MODAL (Point 7) ======================= -->
+  <!-- ======================= INTERACTIVE CATEGORY PHOTO & TOUCH-DRAG FRAMING MODAL ======================= -->
+  <div class="modal-backdrop" id="category-editor-modal">
+    <div class="modal-card liquid-glass-card" style="max-width: 520px; max-height: 92vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="cat-modal-heading">Настройка категории</h3>
+        <button class="modal-close" onclick="closeCategoryEditorModal()">✕</button>
+      </div>
+
+      <form id="category-editor-form" onsubmit="handleSaveCategory(event)">
+        <input type="hidden" id="cat-edit-id" value="">
+
+        <!-- LIVE INTERACTIVE CARD PREVIEW (Drag with finger or mouse left/right/up/down!) -->
+        <div class="cat-editor-preview-wrap">
+          <div class="cat-editor-hint">
+            <span>👆 Зажмите пальцем или мышью внутри карточки и двигайте влево / вправо / вверх / вниз, чтобы выбрать нужный объект на фото:</span>
+          </div>
+
+          <div class="cat-3d-card cat-interactive-preview" id="cat-live-preview-card">
+            <div class="cat-3d-header">
+              <div class="cat-3d-title" id="cat-live-preview-title">История</div>
+              <span class="cat-3d-count" id="cat-live-preview-count">0</span>
+            </div>
+            <!-- Custom Photo Layer (Draggable & Zoomable) -->
+            <div class="cat-custom-img-layer" id="cat-live-img-layer" style="display: none;">
+              <img id="cat-live-img-el" src="" alt="Category Preview" draggable="false">
+            </div>
+            <!-- Default 3D Object Layer -->
+            <div class="cat-3d-stage" id="cat-live-3d-stage">
+              <canvas class="cat-3d-canvas" id="cat-live-3d-canvas" width="154" height="154"></canvas>
+            </div>
+          </div>
+
+          <!-- Framing Controls (Display Mode + Zoom + Center Reset) -->
+          <div class="cat-framing-controls" id="cat-framing-controls">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;">
+              <span style="font-size: 12px; font-weight: 600; color: var(--text-muted);">Режим отображения:</span>
+              <div class="segmented-control">
+                <button type="button" class="seg-btn active" id="cat-mode-full" onclick="setCategoryDisplayMode('full')">На всю кнопку</button>
+                <button type="button" class="seg-btn" id="cat-mode-object" onclick="setCategoryDisplayMode('object')">Объект в углу</button>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 12px; font-weight: 600; color: var(--text-muted); min-width: 70px;">Масштаб:</span>
+              <input type="range" id="cat-scale-slider" min="0.5" max="3.0" step="0.05" value="1.0" style="flex: 1;" oninput="handleCategoryScaleChange(this.value)">
+              <span id="cat-scale-value" style="font-size: 12px; font-weight: 700; min-width: 42px; text-align: right;">100%</span>
+              <button type="button" class="btn-secondary btn-sm" onclick="resetCategoryPanZoom()" title="По центру">Сброс</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upload Photo or Restore 3D Object -->
+        <div class="form-group" style="margin-top: 14px;">
+          <label class="form-label">Фотография категории</label>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button type="button" class="btn-primary btn-sm" onclick="document.getElementById('cat-photo-file').click()">
+              📁 Загрузить новую фотографию
+            </button>
+            <button type="button" class="btn-secondary btn-sm" id="cat-restore-3d-btn" onclick="restoreCategoryDefault3D()">
+              Вернуть 3D-объект
+            </button>
+          </div>
+          <input type="file" id="cat-photo-file" accept="image/*" style="display: none;" onchange="handleCategoryPhotoSelected(event)">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Название (RU) *</label>
+            <input type="text" class="form-input" id="cat-name-ru" required placeholder="Например: История" oninput="updateLiveCategoryTitle()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ном (TG)</label>
+            <input type="text" class="form-input" id="cat-name-tg" placeholder="Таърих" oninput="updateLiveCategoryTitle()">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Name (EN)</label>
+            <input type="text" class="form-input" id="cat-name-en" placeholder="History" oninput="updateLiveCategoryTitle()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Свечение карточки</label>
+            <select class="form-select" id="cat-glow-select" onchange="updateLiveCategoryGlow(this.value)">
+              <option value="rgba(138, 92, 246, 0.34)">Фиолетовый (Violet)</option>
+              <option value="rgba(68, 215, 246, 0.34)">Голубой (Cyan)</option>
+              <option value="rgba(255, 77, 141, 0.34)">Розовый (Coral Pink)</option>
+              <option value="rgba(76, 217, 149, 0.32)">Изумрудный (Emerald)</option>
+              <option value="rgba(218, 150, 95, 0.34)">Золотистый (Warm Gold)</option>
+              <option value="rgba(228, 184, 255, 0.32)">Сиреневый (Lilac)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 16px;">
+          <button type="button" class="btn-danger btn-sm" id="cat-delete-btn" onclick="handleDeleteCategory()" style="display: none;">Удалить</button>
+          <div style="display: flex; gap: 10px; margin-left: auto;">
+            <button type="button" class="btn-secondary" onclick="closeCategoryEditorModal()">Отмена</button>
+            <button type="submit" class="btn-primary">Сохранить категорию</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================= PROGRESS SAVE WARNING MODAL ======================= -->
   <div class="modal-backdrop" id="progress-warning-modal">
     <div class="modal-card liquid-glass-card" style="max-width: 380px; text-align: center;">
       <div class="modal-icon-circle">
@@ -923,6 +1052,14 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script>
+    /* Force update old Service Worker caches so browser always loads latest program */
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js?v=5').then(reg => {
+        reg.update();
+      }).catch(() => {});
+    }
+  </script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>
