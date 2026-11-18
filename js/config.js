@@ -9,5 +9,5 @@ const ELIB_CONFIG = {
   /* Optional: a Google API key (Drive API enabled, restricted to this site).
      When set, books and audio stream straight from Google and do not pass
      through Supabase at all. Leave empty to use the Supabase relay. */
-  googleApiKey: ''
+  googleApiKey: 'AIzaSyBtn3gXrQ-AFwD464lCm2r0HrCpAO5Wzf8'
 };
