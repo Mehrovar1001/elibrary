@@ -1,5 +1,5 @@
 /* eLibrary Service Worker — offline app shell + always-fresh updates */
-const VERSION = 'v6';
+const VERSION = 'v7';
 const SHELL_CACHE = `elibrary-shell-${VERSION}`;
 const RUNTIME_CACHE = `elibrary-runtime-${VERSION}`;
 
@@ -7,9 +7,15 @@ const APP_SHELL = [
   './',
   './index.html',
   './style.css',
-  './app.js',
   './manifest.json',
-  './data/catalog.json',
+  './vendor/supabase-2.45.4.js',
+  './vendor/qrcode-1.4.4.js',
+  './js/config.js',
+  './js/i18n.js',
+  './js/api.js',
+  './js/render3d.js',
+  './js/category-editor.js',
+  './js/app.js',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/apple-touch-icon.png',
@@ -57,8 +63,10 @@ self.addEventListener('fetch', event => {
 
   const url = new URL(req.url);
 
-  /* Never intercept GitHub API (admin publishing) or Google Drive player */
-  if (url.hostname === 'api.github.com' || url.hostname.endsWith('google.com')) return;
+  /* Never cache Supabase API/auth calls (always live data) or the Google Drive viewer.
+     Public cover images from Supabase Storage are fine to cache. */
+  if (url.hostname.endsWith('supabase.co') && !url.pathname.startsWith('/storage/v1/object/public/')) return;
+  if (url.hostname.endsWith('google.com')) return;
 
   const sameOrigin = url.origin === self.location.origin;
 
