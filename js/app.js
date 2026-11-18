@@ -6,7 +6,10 @@
 
 const LANGS = ['ru', 'tg', 'en'];
 const LEVELS = [1, 2, 3];
-const LANG_LABELS = { ru: 'Русский', tg: 'Тоҷикӣ', en: 'English' };
+/* Language names shown in the current interface language (e.g. TG UI: Русӣ / Тоҷикӣ / Англисӣ) */
+function langName(code) {
+  return t('langName_' + code);
+}
 const AVATAR_CHOICES = ['АД', 'МН', 'ИЛ', 'ФК', 'СМ', 'ДТ', 'РШ', 'АН'];
 const ROOT_ADMIN_EMAIL = 'admin@elibrary.com';
 
@@ -227,6 +230,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupCategoryPreviewDrag();
   setupAccessibility();
   setupNetworkStatusToast();
+  setupAudioEvents();
+  setupPasswordToggles();
   initHero3DCanvas();
 
   window.addEventListener('hashchange', route);
@@ -420,6 +425,12 @@ function openAuthModal(mode) {
 function closeAuthModal() {
   const m = document.getElementById('auth-modal');
   if (m) m.classList.remove('open');
+  const pw = document.getElementById('auth-password');
+  if (pw && pw.type !== 'password') {
+    pw.type = 'password';
+    const eye = pw.parentNode.querySelector('.password-eye');
+    if (eye) eye.click(), eye.click();
+  }
 }
 
 function setAuthMode(mode) {
@@ -634,6 +645,7 @@ function route() {
 }
 
 function showScreen(screen, param) {
+  if (state.currentScreen === 'reader' && screen !== 'reader') { progressSaver.flush(); pdfDestroy(); }
   state.currentScreen = screen;
   state.routeParam = param || '';
   document.body.classList.toggle('on-player', screen === 'player');
@@ -1064,7 +1076,7 @@ function mediaPickerHtml(langs, levelsFor, lang, level, onLang, onLevel) {
   if (!langs.length) return '';
   const levels = levelsFor(lang);
   return `<div class="media-picker">
-    ${chipGroupHtml(t('chooseLanguage'), langs.map(l => ({ value: l, label: LANG_LABELS[l] })), lang, onLang)}
+    ${chipGroupHtml(t('chooseLanguage'), langs.map(l => ({ value: l, label: langName(l) })), lang, onLang)}
     ${levels.length ? chipGroupHtml(t('chooseLevel'), levels.map(lv => ({ value: lv, label: t('level' + lv) })), level, onLevel) : ''}
   </div>`;
 }
@@ -1196,10 +1208,10 @@ function renderReaderScreen() {
   const titleEl = document.getElementById('reader-title');
   const bodyEl = document.getElementById('reader-body');
   const paywallEl = document.getElementById('reader-paywall-box');
-  const quizContainer = document.getElementById('reader-quiz-container');
   const bmBtn = document.getElementById('reader-bookmark-btn');
 
   if (titleEl) titleEl.textContent = L(b.title);
+  if (paywallEl) paywallEl.style.display = 'none';
   if (bmBtn) {
     const marked = isBookmarked(b.id);
     bmBtn.classList.toggle('is-active', marked);
@@ -1208,33 +1220,50 @@ function renderReaderScreen() {
     if (svg) svg.setAttribute('fill', marked ? 'currentColor' : 'none');
   }
 
-  if (!state.currentUser) {
-    bodyEl.innerHTML = `<p class="reader-synopsis">${escapeHtml(L(b.synopsis))}</p>`;
-    paywallEl.style.display = 'block';
-    quizContainer.style.display = 'none';
-    return;
-  }
-
-  paywallEl.style.display = 'none';
   const lang = pickMediaLang(b.textUrls);
   state.mediaLang = lang;
   const level = pickLevel(b.textUrls, lang);
   state.mediaLevel = level;
   const raw = mediaUrl(b.textUrls, lang, level);
-  const embed = driveEmbedUrl(raw);
   const picker = mediaPickerHtml(availableLangs(b.textUrls), l => availableLevels(b.textUrls, l), lang, level, 'setReaderLang', 'setReaderLevel');
 
-  bodyEl.innerHTML = embed ? `
-    <div class="media-toolbar">
-      ${picker}
-      <a class="btn-link" href="${escapeHtml(driveOpenUrl(raw))}" target="_blank" rel="noopener">${escapeHtml(t('openInDrive'))} ↗</a>
-    </div>
-    <div class="drive-doc-frame">
-      <iframe src="${escapeHtml(embed)}" title="${escapeHtml(L(b.title))}" loading="lazy" allow="autoplay; fullscreen" referrerpolicy="no-referrer"></iframe>
-    </div>` : `<p class="muted-text">${escapeHtml(t('noTextYet'))}</p>`;
+  if (!raw) {
+    pdfDestroy();
+    bodyEl.innerHTML = `${picker}<p class="muted-text">${escapeHtml(t('noTextYet'))}</p>`;
+    renderBookQuiz(b);
+    return;
+  }
 
-  api.saveProgress(b.id, 'read', lang, level);
-  state.latestProgress = { book_id: b.id, mode: 'read', lang, level };
+  /* Keep the reader mounted when only re-rendering the same file */
+  let pickerHost = document.getElementById('reader-picker-host');
+  let docHost = document.getElementById('reader-doc-host');
+  if (!pickerHost || !docHost) {
+    bodyEl.innerHTML = `
+      <div id="reader-picker-host"></div>
+      <div class="reader-doc-actions">
+        <a class="btn-link" id="reader-open-drive" target="_blank" rel="noopener">${escapeHtml(t('openInDrive'))} ↗</a>
+      </div>
+      <div id="reader-doc-host" class="reader-doc-host"></div>`;
+    pickerHost = document.getElementById('reader-picker-host');
+    docHost = document.getElementById('reader-doc-host');
+  }
+  pickerHost.innerHTML = picker;
+  const openLink = document.getElementById('reader-open-drive');
+  if (openLink) openLink.href = driveOpenUrl(raw);
+
+  const startPage = (state.resumeBookId === b.id && state.resumePage) ? state.resumePage : 0;
+  state.resumePage = 0;
+  openPdfReader(docHost, raw, { bookId: b.id, lang, level, startPage }).then(ok => {
+    if (ok) return;
+    /* Not a PDF we can stream (e.g. Google Docs, huge file) — use the Google Drive viewer */
+    const embed = driveEmbedUrl(raw);
+    docHost.innerHTML = embed ? `
+      <div class="drive-doc-frame">
+        <iframe src="${escapeHtml(embed)}" title="${escapeHtml(L(b.title))}" loading="lazy" allow="autoplay; fullscreen" referrerpolicy="no-referrer"></iframe>
+      </div>` : `<p class="muted-text">${escapeHtml(t('noTextYet'))}</p>`;
+  });
+
+  progressSaver.queue(b.id, 'read', lang, level, { page: startPage || 1, position: 0 });
   checkSavedProgressBanner();
   renderBookQuiz(b);
 }
@@ -1243,7 +1272,7 @@ function saveReaderBookmark() {
   if (state.currentBook) toggleBookmark(state.currentBook.id);
 }
 
-/* ---------- Audio (Google Drive player) ---------- */
+/* ---------- Audio ---------- */
 function playAudioBook(book) {
   const b = book || state.currentBook;
   if (!b) return;
@@ -1276,50 +1305,32 @@ function renderFullPlayerScreen() {
     coverBox.innerHTML = `<img src="${escapeHtml(resolveCover(b.cover))}" alt="" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" onerror="this.onerror=null;this.src='icons/icon-512.png';">`;
   }
 
-  const wrapper = document.getElementById('gdrive-player-wrapper');
-  const gate = document.getElementById('player-auth-gate');
-  const chips = document.getElementById('player-lang-chips');
-
-  if (!state.currentUser) {
-    if (wrapper) wrapper.style.display = 'none';
-    if (chips) chips.innerHTML = '';
-    if (gate) gate.style.display = 'block';
-    return;
-  }
-  if (gate) gate.style.display = 'none';
-  if (wrapper) wrapper.style.display = 'block';
-
   const lang = pickMediaLang(b.audioUrls);
   state.mediaLang = lang;
   const level = pickLevel(b.audioUrls, lang);
   state.mediaLevel = level;
+  const chips = document.getElementById('player-lang-chips');
   if (chips) chips.innerHTML = mediaPickerHtml(availableLangs(b.audioUrls), l => availableLevels(b.audioUrls, l), lang, level, 'setAudioLang', 'setAudioLevel');
-
-  const iframe = document.getElementById('gdrive-embed-iframe');
-  const target = driveEmbedUrl(mediaUrl(b.audioUrls, lang, level));
-  /* Same Drive file can be reused across languages/levels: key the reload on lang+level too */
-  const key = `${target}#${lang}-${level}`;
-  if (iframe && target && iframe.dataset.src !== key) {
-    iframe.src = target;
-    iframe.dataset.src = key;
-    iframe.title = `${t('listenBook')}: ${L(b.title)} (${LANG_LABELS[lang]}, ${t('level' + level)})`;
-  }
   const levelEl = document.getElementById('player-level-label');
-  if (levelEl) levelEl.textContent = `${LANG_LABELS[lang]} · ${t('level' + level)}`;
+  if (levelEl) levelEl.textContent = `${langName(lang)} · ${t('level' + level)}`;
+
+  state.activeAudioBook = b;
+  loadAudio(b, lang, level);
+  updateMediaSession(b, lang, level);
+  setPlaybackRate(state.playbackRate || 1);
   showMiniPlayer(b);
-  api.saveProgress(b.id, 'listen', lang, level);
-  state.latestProgress = { book_id: b.id, mode: 'listen', lang, level };
 }
 
 function showMiniPlayer(book) {
   const mini = document.getElementById('mini-player');
   if (!mini) return;
   document.getElementById('mini-title').textContent = L(book.title);
-  document.getElementById('mini-author').textContent = L(book.author);
+  document.getElementById('mini-author').textContent = `${L(book.author)} · ${langName(state.mediaLang)} · ${t('level' + state.mediaLevel)}`;
   document.getElementById('mini-thumb').innerHTML =
     `<img src="${escapeHtml(resolveCover(book.cover, 'icons/icon-192.png'))}" alt="" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="this.onerror=null;this.src='icons/icon-192.png';">`;
   mini.classList.add('visible');
   document.body.classList.add('has-mini-player');
+  updatePlayButtons();
 }
 
 function openFullPlayer() {
@@ -1330,8 +1341,7 @@ function closeMiniPlayer() {
   const mini = document.getElementById('mini-player');
   if (mini) mini.classList.remove('visible');
   document.body.classList.remove('has-mini-player');
-  const iframe = document.getElementById('gdrive-embed-iframe');
-  if (iframe) { iframe.src = 'about:blank'; iframe.dataset.src = ''; }
+  stopAudio();
   state.activeAudioBook = null;
 }
 
@@ -1344,7 +1354,8 @@ function checkSavedProgressBanner() {
   const book = p && findBook(p.book_id);
   const onSameBook = state.currentBook && p && state.currentBook.id === p.book_id && ['reader', 'player'].includes(state.currentScreen);
   if (state.currentUser && book && !onSameBook) {
-    titleEl.textContent = `${L(book.title)} · ${p.mode === 'listen' ? t('listenBook') : t('readBook')} · ${(p.lang || '').toUpperCase()} · ${t('level' + (p.level || 1))}`;
+    const where = p.mode === 'listen' ? (p.position ? ` · ${formatTime(p.position)}` : '') : (p.page > 1 ? ` · ${t('page')} ${p.page}` : '');
+    titleEl.textContent = `${L(book.title)} · ${p.mode === 'listen' ? t('listenBook') : t('readBook')} · ${langName(p.lang || 'ru')} · ${t('level' + (p.level || 1))}${where}`;
     bar.style.display = 'flex';
   } else {
     bar.style.display = 'none';
@@ -1358,6 +1369,9 @@ function restoreSavedProgress() {
   state.currentBook = book;
   state.mediaLang = p.lang || state.currentLang;
   state.mediaLevel = p.level || 1;
+  state.resumeBookId = book.id;
+  state.resumePage = p.mode === 'read' ? (p.page || 1) : 0;
+  state.resumePosition = p.mode === 'listen' ? (p.position || 0) : 0;
   navigate(p.mode === 'listen' ? 'player' : 'reader', book.id);
 }
 
@@ -1389,6 +1403,16 @@ function renderBookQuiz(book) {
   quizContainer.style.display = 'block';
   banner.style.display = 'none';
   state.quizAnswers = {};
+
+  if (!state.currentUser) {
+    if (submitBtn) submitBtn.style.display = 'none';
+    listEl.innerHTML = `
+      <div class="quiz-login-prompt">
+        <p class="muted-text">${escapeHtml(t('quizSignIn'))}</p>
+        <button class="btn-primary" onclick="openAuthModal()">${escapeHtml(t('signIn'))}</button>
+      </div>`;
+    return;
+  }
 
   const cert = state.certificates.find(c => c.book_id === book.id);
   if (cert) {
@@ -2109,6 +2133,35 @@ function exportLibraryJson() {
   a.download = `elibrary-backup-${new Date().toISOString().slice(0, 10)}.json`;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+/* Show / hide password ("eye") button for every password field */
+function setupPasswordToggles() {
+  const eye = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const eyeOff = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+  document.querySelectorAll('input[type="password"]').forEach(input => {
+    if (input.dataset.eye) return;
+    input.dataset.eye = '1';
+    const wrap = document.createElement('div');
+    wrap.className = 'password-wrap';
+    input.parentNode.insertBefore(wrap, input);
+    wrap.appendChild(input);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'password-eye';
+    btn.innerHTML = eye;
+    const label = () => btn.setAttribute('aria-label', input.type === 'password' ? t('showPassword') : t('hidePassword'));
+    label();
+    btn.addEventListener('click', () => {
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.innerHTML = show ? eyeOff : eye;
+      btn.setAttribute('aria-pressed', String(show));
+      label();
+      input.focus();
+    });
+    wrap.appendChild(btn);
+  });
 }
 
 /* ==========================================================================

@@ -1,5 +1,5 @@
 /* eLibrary Service Worker — offline app shell + always-fresh updates */
-const VERSION = 'v7';
+const VERSION = 'v8';
 const SHELL_CACHE = `elibrary-shell-${VERSION}`;
 const RUNTIME_CACHE = `elibrary-runtime-${VERSION}`;
 
@@ -10,6 +10,9 @@ const APP_SHELL = [
   './manifest.json',
   './vendor/supabase-2.45.4.js',
   './vendor/qrcode-1.4.4.js',
+  './vendor/pdf-3.11.174.min.js',
+  './vendor/pdf.worker-3.11.174.min.js',
+  './js/media.js',
   './js/config.js',
   './js/i18n.js',
   './js/api.js',
