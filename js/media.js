@@ -437,6 +437,8 @@ function loadAudio(book, lang, level) {
   if (audioState.key === key) { updatePlayerUI(); return; }
 
   saveAudioPosition(true);
+  /* every new book starts at normal speed */
+  if (audioState.bookId !== book.id) state.playbackRate = 1;
   audioState.key = key;
   audioState.bookId = book.id;
   audioState.lang = lang;
