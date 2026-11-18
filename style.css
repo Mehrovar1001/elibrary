@@ -2155,3 +2155,388 @@ html, body {
   padding-top: 8px;
   border-top: 1px solid var(--border);
 }
+
+
+/* ==========================================================================
+   v6 — MOBILE-FIRST POLISH: layout overflow fix, liquid dock, phone home,
+   tap animations, safe areas & offline toast
+   ========================================================================== */
+
+/* Critical fix: wide rows (genre pills / carousels) must never stretch the page */
+.app-shell {
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+}
+.main-content,
+.page-container,
+.section-block {
+  min-width: 0;
+}
+html, body {
+  overflow-x: clip;
+}
+
+/* ---------- Liquid Glass Dock (refined) ---------- */
+.mobile-bottom-nav.liquid-glass-dock {
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  height: 66px;
+  padding: 7px;
+  border-radius: 26px;
+  overflow: hidden;
+}
+
+.dock-liquid-pill {
+  top: 7px;
+  bottom: 7px;
+  left: 7px;
+  width: calc((100% - 14px) / 5);
+  background: none;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: transform 0.6s cubic-bezier(0.34, 1.32, 0.5, 1);
+}
+
+.dock-pill-glass {
+  position: absolute;
+  inset: 0 3px;
+  border-radius: 19px;
+  background: var(--glass-pill-bg);
+  backdrop-filter: blur(18px) saturate(220%);
+  -webkit-backdrop-filter: blur(18px) saturate(220%);
+  border: 1px solid var(--glass-rim-top);
+  box-shadow:
+    0 6px 16px -4px rgba(91, 70, 229, 0.28),
+    inset 1.5px 1.5px 1px var(--glass-rim-top),
+    inset -1px -1px 1.5px var(--glass-caustic);
+  transform-origin: center;
+}
+
+.dock-pill-glass::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: 4px;
+  height: 3px;
+  border-radius: 99px;
+  background: var(--primary);
+  opacity: 0.85;
+  box-shadow: 0 0 10px var(--primary);
+}
+
+.dock-pill-glass.stretch {
+  animation: pillStretch 0.6s cubic-bezier(0.34, 1.32, 0.5, 1);
+}
+
+@keyframes pillStretch {
+  0%   { transform: scale(1, 1); }
+  35%  { transform: scale(1.28, 0.86); }
+  65%  { transform: scale(0.94, 1.06); }
+  100% { transform: scale(1, 1); }
+}
+
+.mob-nav-btn {
+  gap: 2px;
+  padding-bottom: 4px;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.mob-label {
+  font-size: 10px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 2px;
+  transition: color 0.4s var(--ease-liquid), opacity 0.4s var(--ease-liquid);
+  opacity: 0.78;
+}
+
+.mob-nav-btn.active .mob-label {
+  opacity: 1;
+  font-weight: 700;
+}
+
+.mob-nav-btn:active .mob-icon {
+  transform: scale(0.82);
+}
+
+.mob-nav-btn.tap-pop .mob-icon {
+  animation: iconPop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes iconPop {
+  0%   { transform: scale(0.75) translateY(2px); }
+  55%  { transform: scale(1.22) translateY(-3px); }
+  100% { transform: scale(1.12) translateY(-1.5px); }
+}
+
+/* ---------- Network toast ---------- */
+.net-toast {
+  position: fixed;
+  left: 50%;
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  transform: translate(-50%, -140%);
+  z-index: 300;
+  padding: 10px 18px;
+  border-radius: 99px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-main);
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-rim-top);
+  box-shadow: var(--glass-shadow);
+  transition: transform 0.55s cubic-bezier(0.34, 1.32, 0.5, 1);
+  pointer-events: none;
+  white-space: nowrap;
+}
+.net-toast.show { transform: translate(-50%, 0); }
+.net-toast.offline::before { content: "● "; color: var(--warning); }
+.net-toast.online::before { content: "● "; color: var(--success); }
+
+/* ---------- Tactile press animations (all devices) ---------- */
+.cat-3d-card:active,
+.book-card:active,
+.stat-card:active {
+  transform: scale(0.965);
+  transition-duration: 0.18s;
+}
+.btn-primary:active,
+.btn-secondary:active,
+.btn-back:active,
+.genre-pill:active {
+  transform: scale(0.94);
+  transition-duration: 0.15s;
+}
+
+/* Floating idle motion for 3D objects */
+@keyframes floatObj {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%      { transform: translate3d(0, -6px, 0) rotate(-1.5deg); }
+}
+.cat-3d-canvas {
+  animation: floatObj 5.5s ease-in-out infinite;
+}
+.cat-3d-card:nth-child(2n) .cat-3d-canvas { animation-delay: -1.8s; }
+.cat-3d-card:nth-child(3n) .cat-3d-canvas { animation-delay: -3.1s; }
+
+/* Soft shine sweep over category cards */
+.cat-3d-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.10) 48%, transparent 62%);
+  transform: translateX(-120%);
+  animation: cardShine 7s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 3;
+}
+.cat-3d-card:nth-child(odd)::before { animation-delay: -3.5s; }
+@keyframes cardShine {
+  0%, 70% { transform: translateX(-120%); }
+  100%    { transform: translateX(120%); }
+}
+
+/* ==========================================================================
+   PHONE LAYOUT (≤ 920px)
+   ========================================================================== */
+@media (max-width: 920px) {
+  .app-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .top-header {
+    height: calc(58px + env(safe-area-inset-top, 0px));
+    padding: env(safe-area-inset-top, 0px) 12px 0;
+    gap: 8px;
+  }
+
+  .mobile-brand span { font-size: 16px; }
+  .mobile-brand img { width: 28px; height: 28px; }
+
+  /* Header back button handles navigation on phones — hide duplicate in content */
+  .screen-top-nav .btn-back { display: none; }
+  .screen-top-nav { margin-bottom: 0; }
+
+  /* Compact search pill that expands across the header when focused */
+  .search-wrapper {
+    flex: 1 1 auto;
+    min-width: 38px;
+    max-width: 38px;
+    margin-left: auto;
+    transition: max-width 0.45s var(--ease-liquid);
+  }
+  .search-input {
+    padding: 0 0 0 36px;
+    color: transparent;
+  }
+  .search-input::placeholder { color: transparent; }
+  .search-icon { left: 11px; }
+  .search-wrapper:focus-within {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    max-width: none;
+    z-index: 5;
+  }
+  .search-wrapper:focus-within .search-input {
+    color: var(--text-main);
+    padding-right: 14px;
+    background: var(--bg-elevated);
+  }
+  .search-wrapper:focus-within .search-input::placeholder { color: var(--text-sub); }
+
+  .header-actions { gap: 6px; }
+  .header-actions > .btn-icon { display: none; }
+  .streak-pill { height: 34px; padding: 0 10px; }
+  #header-user-zone .streak-pill span:nth-child(2) { display: none; }
+
+  .main-content {
+    padding: 14px 14px calc(100px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .section-title { font-size: 18px; }
+  .liquid-divider { margin: 12px 0 16px; }
+  .section-block { margin-bottom: 28px; }
+
+  /* ---- Phone Home Hero: compact row with living 3D orb ---- */
+  .hero-banner {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 20px 16px 20px 20px;
+    margin-bottom: 26px;
+    border-radius: 26px;
+  }
+  .hero-content { flex: 1; min-width: 0; }
+  .hero-tag { font-size: 10.5px; padding: 4px 10px; margin-bottom: 10px; }
+  .hero-title { font-size: 23px; line-height: 1.18; }
+  .hero-divider { width: 80%; margin: 12px 0 14px; }
+  .hero-actions { gap: 8px; }
+  .hero-actions .btn-primary,
+  .hero-actions .btn-secondary {
+    height: 36px;
+    padding: 0 13px;
+    font-size: 12.5px;
+    border-radius: 12px;
+  }
+  .hero-3d-showcase {
+    width: 104px;
+    height: 104px;
+    margin: 0;
+  }
+  #hero-3d-canvas { width: 104px; height: 104px; }
+
+  /* ---- Home categories: swipeable snap carousel ---- */
+  .home-categories-preview {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 12px;
+    margin: 0 -14px;
+    padding: 4px 14px 10px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .home-categories-preview::-webkit-scrollbar { display: none; }
+  .home-categories-preview .cat-3d-card {
+    flex: 0 0 152px;
+    height: 176px;
+    scroll-snap-align: start;
+  }
+
+  /* ---- Categories page: 2 columns ---- */
+  .categories-3d-grid:not(.home-categories-preview) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  /* ---- Genre pills edge-to-edge ---- */
+  .genre-pills {
+    margin: 0 -14px 16px;
+    padding: 2px 14px 8px;
+  }
+
+  /* ---- Books: 2-column grid ---- */
+  .books-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .book-cover { height: 196px; }
+  .book-info { padding: 12px; }
+  .book-title { font-size: 13.5px; }
+  .book-author { font-size: 11.5px; margin-bottom: 10px; }
+
+  .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .stat-card { padding: 14px; gap: 10px; flex-direction: column; align-items: flex-start; }
+
+  .mini-player {
+    left: 12px;
+    right: 12px;
+    width: auto;
+    bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .modal-backdrop { align-items: flex-end; padding: 0; }
+  .modal-card {
+    max-width: 100% !important;
+    border-radius: 28px 28px 0 0;
+    padding: 22px 18px calc(22px + env(safe-area-inset-bottom, 0px));
+    max-height: 92vh;
+    overflow-y: auto;
+    animation: sheetUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes sheetUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+
+  .settings-row { gap: 10px; }
+  .admin-tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .admin-tab { white-space: nowrap; }
+}
+
+@media (max-width: 380px) {
+  .hero-title { font-size: 20px; }
+  .hero-3d-showcase, #hero-3d-canvas { width: 86px; height: 86px; }
+  .book-cover { height: 170px; }
+  .mob-label { font-size: 9px; }
+}
+
+/* Installed app (standalone) — feel like a native app */
+@media (display-mode: standalone) {
+  body { -webkit-user-select: none; user-select: none; }
+  input, textarea, .reader-text { -webkit-user-select: text; user-select: text; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Editor preview must stay still while dragging */
+#cat-live-3d-canvas { animation: none; }
+.cat-interactive-preview:active { transform: none; }
+.cat-interactive-preview::before { display: none; }
+
+@media (max-width: 920px) {
+  .hero-banner { display: block; position: relative; padding: 20px; }
+  .hero-3d-showcase { position: absolute; top: 12px; right: 10px; width: 96px; height: 96px; }
+  #hero-3d-canvas { width: 96px; height: 96px; }
+  .hero-title { padding-right: 92px; }
+  .hero-actions { flex-wrap: nowrap; }
+}
+
+/* Desktop already has the sidebar — dock is for phones/tablets only */
+@media (min-width: 921px) {
+  .mobile-bottom-nav.liquid-glass-dock { display: none; }
+  .mini-player { bottom: 24px; }
+}

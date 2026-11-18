@@ -11,6 +11,11 @@ const I18N = {
     navBookmarks: "Закладки",
     navStats: "Аналитика",
     navSettings: "Параметры",
+    mobHome: "Главная",
+    mobCats: "Разделы",
+    mobBookmarks: "Закладки",
+    mobStats: "Прогресс",
+    mobSettings: "Профиль",
     searchPlaceholder: "Поиск изданий, авторов...",
     heroBadge: "Академический фонд",
     heroTitle: "Цифровая научная библиотека",
@@ -66,6 +71,11 @@ const I18N = {
     navBookmarks: "Захираҳо",
     navStats: "Таҳлил",
     navSettings: "Танзимот",
+    mobHome: "Асосӣ",
+    mobCats: "Самтҳо",
+    mobBookmarks: "Захира",
+    mobStats: "Таҳлил",
+    mobSettings: "Профил",
     searchPlaceholder: "Ҷустуҷӯи китоб ва муаллиф...",
     heroBadge: "Фонди илмӣ",
     heroTitle: "Китобхонаи илмии рақамӣ",
@@ -121,6 +131,11 @@ const I18N = {
     navBookmarks: "Bookmarks",
     navStats: "Analytics",
     navSettings: "Preferences",
+    mobHome: "Home",
+    mobCats: "Topics",
+    mobBookmarks: "Saved",
+    mobStats: "Stats",
+    mobSettings: "Profile",
     searchPlaceholder: "Search publications, authors...",
     heroBadge: "Academic Archive",
     heroTitle: "Digital Scientific Library",
@@ -294,6 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initHero3DCanvas();
   checkSavedProgressBanner();
   syncWithServerCatalog(false);
+  setupNetworkStatusToast();
 });
 
 function loadAllState() {
@@ -805,7 +821,23 @@ function updateLiquidNavIndicators(screenName) {
 
   const dockIndicator = document.getElementById('dock-liquid-indicator');
   if (dockIndicator) {
+    const prevIdx = Number(dockIndicator.dataset.idx || 0);
     dockIndicator.style.transform = `translate3d(${activeIdx * 100}%, 0, 0)`;
+    dockIndicator.dataset.idx = String(activeIdx);
+    if (prevIdx !== activeIdx) {
+      /* Liquid "stretch" while the glass pill flows to the new tab */
+      const pillGlass = dockIndicator.firstElementChild;
+      if (pillGlass) {
+        pillGlass.classList.remove('stretch');
+        void pillGlass.offsetWidth;
+        pillGlass.classList.add('stretch');
+      }
+    }
+    if (mobBtn) {
+      mobBtn.classList.remove('tap-pop');
+      void mobBtn.offsetWidth;
+      mobBtn.classList.add('tap-pop');
+    }
   }
 
   const sidebarIndicator = document.getElementById('sidebar-liquid-indicator');
@@ -3028,4 +3060,26 @@ async function publishCatalogToGitHub(silent) {
       statusEl.style.color = 'var(--danger)';
     }
   }
+}
+
+
+/* ==========================================================================
+   20. Offline / Online Status Toast (Autonomous PWA mode)
+   ========================================================================== */
+function showNetToast(text, kind) {
+  const el = document.getElementById('net-toast');
+  if (!el) return;
+  el.textContent = text;
+  el.className = 'net-toast show ' + (kind || '');
+  clearTimeout(showNetToast._t);
+  showNetToast._t = setTimeout(() => { el.className = 'net-toast ' + (kind || ''); }, 2600);
+}
+
+function setupNetworkStatusToast() {
+  window.addEventListener('offline', () => showNetToast('Офлайн-режим: библиотека работает автономно', 'offline'));
+  window.addEventListener('online', () => {
+    showNetToast('Соединение восстановлено', 'online');
+    syncWithServerCatalog(false);
+  });
+  if (!navigator.onLine) showNetToast('Офлайн-режим: библиотека работает автономно', 'offline');
 }
