@@ -3106,3 +3106,74 @@ body.on-reader .main-content { padding-bottom: 24px; }
 /* Reader: mini player sits where the dock was, never over the page controls */
 body.on-reader .mini-player { bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
 body.on-reader.has-mini-player .main-content { padding-bottom: 110px; }
+
+/* ==========================================================================
+   v10 — Focus reading mode
+   ========================================================================== */
+.focus-toolbar-btn { display: inline-flex; align-items: center; gap: 6px; width: auto; padding: 0 12px; }
+.focus-toolbar-label { font-size: 13px; font-weight: 700; }
+.book-center, .focus-exit-btn { display: none; }
+.focus-hint-card { max-width: 440px; }
+.focus-hint-list { margin: 0 0 14px; padding-left: 20px; line-height: 1.6; font-size: 14px; }
+.focus-hint-list li { margin-bottom: 6px; }
+.focus-hint-system { padding: 12px 14px; border-radius: 14px; background: var(--primary-soft); font-size: 13px; line-height: 1.55; margin-bottom: 10px; }
+.focus-hint-system p { margin: 4px 0 0; color: var(--text-muted); }
+
+body.focus-reading { overflow: hidden; }
+body.focus-reading .top-header,
+body.focus-reading .sidebar,
+body.focus-reading .mobile-bottom-nav,
+body.focus-reading .mini-player,
+body.focus-reading .resume-progress-bar,
+body.focus-reading .net-toast,
+body.focus-reading .ambient-refraction-stage { display: none !important; }
+
+body.focus-reading .book-reader {
+  position: fixed; inset: 0; z-index: 900;
+  background: radial-gradient(ellipse at center, #2a2830 0%, #121116 75%);
+  display: flex; align-items: center; justify-content: center;
+  padding: 6px;
+}
+body.focus-reading .book-stage-wrap { height: 100%; align-items: center; }
+body.focus-reading .book-stage { box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.8); }
+body.focus-reading .book-center {
+  display: block; position: absolute; left: 28%; right: 28%; top: 0; bottom: 0;
+  border: 0; background: transparent; z-index: 6; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+body.focus-reading .book-controls {
+  position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 910;
+  background: rgba(30, 28, 36, 0.86);
+  border-color: rgba(255, 255, 255, 0.12);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+body.focus-reading .book-controls .book-ctl { background: rgba(255, 255, 255, 0.08); color: #fff; }
+body.focus-reading .book-controls .book-ctl-arrow { color: #b9adff; }
+body.focus-reading .book-page-indicator { color: #fff; }
+body.focus-reading .book-progress {
+  position: fixed; left: 0; right: 0; top: 0; width: 100%; height: 2px; border-radius: 0; z-index: 910;
+  background: rgba(255, 255, 255, 0.08);
+}
+body.focus-reading .focus-exit-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  position: fixed; top: calc(12px + env(safe-area-inset-top, 0px)); right: 12px; z-index: 910;
+  padding: 9px 14px; border-radius: 99px; border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(30, 28, 36, 0.86); color: #fff; font-size: 13px; font-weight: 700; cursor: pointer;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+body.focus-reading .focus-toggle-btn[aria-pressed="true"] { background: var(--primary); color: #fff; }
+body.focus-reading.focus-controls-hidden .book-controls { opacity: 0; pointer-events: none; transform: translate(-50%, 20px); }
+body.focus-reading.focus-controls-hidden .focus-exit-btn { opacity: 0; pointer-events: none; transform: translateY(-16px); }
+@media (prefers-reduced-motion: reduce) {
+  body.focus-reading .book-controls, body.focus-reading .focus-exit-btn { transition: none; }
+}
+@media (max-width: 420px) {
+  .focus-toolbar-label { display: none; }
+  .focus-toolbar-btn { padding: 0; width: 44px; justify-content: center; }
+  body.focus-reading .book-page-indicator { min-width: 96px; font-size: 12.5px; }
+  body.focus-reading .book-ctl { width: 36px; height: 36px; }
+}
+.book-page-indicator { white-space: nowrap; }
+.focus-hint-system p { color: var(--text-main); opacity: 0.85; }

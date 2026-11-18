@@ -88,6 +88,8 @@ function formatDate(iso) {
 }
 
 function showToast(text, kind) {
+  /* Focus reading: nothing pops up; held messages are counted for the summary */
+  if (typeof focusHoldToast === 'function' && focusHoldToast()) return;
   const el = document.getElementById('net-toast');
   if (!el) return;
   el.textContent = text;
@@ -232,6 +234,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupNetworkStatusToast();
   setupAudioEvents();
   setupPasswordToggles();
+  setupFocusMode();
   initHero3DCanvas();
 
   window.addEventListener('hashchange', route);
@@ -645,7 +648,11 @@ function route() {
 }
 
 function showScreen(screen, param) {
-  if (state.currentScreen === 'reader' && screen !== 'reader') { progressSaver.flush(); pdfDestroy(); }
+  if (state.currentScreen === 'reader' && screen !== 'reader') {
+    if (typeof isFocusMode === 'function' && isFocusMode()) exitFocusMode();
+    progressSaver.flush();
+    pdfDestroy();
+  }
   state.currentScreen = screen;
   state.routeParam = param || '';
   document.body.classList.toggle('on-player', screen === 'player');

@@ -44,7 +44,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
   <a class="skip-link" href="#main-scroll" data-i18n="skipToContent">Перейти к содержимому</a>
@@ -406,6 +406,9 @@
             <div class="reader-controls">
               <button class="font-btn" id="reader-bookmark-btn" onclick="saveReaderBookmark()" data-i18n-aria="addBookmark" aria-label="В закладки" aria-pressed="false">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+              </button>
+              <button class="font-btn focus-toggle-btn focus-toolbar-btn" onclick="toggleFocusMode()" aria-pressed="false" data-i18n-aria="focusMode" aria-label="Фокус">
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/><path d="M12 9.2a2.8 2.8 0 1 0 2.8 2.8"/><path d="M14.5 7.5l-.3 1.8 1.8-.3"/></svg><span class="focus-toolbar-label" data-i18n="focusModeShort">Фокус</span>
               </button>
               <button class="font-btn" onclick="shareCurrentBook()" data-i18n-aria="share" aria-label="Поделиться">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
@@ -1210,6 +1213,21 @@
 
   <div class="net-toast" id="net-toast" role="status" aria-live="polite"></div>
 
+  <!-- ======================= FOCUS READING HINT ======================= -->
+  <div class="modal-backdrop" id="focus-hint-modal">
+    <div class="modal-card liquid-glass-card focus-hint-card" role="dialog" aria-modal="true" aria-labelledby="focus-hint-title">
+      <div class="modal-header">
+        <h2 class="modal-title" id="focus-hint-title" data-i18n="focusHintTitle">Режим «Фокус»</h2>
+        <button class="modal-close" onclick="closeFocusHint()" data-i18n-aria="close" aria-label="Закрыть">✕</button>
+      </div>
+      <div id="focus-hint-body"></div>
+      <label class="checkbox-row"><input type="checkbox" id="focus-hint-dont-show"> <span data-i18n="focusDontShow">Больше не показывать</span></label>
+      <div class="modal-actions">
+        <button class="btn-primary" onclick="confirmFocusHint()"><span data-i18n="focusStart">Начать чтение</span></button>
+      </div>
+    </div>
+  </div>
+
   <!-- ======================= FIRST-VISIT LANGUAGE CHOOSER ======================= -->
   <div class="modal-backdrop" id="welcome-lang-modal">
     <div class="modal-card liquid-glass-card welcome-card" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
@@ -1389,12 +1407,13 @@
   <script src="vendor/supabase-2.45.4.js"></script>
   <script src="vendor/qrcode-1.4.4.js"></script>
   <script src="vendor/pdf-3.11.174.min.js"></script>
-  <script src="js/config.js?v=9"></script>
-  <script src="js/i18n.js?v=9"></script>
-  <script src="js/api.js?v=9"></script>
-  <script src="js/render3d.js?v=9"></script>
-  <script src="js/category-editor.js?v=9"></script>
-  <script src="js/media.js?v=9"></script>
-  <script src="js/app.js?v=9"></script>
+  <script src="js/config.js?v=10"></script>
+  <script src="js/i18n.js?v=10"></script>
+  <script src="js/api.js?v=10"></script>
+  <script src="js/render3d.js?v=10"></script>
+  <script src="js/category-editor.js?v=10"></script>
+  <script src="js/media.js?v=10"></script>
+  <script src="js/focus.js?v=10"></script>
+  <script src="js/app.js?v=10"></script>
 </body>
 </html>
