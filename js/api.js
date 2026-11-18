@@ -200,9 +200,10 @@ const api = {
     throwIf(error);
   },
   async uploadImage(folder, blob) {
-    const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+    const type = blob.type === 'image/png' ? 'image/png' : 'image/jpeg'; /* PNG keeps a cut-out's transparency */
+    const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${type === 'image/png' ? 'png' : 'jpg'}`;
     const { error } = await sb.storage.from(ELIB_CONFIG.coversBucket).upload(path, blob, {
-      contentType: 'image/jpeg',
+      contentType: type,
       cacheControl: '31536000',
       upsert: false
     });

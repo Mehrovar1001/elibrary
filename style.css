@@ -2306,7 +2306,8 @@ html, body {
   transition-duration: 0.15s;
 }
 
-/* Floating idle motion for 3D objects */
+/* Floating idle motion for 3D objects (and photos shown as an object) */
+.cat-custom-img-layer.mode-object { animation: floatObj 5.5s ease-in-out infinite; }
 @keyframes floatObj {
   0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
   50%      { transform: translate3d(0, -6px, 0) rotate(-1.5deg); }

@@ -1,5 +1,5 @@
 /* eLibrary Service Worker — offline app shell + always-fresh updates */
-const VERSION = 'v19';
+const VERSION = 'v20';
 const SHELL_CACHE = `elibrary-shell-${VERSION}`;
 const RUNTIME_CACHE = `elibrary-runtime-${VERSION}`;
 
