@@ -63,6 +63,36 @@ for (const [, decl] of css.matchAll(/(?:^|[;{\s])((?:animation|transition)\s*:[^
     if (fps < 45) failures.push(`${name}: only ${fps} fps while the modal slides up (needs >= 45)`);
   };
   await measureOpen('sign-in modal', '() => openAuthModal()');
+
+  /* 5) every other moving part of the app */
+  /* median of 3 runs: single runs on a throttled CPU are too noisy to judge */
+  const measure = async (name, hash, action, ms = 700) => {
+    const runs = [];
+    for (let k = 0; k < 3; k++) {
+      await page.goto(url + hash);
+      await page.waitForTimeout(k ? 1500 : 3000);
+      const gaps = await page.evaluate(([src, dur]) => new Promise(resolve => {
+        const g = []; let last = performance.now(); const end = last + dur;
+        (0, eval)(src)();
+        const tick = now => { g.push(now - last); last = now; if (now < end) requestAnimationFrame(tick); else resolve(g); };
+        requestAnimationFrame(tick);
+      }), [action, ms]);
+      runs.push(Math.round(gaps.length / (ms / 1000)));
+    }
+    const fps = runs.sort((a, b) => a - b)[1];
+    console.log(`${name}: ${fps} fps (runs ${runs.join('/')})`);
+    if (fps < 45) failures.push(`${name}: only ${fps} fps (needs >= 45)`);
+  };
+  const bookId = await page.evaluate(() => (state.books[0] || {}).id);
+  await measure('toast message', '#/', "() => showToast('Проверка')");
+  await measure('switch tab (home → categories)', '#/', "() => navigate('categories')");
+  await measure('switch tab (categories → stats)', '#/categories', "() => navigate('stats')");
+  await measure('scroll categories', '#/categories', "() => scrollBy({ top: 900, behavior: 'smooth' })", 1500);
+  if (bookId) {
+    await measure('open book page', '#/', `() => navigate('book-detail', '${bookId}')`);
+    await measure('open player (mini player appears)', '#/book/' + bookId, `() => navigate('player', '${bookId}')`);
+    await measure('scroll with mini player', '#/', `() => { showMiniPlayer(findBook('${bookId}')); scrollBy({ top: 900, behavior: 'smooth' }); }`, 1500);
+  }
   if (process.env.ELIB_ADMIN_EMAIL && process.env.ELIB_ADMIN_PASSWORD) {
     await page.evaluate(([e, p]) => sb.auth.signInWithPassword({ email: e, password: p }), [process.env.ELIB_ADMIN_EMAIL, process.env.ELIB_ADMIN_PASSWORD]);
     await page.waitForTimeout(2000);

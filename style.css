@@ -3217,3 +3217,5 @@ body:has(.modal-backdrop.open) .screen .cat-3d-card *,
 body:has(.modal-backdrop.open) .screen .cat-3d-card::before,
 body:has(.modal-backdrop.open) .screen .cat-3d-card::after { animation-play-state: paused !important; }
 .modal-backdrop .cat-3d-count { backdrop-filter: none; -webkit-backdrop-filter: none; }
+/* Book page hero: no frosted blur under its slide-in animation (was 44 fps on a slow phone) */
+.book-detail-hero { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--glass-bg-strong); }
