@@ -1,5 +1,5 @@
 /* eLibrary Service Worker — offline app shell + always-fresh updates */
-const VERSION = 'v20';
+const VERSION = 'v21';
 const SHELL_CACHE = `elibrary-shell-${VERSION}`;
 const RUNTIME_CACHE = `elibrary-runtime-${VERSION}`;
 
@@ -14,6 +14,7 @@ const APP_SHELL = [
   './vendor/pdf.worker-3.11.174.min.js',
   './js/media.js',
   './js/focus.js',
+  './js/drive-import.js',
   './js/config.js',
   './js/i18n.js',
   './js/api.js',

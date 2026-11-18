@@ -1137,7 +1137,7 @@ function renderBookDetail() {
   const audioLangs = availableLangs(b.audioUrls);
   const title = L(b.title);
   const marked = isBookmarked(b.id);
-  const hasQuiz = Array.isArray(b.quiz) && b.quiz.length > 0;
+  const hasQuiz = b.tests.length > 0 || (Array.isArray(b.quiz) && b.quiz.length > 0);
   const cert = state.certificates.find(c => c.book_id === b.id);
   const sel = resolveBookSelection(b);
   const hasTextHere = !!mediaUrl(b.textUrls, sel.lang, sel.level);
@@ -1165,7 +1165,7 @@ function renderBookDetail() {
 
         <div class="book-detail-cta">
           ${hasTextHere ? `<button class="btn-primary" onclick="openReader()"><span>${escapeHtml(t('readBook'))}</span></button>` : ''}
-          ${hasAudioHere ? `<button class="btn-secondary liquid-glass-btn" onclick="playAudioBook()"><span>${escapeHtml(t('listenBook'))}</span></button>` : ''}
+          ${hasAudioHere ? `<button class="btn-secondary liquid-glass-btn" onclick="state.topicIdx = null; playAudioBook()"><span>${escapeHtml(t('listenBook'))}</span></button>` : ''}
           ${state.currentUser ? `
             <button class="btn-icon ${marked ? 'is-active' : ''}" onclick="toggleBookmark('${b.id}')" aria-pressed="${marked}" aria-label="${escapeHtml(marked ? t('removeBookmark') : t('addBookmark'))}" title="${escapeHtml(marked ? t('removeBookmark') : t('addBookmark'))}">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="${marked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
@@ -1179,9 +1179,31 @@ function renderBookDetail() {
             </button>` : ''}
         </div>
         ${!sel.langs.length ? `<p class="muted-text">${escapeHtml(t('noMediaYet'))}</p>` : ''}
+        ${topicListHtml(b, bookTopics(b, sel.lang, sel.level))}
         <p class="book-detail-synopsis">${escapeHtml(L(b.synopsis))}</p>
       </div>
     </div>`;
+}
+
+function bookTopics(b, lang, level) {
+  return ((b.topics || {})[lang] || {})[level] || [];
+}
+
+function topicListHtml(b, topics) {
+  const testRow = (x, i) => `<li><button type="button" class="topic-row topic-test" onclick="openBookTest(${i})"><span class="topic-n">✎</span><span class="topic-title">${escapeHtml(t('testTopics', { a: x.from, b: x.to }))}</span></button></li>`;
+  const rows = topics.map((tp, i) => `<li><button type="button" class="topic-row" onclick="playTopic(${i})"><span class="topic-n">${tp.n}</span><span class="topic-title">${escapeHtml(tp.title)}</span><span aria-hidden="true">▶</span></button></li>`
+    + b.tests.map((x, ti) => (x.to === tp.n ? testRow(x, ti) : '')).join(''));
+  const shown = new Set(topics.map(tp => tp.n));
+  b.tests.forEach((x, ti) => { if (!shown.has(x.to)) rows.push(testRow(x, ti)); });
+  return rows.length ? `<h3 class="topic-heading">${escapeHtml(t('topicsLabel'))}</h3><ol class="topic-list">${rows.join('')}</ol>` : '';
+}
+
+function playTopic(i) { state.topicIdx = i; state.topicFor = state.currentBook.id; playAudioBook(); }
+
+function openBookTest(i) {
+  state.testIdx = i;
+  openReader();
+  setTimeout(() => { const q = document.getElementById('reader-quiz-container'); if (q) q.scrollIntoView({ behavior: 'smooth' }); }, 400);
 }
 
 async function shareCurrentBook() {
@@ -1349,11 +1371,13 @@ function renderFullPlayerScreen() {
   state.mediaLevel = level;
   const backdrop = document.getElementById('player-backdrop');
   if (backdrop) backdrop.style.backgroundImage = `url("${resolveCover(b.cover).replace(/"/g, '%22')}")`;
-  const levelEl = document.getElementById('player-level-label');
-  if (levelEl) levelEl.textContent = `${langName(lang)} · ${t('level' + level)}`;
-
   state.activeAudioBook = b;
   loadAudio(b, lang, level);
+  const topics = bookTopics(b, lang, level);
+  const topic = topics[state.topicIdx];
+  const levelEl = document.getElementById('player-level-label');
+  if (levelEl) levelEl.textContent = `${langName(lang)} · ${t('level' + level)}${topic ? ` · ${topic.n}. ${topic.title}` : ''}`;
+  document.querySelectorAll('.pl-topic-step').forEach(el => { el.hidden = topics.length < 2; });
   updateMediaSession(b, lang, level);
   setPlaybackRate(state.playbackRate || 1);
   showMiniPlayer(b);
@@ -1410,6 +1434,8 @@ function restoreSavedProgress() {
   state.resumeBookId = book.id;
   state.resumePage = p.mode === 'read' ? (p.page || 1) : 0;
   state.resumePosition = p.mode === 'listen' ? (p.position || 0) : 0;
+  state.resumeTopicN = p.mode === 'listen' ? p.page : 0;
+  state.topicIdx = null;
   navigate(p.mode === 'listen' ? 'player' : 'reader', book.id);
 }
 
@@ -1426,6 +1452,12 @@ function quizText(v) {
   return v === undefined || v === null ? '' : String(v);
 }
 
+/* Drive books have a test after every few topics; other books one quiz */
+function activeQuiz(b) {
+  return b.tests.length ? (b.tests[state.testIdx] || b.tests[0]).quiz : (b.quiz || []);
+}
+function setTestIdx(i) { state.testIdx = Number(i) || 0; renderBookQuiz(state.currentBook); }
+
 function renderBookQuiz(book) {
   const quizContainer = document.getElementById('reader-quiz-container');
   const listEl = document.getElementById('quiz-questions-list');
@@ -1433,7 +1465,7 @@ function renderBookQuiz(book) {
   const submitBtn = document.getElementById('quiz-submit-btn');
   if (!quizContainer || !listEl) return;
 
-  const questions = Array.isArray(book.quiz) ? book.quiz : [];
+  const questions = activeQuiz(book);
   if (!questions.length) {
     quizContainer.style.display = 'none';
     return;
@@ -1460,7 +1492,8 @@ function renderBookQuiz(book) {
     return;
   }
 
-  listEl.innerHTML = questions.map((item, qIdx) => {
+  const testPicker = book.tests.length ? chipGroupHtml(t('testsLabel'), book.tests.map((x, i) => ({ value: i, label: `${x.from}–${x.to}` })), state.testIdx || 0, 'setTestIdx') : '';
+  listEl.innerHTML = testPicker + questions.map((item, qIdx) => {
     const opts = Array.isArray(item.options) ? item.options : [];
     return `
       <fieldset class="quiz-card">
@@ -1481,7 +1514,7 @@ function renderBookQuiz(book) {
 function handleQuizAnswer(qIdx, oIdx) {
   const b = state.currentBook;
   if (!b) return;
-  const q = b.quiz[qIdx];
+  const q = activeQuiz(b)[qIdx];
   if (!q) return;
   state.quizAnswers[qIdx] = oIdx;
   (q.options || []).forEach((_, idx) => {
@@ -1491,17 +1524,17 @@ function handleQuizAnswer(qIdx, oIdx) {
     btn.setAttribute('aria-pressed', String(idx === oIdx));
   });
   const submitBtn = document.getElementById('quiz-submit-btn');
-  if (submitBtn) submitBtn.disabled = Object.keys(state.quizAnswers).length !== b.quiz.length;
+  if (submitBtn) submitBtn.disabled = Object.keys(state.quizAnswers).length !== activeQuiz(b).length;
 }
 
 async function submitQuiz() {
   const b = state.currentBook;
   if (!b || !state.currentUser) return;
-  const answers = b.quiz.map((_, i) => (state.quizAnswers[i] !== undefined ? state.quizAnswers[i] : -1));
+  const answers = activeQuiz(b).map((_, i) => (state.quizAnswers[i] !== undefined ? state.quizAnswers[i] : -1));
   const submitBtn = document.getElementById('quiz-submit-btn');
   if (submitBtn) submitBtn.disabled = true;
   try {
-    const res = await api.submitQuiz(b.id, answers);
+    const res = b.tests.length ? await api.submitTest(b.id, state.testIdx || 0, answers) : await api.submitQuiz(b.id, answers);
     if (res.certificate && !state.certificates.some(c => c.id === res.certificate.id)) {
       state.certificates.unshift(res.certificate);
     }
@@ -1531,7 +1564,7 @@ function showQuizResult(res) {
     if (retryBtn) retryBtn.style.display = 'none';
   } else {
     const left = (res.attemptsLeft !== undefined) ? ' ' + t('attemptsLeft', { n: res.attemptsLeft }) : '';
-    scoreDesc.textContent = t('quizNeed100') + left;
+    scoreDesc.textContent = res.passed ? t('testPassedMore') : t('quizNeed100') + left;
     certBtn.style.display = 'none';
     if (retryBtn) retryBtn.style.display = res.attemptsLeft > 0 ? 'inline-flex' : 'none';
   }
@@ -1800,8 +1833,9 @@ function renderAdminBooksTable() {
       <td><span class="badge">${escapeHtml(categoryName(b.genre))}</span></td>
       <td>${langsCell(b.textUrls)}</td>
       <td>${langsCell(b.audioUrls)}</td>
-      <td>${(b.quiz || []).length || '—'}</td>
+      <td>${b.tests.length ? b.tests.length + ' ✓' : (b.quiz || []).length || '—'}</td>
       <td style="text-align: right; white-space: nowrap;">
+        ${b.driveFolderId ? `<button class="btn-icon" style="width: 30px; height: 30px;" onclick="refreshFromDrive('${b.id}')" aria-label="Обновить из Drive" title="Обновить из Drive">⟳</button>` : ''}
         <button class="btn-icon" style="width: 30px; height: 30px;" onclick="editBookInAdmin('${b.id}')" aria-label="Редактировать">✎</button>
         <button class="btn-icon" style="width: 30px; height: 30px; color: var(--danger);" onclick="deleteBook('${b.id}')" aria-label="Удалить">✕</button>
       </td>
@@ -2144,6 +2178,46 @@ async function handleSaveBook(event) {
     showToast(err instanceof SyntaxError ? 'Ошибка в JSON аттестации: ' + err.message : friendlyError(err), 'offline');
   } finally {
     if (saveBtn) saveBtn.disabled = false;
+  }
+}
+
+/* ---------- Import / refresh from a Google Drive folder ---------- */
+async function importDriveScans(scans, categoryId) {
+  for (const scan of scans) {
+    const existing = state.books.find(b => b.driveFolderId === scan.driveFolderId);
+    const saved = await api.saveDriveBook(scan, existing, categoryId);
+    const idx = state.books.findIndex(b => b.id === saved.id);
+    if (idx >= 0) state.books[idx] = saved; else state.books.unshift(saved);
+  }
+  renderAll();
+  renderAdminBooksTable();
+}
+
+async function importFromDrive() {
+  const btn = document.getElementById('drive-import-btn');
+  btn.disabled = true;
+  try {
+    const scans = await scanDriveLibrary(document.getElementById('drive-import-link').value);
+    if (!scans.length) throw new Error('В папке не найдено книг (нужны папки en / ru / tj, icon, tests)');
+    await importDriveScans(scans, document.getElementById('form-genre').value);
+    switchAdminTab('books');
+    showToast(`Импортировано из Drive: ${scans.map(x => L(x.title)).join(', ')}`, 'online');
+  } catch (err) {
+    showToast(friendlyError(err), 'offline');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function refreshFromDrive(bookId) {
+  const b = findBook(bookId);
+  if (!b) return;
+  showToast(t('loading'));
+  try {
+    await importDriveScans(await scanDriveLibrary(b.driveFolderId));
+    showToast('Обновлено из Google Drive', 'online');
+  } catch (err) {
+    showToast(friendlyError(err), 'offline');
   }
 }
 

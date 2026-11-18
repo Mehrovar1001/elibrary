@@ -48,7 +48,15 @@ function mapBook(r) {
     title: r.title || {},
     author: r.author || {},
     synopsis: r.synopsis || {},
-    cover: r.cover_url || '',
+    /* Drive books carry a cover per language: tg → tj, ru, en; ru → ru, tj, en; en → en, ru, tj */
+    get cover() {
+      const c = r.covers || {};
+      const order = { tg: ['tg', 'ru', 'en'], ru: ['ru', 'tg', 'en'], en: ['en', 'ru', 'tg'] }[state.currentLang] || ['ru', 'tg', 'en'];
+      return c[order.find(l => c[l])] || r.cover_url || '';
+    },
+    driveFolderId: r.drive_folder_id || '',
+    topics: r.topics || {},
+    tests: Array.isArray(r.tests) ? r.tests : [],
     textUrls: r.text_urls || {},
     audioUrls: r.audio_urls || {},
     quiz: Array.isArray(r.quiz) ? r.quiz : [],
@@ -180,6 +188,33 @@ const api = {
       await sb.from('book_quiz_keys').delete().eq('book_id', saved.id);
     }
     return mapBook(saved);
+  },
+  /* Create or refresh a book from a scanned Drive folder (title/author/category edited on the site are kept) */
+  async saveDriveBook(scan, existing, categoryId) {
+    const row = {
+      drive_folder_id: scan.driveFolderId,
+      covers: scan.covers,
+      text_urls: scan.textUrls,
+      audio_urls: scan.audioUrls,
+      topics: scan.topics,
+      tests: scan.tests.map(t => ({ from: t.from, to: t.to, quiz: t.quiz }))
+    };
+    const res = existing
+      ? await sb.from('books').update(row).eq('id', existing.id).select().single()
+      : await sb.from('books').insert({ ...row, title: scan.title, author: {}, synopsis: {}, category_id: categoryId || null }).select().single();
+    throwIf(res.error);
+    const del = await sb.from('book_test_keys').delete().eq('book_id', res.data.id);
+    throwIf(del.error);
+    if (scan.tests.length) {
+      const k = await sb.from('book_test_keys').insert(scan.tests.map((t, idx) => ({ book_id: res.data.id, idx, answers: t.keys })));
+      throwIf(k.error);
+    }
+    return mapBook(res.data);
+  },
+  async submitTest(bookId, idx, answers) {
+    const { data, error } = await sb.rpc('submit_test', { p_book_id: bookId, p_idx: idx, p_answers: answers });
+    throwIf(error);
+    return data;
   },
   async fetchQuizKeys(bookId) {
     const { data, error } = await sb.from('book_quiz_keys').select('answers').eq('book_id', bookId).maybeSingle();
