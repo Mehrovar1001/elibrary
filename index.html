@@ -3,20 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
   <meta name="theme-color" content="#F4F0E6">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="eLibrary">
-  <meta name="description" content="eLibrary — Академическая цифровая платформа.">
-  
-  <!-- Content Security Policy (Allows GitHub API Cloud Sync & Google Drive Player) -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; connect-src 'self' https://api.github.com https://raw.githubusercontent.com https:; img-src 'self' https: data: blob:; media-src 'self' https: data: blob: https://*.googleusercontent.com https://drive.google.com https://docs.google.com; frame-src 'self' https://drive.google.com https://docs.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; script-src 'self' 'unsafe-inline';">
 
-  <title>eLibrary — Научная платформа</title>
+  <title>eLibrary — Цифровая научная библиотека</title>
+  <meta name="description" content="eLibrary — цифровая научная библиотека: книги и аудиокниги на русском, таджикском и английском языках, аттестация и сертификаты с QR-проверкой.">
+  <link rel="canonical" href="https://mehrovar1001.github.io/elibrary/">
+  <link rel="alternate" hreflang="ru" href="https://mehrovar1001.github.io/elibrary/">
+  <link rel="alternate" hreflang="tg" href="https://mehrovar1001.github.io/elibrary/">
+  <link rel="alternate" hreflang="en" href="https://mehrovar1001.github.io/elibrary/">
+
+  <!-- Open Graph / social previews -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="eLibrary">
+  <meta property="og:title" content="eLibrary — Цифровая научная библиотека">
+  <meta property="og:description" content="Книги и аудиокниги на русском, таджикском и английском. Аттестация и сертификаты с QR-проверкой.">
+  <meta property="og:url" content="https://mehrovar1001.github.io/elibrary/">
+  <meta property="og:image" content="https://mehrovar1001.github.io/elibrary/icons/icon-512.png">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:locale:alternate" content="tg_TJ">
+  <meta property="og:locale:alternate" content="en_US">
+  <meta name="twitter:card" content="summary">
+
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebSite","name":"eLibrary","url":"https://mehrovar1001.github.io/elibrary/","inLanguage":["ru","tg","en"],"description":"Цифровая научная библиотека: книги и аудиокниги на трёх языках."}
+  </script>
+
+  <!-- Content Security Policy: Supabase API, Google Drive viewer, Google/Apple avatars -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://vdohgnxcqdlewwghxnqp.supabase.co wss://vdohgnxcqdlewwghxnqp.supabase.co; img-src 'self' https: data: blob:; media-src 'self' https: blob:; frame-src https://drive.google.com https://docs.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; script-src 'self' 'unsafe-inline'; base-uri 'self'; form-action 'self'; object-src 'none';">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
 
   <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
@@ -26,9 +44,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
+  <a class="skip-link" href="#main-scroll" data-i18n="skipToContent">Перейти к содержимому</a>
 
   <!-- Optical SVG Filters for iOS 26 UltraReal 3D Liquid Glass Refraction -->
   <svg class="optical-svg-defs" aria-hidden="true" width="0" height="0">
@@ -61,9 +80,9 @@
     
     <!-- ======================= DESKTOP SIDEBAR (UltraReal Liquid Glass) ======================= -->
     <aside class="sidebar liquid-glass-panel" id="sidebar">
-      <div class="brand-logo" onclick="navigate('home')">
+      <div class="brand-logo" role="button" tabindex="0" aria-label="eLibrary" onclick="navigate('home')">
         <div class="brand-icon-glass">
-          <img src="icons/icon-192.png" alt="eLibrary">
+          <img src="icons/icon-192.png" alt="">
         </div>
         <span class="brand-title">eLibrary</span>
       </div>
@@ -71,7 +90,7 @@
       <div class="liquid-divider"></div>
 
       <div class="nav-section-title" data-i18n="navMenu">Навигация</div>
-      <div class="sidebar-nav-track" id="sidebar-nav-track">
+      <nav class="sidebar-nav-track" id="sidebar-nav-track" aria-label="Main">
         <div class="sidebar-liquid-pill" id="sidebar-liquid-indicator"></div>
 
         <button class="nav-item active" id="nav-home" data-screen="home" onclick="navigate('home')">
@@ -106,17 +125,17 @@
           <span class="nav-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           </span>
-          <span class="nav-label" data-i18n="navSettings">Параметры</span>
+          <span class="nav-label" data-i18n="navSettings">Профиль</span>
         </button>
-      </div>
+      </nav>
 
       <div class="sidebar-footer">
         <div class="liquid-divider" style="margin: 0 auto 14px;"></div>
         <div class="sidebar-footer-controls">
-          <button class="btn-icon liquid-glass-btn" onclick="toggleTheme()" id="theme-toggle-btn" title="Тема">
+          <button class="btn-icon liquid-glass-btn" onclick="toggleTheme()" id="theme-toggle-btn" data-i18n-aria="toggleTheme" aria-label="Тема">
             <svg id="theme-icon-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
           </button>
-          <select class="lang-select liquid-glass-input" id="lang-select" onchange="changeLanguage(this.value)" aria-label="Язык">
+          <select class="lang-select liquid-glass-input" id="lang-select" onchange="changeLanguage(this.value)" aria-label="Язык / Забон / Language">
             <option value="ru">RU</option>
             <option value="tg">TG</option>
             <option value="en">EN</option>
@@ -128,43 +147,43 @@
     <!-- ======================= TOP HEADER (UltraReal Liquid Glass) ======================= -->
     <header class="top-header liquid-glass-panel">
       <div class="header-left">
-        <button class="header-back-btn liquid-glass-btn" id="global-back-btn" onclick="handleGlobalBack()" style="display: none;" title="Назад">
+        <button class="header-back-btn liquid-glass-btn" id="global-back-btn" onclick="handleGlobalBack()" style="display: none;" data-i18n-aria="btnBack" aria-label="Назад">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
         </button>
-        <div class="mobile-brand" onclick="navigate('home')">
-          <img src="icons/icon-192.png" alt="eLibrary">
+        <div class="mobile-brand" role="button" tabindex="0" aria-label="eLibrary" onclick="navigate('home')">
+          <img src="icons/icon-192.png" alt="">
           <span>eLibrary</span>
         </div>
       </div>
 
-      <div class="search-wrapper">
-        <span class="search-icon">
+      <div class="search-wrapper" role="search">
+        <span class="search-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
         </span>
-        <input type="text" class="search-input" id="search-input" placeholder="Поиск изданий, авторов..." data-i18n-placeholder="searchPlaceholder" oninput="handleSearch(this.value)">
+        <input type="search" class="search-input" id="search-input" placeholder="Поиск изданий, авторов..." data-i18n-placeholder="searchPlaceholder" data-i18n-aria="searchLabel" aria-label="Поиск" oninput="handleSearch(this.value)">
       </div>
 
       <div class="header-actions">
-        <button class="btn-icon liquid-glass-btn" onclick="forceRefreshFromServer()" title="Синхронизировать с сервером">
+        <button class="btn-icon liquid-glass-btn" onclick="forceRefreshFromServer()" data-i18n-aria="syncBtn" aria-label="Обновить данные">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
         </button>
 
-        <div class="streak-pill liquid-glass-btn" id="header-streak" onclick="navigate('stats')">
+        <button type="button" class="streak-pill liquid-glass-btn" id="header-streak" onclick="navigate('stats')" data-i18n-aria="statStreakLabel" aria-label="Дней подряд" style="display: none;">
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-          <span id="streak-days-text">1 дн.</span>
-        </div>
+          <span id="streak-days-text">1</span>
+        </button>
 
         <div id="header-user-zone"></div>
       </div>
     </header>
 
     <!-- ======================= MAIN CONTENT AREA ======================= -->
-    <main class="main-content" id="main-scroll">
+    <main class="main-content" id="main-scroll" tabindex="-1">
 
       <!-- Resume Progress Banner -->
       <div class="resume-progress-bar liquid-glass-card" id="resume-session-bar" style="display: none;">
         <div class="resume-info">
-          <span class="resume-dot"></span>
+          <span class="resume-dot" aria-hidden="true"></span>
           <div>
             <div class="resume-label" data-i18n="resumeTitle">Сессия сохранена</div>
             <div class="resume-sub" id="resume-book-title"></div>
@@ -172,7 +191,7 @@
         </div>
         <div class="resume-actions">
           <button class="btn-primary btn-sm" onclick="restoreSavedProgress()" data-i18n="resumeBtn">Продолжить</button>
-          <button class="btn-icon btn-sm" onclick="dismissSavedProgress()" title="Скрыть">
+          <button class="btn-icon btn-sm" onclick="dismissSavedProgress()" data-i18n-aria="hide" aria-label="Скрыть">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
           </button>
         </div>
@@ -189,6 +208,7 @@
                 <span data-i18n="heroBadge">Академический фонд</span>
               </div>
               <h1 class="hero-title text-reveal" data-i18n="heroTitle">Цифровая научная библиотека</h1>
+              <p class="hero-sub" data-i18n="heroSub">Книги и аудиокниги на русском, таджикском и английском языках.</p>
               <div class="liquid-divider hero-divider"></div>
               <div class="hero-actions">
                 <button class="btn-primary" onclick="document.getElementById('catalog-section').scrollIntoView({behavior:'smooth'})">
@@ -202,7 +222,7 @@
               </div>
             </div>
             <div class="hero-3d-showcase">
-              <canvas id="hero-3d-canvas" width="320" height="320"></canvas>
+              <canvas id="hero-3d-canvas" width="320" height="320" aria-hidden="true"></canvas>
             </div>
           </div>
 
@@ -236,14 +256,24 @@
               <div class="empty-icon-svg">
                 <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
               </div>
-              <h3 class="empty-title" data-i18n="emptyLibraryTitle">Каталог пуст</h3>
+              <h3 class="empty-title" id="home-empty-title">Каталог пуст</h3>
               <div class="liquid-divider" style="max-width: 140px; margin: 12px auto;"></div>
-              <p class="empty-desc" data-i18n="emptyLibraryDesc">Добавьте издания через панель управления.</p>
-              <button class="btn-primary" onclick="handleEmptyStateAction()">
-                <span id="empty-action-label" data-i18n="btnGoSettings">Параметры</span>
+              <p class="empty-desc" id="home-empty-desc"></p>
+              <button class="btn-primary" id="home-empty-action" onclick="handleEmptyStateAction()" style="display: none;">
+                <span data-i18n="btnAddBook">Добавить издание</span>
               </button>
             </div>
           </div>
+
+          <footer class="site-footer">
+            <div class="liquid-divider"></div>
+            <nav class="site-footer-links" aria-label="Footer">
+              <a href="#/about" data-i18n="aboutTitle">О проекте</a>
+              <a href="#/privacy" data-i18n="privacyTitle">Конфиденциальность</a>
+              <a href="#/verify" data-i18n="verifyTitle">Проверка сертификата</a>
+            </nav>
+            <p class="site-footer-copy">© 2026 eLibrary · <span data-i18n="footerRights">Цифровая научная библиотека</span></p>
+          </footer>
 
         </div>
       </section>
@@ -365,20 +395,20 @@
         </div>
       </section>
 
-      <!-- Page 6: READER & QUIZZES -->
+      <!-- Page 6: READER (Google Drive viewer) & QUIZ -->
       <section class="screen" id="screen-reader">
         <div class="page-container">
           <div class="reader-toolbar liquid-glass-panel">
-            <button class="btn-back liquid-glass-btn" onclick="requestExitWithSaveCheck()">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+            <button class="btn-back liquid-glass-btn" onclick="handleScreenBack()">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
               <span data-i18n="btnBack">Назад</span>
             </button>
-
             <div class="reader-controls">
-              <button class="font-btn" onclick="adjustFontSize(-1)" title="A-">A-</button>
-              <button class="font-btn" onclick="adjustFontSize(1)" title="A+">A+</button>
-              <button class="font-btn" onclick="saveReaderBookmark()" title="Закладка">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+              <button class="font-btn" id="reader-bookmark-btn" onclick="saveReaderBookmark()" data-i18n-aria="addBookmark" aria-label="В закладки" aria-pressed="false">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+              </button>
+              <button class="font-btn" onclick="shareCurrentBook()" data-i18n-aria="share" aria-label="Поделиться">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
               </button>
             </div>
           </div>
@@ -389,69 +419,74 @@
             <div class="reader-text" id="reader-body"></div>
 
             <div class="paywall-overlay liquid-glass-card" id="reader-paywall-box" style="display: none;">
-              <div class="paywall-icon-svg">
+              <div class="paywall-icon-svg" aria-hidden="true">
                 <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               </div>
-              <h3 class="paywall-title" data-i18n="paywallTitle">Ограниченный доступ</h3>
+              <h2 class="paywall-title" data-i18n="paywallTitle">Войдите, чтобы читать</h2>
               <div class="liquid-divider" style="max-width: 140px; margin: 10px auto;"></div>
-              <p class="paywall-desc" data-i18n="paywallDesc">Авторизуйтесь для доступа к полному тексту и аттестации.</p>
+              <p class="paywall-desc" data-i18n="paywallDesc">Полный текст, аудио и аттестация доступны после бесплатной регистрации.</p>
               <div class="paywall-actions">
-                <button class="btn-google" onclick="handleGoogleSignIn()" style="max-width: 280px;">
-                  <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-                  <span data-i18n="btnGoogleSignIn">Google ID</span>
-                </button>
-                <button class="btn-primary" onclick="openAuthModal()">
-                  <span data-i18n="btnEmailSignIn">Вход по Email</span>
-                </button>
+                <button class="btn-google" onclick="handleGoogleSignIn()"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span data-i18n="continueGoogle">Продолжить с Google</span></button>
+                <button class="btn-apple" onclick="handleAppleSignIn()"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.28-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74s1.78.74 3 .72c1.24-.02 2.02-1.12 2.78-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.39-.92-2.41-3.69zM14.1 5.83c.63-.77 1.06-1.83.94-2.89-.91.04-2.02.61-2.67 1.37-.58.67-1.1 1.76-.96 2.8 1.02.08 2.06-.52 2.69-1.28z"/></svg><span data-i18n="continueApple">Продолжить с Apple</span></button>
+                <button class="btn-primary" onclick="openAuthModal()"><span data-i18n="signIn">Войти</span></button>
               </div>
             </div>
 
             <div class="quiz-section" id="reader-quiz-container" style="display: none;">
               <div class="quiz-header">
                 <span class="badge" data-i18n="quizBadge">Аттестация</span>
-                <h3 style="font-size: 20px; font-weight: 700; margin-top: 8px;" data-i18n="quizTitle">Проверка знаний</h3>
+                <h2 style="font-size: 20px; font-weight: 700; margin-top: 8px;" data-i18n="quizTitle">Проверка знаний</h2>
               </div>
               <div class="liquid-divider"></div>
-
               <div id="quiz-questions-list"></div>
-
-              <div id="quiz-result-banner" class="soft-gradient-card" style="display: none; margin-top: 20px; padding: 22px; border-radius: var(--radius-md); text-align: center;">
-                <h4 id="quiz-score-title" style="font-size: 18px; font-weight: 700; margin-bottom: 6px;"></h4>
-                <p id="quiz-score-desc" style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;"></p>
-                <button class="btn-primary" id="btn-claim-certificate" onclick="generateCertificate()" style="display: none; margin: 0 auto;">
-                  <span data-i18n="btnGetCertificate">Сертификат</span>
-                </button>
+              <div class="quiz-submit-row">
+                <button type="button" class="btn-primary" id="quiz-submit-btn" onclick="submitQuiz()" disabled><span data-i18n="quizSubmit">Проверить ответы</span></button>
+              </div>
+              <div id="quiz-result-banner" class="soft-gradient-card quiz-result" role="status" aria-live="polite" style="display: none;">
+                <h3 id="quiz-score-title"></h3>
+                <p id="quiz-score-desc"></p>
+                <div class="quiz-result-actions">
+                  <button class="btn-primary" id="btn-claim-certificate" style="display: none;"><span data-i18n="btnGetCertificate">Открыть сертификат</span></button>
+                  <button class="btn-secondary" id="quiz-retry-btn" onclick="retryQuiz()" style="display: none;"><span data-i18n="quizRetry">Пройти ещё раз</span></button>
+                </div>
               </div>
             </div>
-
           </div>
         </div>
       </section>
 
-      <!-- Page 7: AUDIO PLAYER -->
+      <!-- Page 7: AUDIO PLAYER (Google Drive) -->
       <section class="screen" id="screen-player">
         <div class="page-container">
           <div class="screen-top-nav">
-            <button class="btn-back liquid-glass-btn" onclick="requestExitWithSaveCheck()">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+            <button class="btn-back liquid-glass-btn" onclick="handleScreenBack()">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
               <span data-i18n="btnBack">Назад</span>
             </button>
-            <h2 class="section-title text-reveal" data-i18n="playerHeader">Аудиотека</h2>
+            <h2 class="section-title text-reveal" data-i18n="playerHeader">Аудиокнига</h2>
           </div>
           <div class="liquid-divider"></div>
 
-          <div class="player-page-card liquid-glass-card" style="max-width: 620px; margin: 0 auto; text-align: center;">
+          <div class="player-page-card liquid-glass-card">
             <div class="player-cover-large" id="player-cover-box">
-              <img src="icons/icon-512.png" alt="Cover">
+              <img src="icons/icon-512.png" alt="">
             </div>
-
-            <h2 class="player-title" id="player-title">Аудиокнига</h2>
-            <p class="player-author" id="player-author">Автор</p>
-
+            <h1 class="player-title" id="player-title">Аудиокнига</h1>
+            <p class="player-author" id="player-author"></p>
+            <p class="player-level" id="player-level-label"></p>
+            <div id="player-lang-chips" class="player-lang-chips"></div>
             <div class="liquid-divider" style="max-width: 220px; margin: 16px auto;"></div>
 
             <div class="gdrive-player-box" id="gdrive-player-wrapper">
-              <iframe id="gdrive-embed-iframe" src="" allow="autoplay"></iframe>
+              <iframe id="gdrive-embed-iframe" src="about:blank" allow="autoplay" title="Audio"></iframe>
+            </div>
+            <div id="player-auth-gate" style="display: none;">
+              <p class="paywall-desc" data-i18n="paywallDesc">Полный текст, аудио и аттестация доступны после бесплатной регистрации.</p>
+              <div class="paywall-actions">
+                <button class="btn-google" onclick="handleGoogleSignIn()"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span data-i18n="continueGoogle">Продолжить с Google</span></button>
+                <button class="btn-apple" onclick="handleAppleSignIn()"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.28-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74s1.78.74 3 .72c1.24-.02 2.02-1.12 2.78-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.39-.92-2.41-3.69zM14.1 5.83c.63-.77 1.06-1.83.94-2.89-.91.04-2.02.61-2.67 1.37-.58.67-1.1 1.76-.96 2.8 1.02.08 2.06-.52 2.69-1.28z"/></svg><span data-i18n="continueApple">Продолжить с Apple</span></button>
+                <button class="btn-primary" onclick="openAuthModal()"><span data-i18n="signIn">Войти</span></button>
+              </div>
             </div>
           </div>
         </div>
@@ -465,7 +500,7 @@
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
               <span data-i18n="btnBack">Назад</span>
             </button>
-            <h2 class="section-title text-reveal" data-i18n="settingsTitle">Параметры</h2>
+            <h2 class="section-title text-reveal" data-i18n="settingsTitle">Профиль и параметры</h2>
           </div>
           <div class="liquid-divider"></div>
 
@@ -497,8 +532,8 @@
                     <div class="settings-row-title" data-i18n="themeLabel">Палитра</div>
                   </div>
                   <div class="segmented-control liquid-glass-pill-group">
-                    <button type="button" class="seg-btn" id="seg-theme-light" onclick="setTheme('light')">Молочная</button>
-                    <button type="button" class="seg-btn" id="seg-theme-dark" onclick="setTheme('dark')">Тёмная</button>
+                    <button type="button" class="seg-btn" id="seg-theme-light" onclick="setTheme('light')" data-i18n="themeLight">Светлая</button>
+                    <button type="button" class="seg-btn" id="seg-theme-dark" onclick="setTheme('dark')" data-i18n="themeDark">Тёмная</button>
                   </div>
                 </div>
 
@@ -506,7 +541,7 @@
                   <div class="settings-row-info">
                     <div class="settings-row-title" data-i18n="langLabel">Язык</div>
                   </div>
-                  <select class="form-select settings-select" id="settings-lang-select" onchange="changeLanguage(this.value)">
+                  <select class="form-select settings-select" id="settings-lang-select" onchange="changeLanguage(this.value)" data-i18n-aria="langLabel" aria-label="Язык">
                     <option value="ru">Русский</option>
                     <option value="tg">Тоҷикӣ</option>
                     <option value="en">English</option>
@@ -518,12 +553,22 @@
                     <div class="settings-row-title" data-i18n="fontSizeLabel">Кегль текста</div>
                   </div>
                   <div class="stepper-control">
-                    <button type="button" class="stepper-btn" onclick="adjustFontSize(-1)">A−</button>
+                    <button type="button" class="stepper-btn" onclick="adjustFontSize(-1)" aria-label="A−">A−</button>
                     <span id="settings-font-size" class="stepper-value">18px</span>
-                    <button type="button" class="stepper-btn" onclick="adjustFontSize(1)">A+</button>
+                    <button type="button" class="stepper-btn" onclick="adjustFontSize(1)" aria-label="A+">A+</button>
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div class="settings-card soft-gradient-card">
+              <h3 class="settings-section-heading" data-i18n="infoSection">Информация</h3>
+              <div class="liquid-divider" style="margin: 12px 0;"></div>
+              <nav class="settings-links">
+                <a class="settings-link" href="#/about"><span data-i18n="aboutTitle">О проекте</span><span aria-hidden="true">›</span></a>
+                <a class="settings-link" href="#/privacy"><span data-i18n="privacyTitle">Конфиденциальность</span><span aria-hidden="true">›</span></a>
+                <a class="settings-link" href="#/verify"><span data-i18n="verifyTitle">Проверка сертификата</span><span aria-hidden="true">›</span></a>
+              </nav>
             </div>
           </div>
         </div>
@@ -533,143 +578,375 @@
       <section class="screen" id="screen-admin">
         <div class="page-container">
           <div class="screen-top-nav">
-            <button class="btn-back liquid-glass-btn" onclick="navigate('settings')">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+            <button class="btn-back liquid-glass-btn" onclick="handleScreenBack()">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
               <span data-i18n="btnBack">Назад</span>
             </button>
-            <h2 class="section-title text-reveal" data-i18n="adminHeaderTitle">Управление фондом</h2>
+            <h2 class="section-title text-reveal" data-i18n="adminPanelTitle">Управление фондом</h2>
           </div>
           <div class="liquid-divider"></div>
 
           <div class="admin-card soft-gradient-card">
-            <div class="admin-tabs">
-              <button class="admin-tab active" id="adm-tab-books" onclick="switchAdminTab('books')">Каталог</button>
-              <button class="admin-tab" id="adm-tab-add" onclick="openAddBookTab()">+ Издание</button>
-              <button class="admin-tab" id="adm-tab-categories" onclick="switchAdminTab('categories')">Направления (Категории)</button>
-              <button class="admin-tab" id="adm-tab-users" onclick="switchAdminTab('users')">Пользователи</button>
-              <button class="admin-tab" id="adm-tab-backup" onclick="switchAdminTab('backup')">Синхронизация с сайтом</button>
+            <div class="admin-tabs" role="tablist" aria-label="Admin">
+              <button class="admin-tab active" role="tab" id="adm-tab-books" onclick="switchAdminTab('books')">Каталог</button>
+              <button class="admin-tab" role="tab" id="adm-tab-add" onclick="openAddBookTab()">+ Издание</button>
+              <button class="admin-tab" role="tab" id="adm-tab-categories" onclick="switchAdminTab('categories')">Направления</button>
+              <button class="admin-tab" role="tab" id="adm-tab-users" onclick="switchAdminTab('users')">Пользователи</button>
+              <button class="admin-tab" role="tab" id="adm-tab-analytics" onclick="switchAdminTab('analytics')">Аналитика</button>
+              <button class="admin-tab" role="tab" id="adm-tab-backup" onclick="switchAdminTab('backup')">Резервная копия</button>
             </div>
 
-            <!-- Sub-tab 1: Books -->
+            <!-- Books -->
             <div id="adm-content-books">
-              <div style="overflow-x: auto;">
+              <div class="table-scroll">
                 <table class="clean-table">
                   <thead>
                     <tr>
-                      <th>Обложка</th>
-                      <th>Название</th>
-                      <th>Автор</th>
-                      <th>Направление</th>
-                      <th>Аудио</th>
-                      <th style="text-align: right;">Действия</th>
+                      <th scope="col">Обложка</th>
+                      <th scope="col">Название</th>
+                      <th scope="col">Автор</th>
+                      <th scope="col">Направление</th>
+                      <th scope="col">Текст</th>
+                      <th scope="col">Аудио</th>
+                      <th scope="col">Тест</th>
+                      <th scope="col" style="text-align: right;">Действия</th>
                     </tr>
                   </thead>
                   <tbody id="admin-books-table-body"></tbody>
                 </table>
               </div>
-              <div id="admin-empty-books" style="padding: 36px; text-align: center; color: var(--text-muted);">
-                Каталог пуст.
+              <div id="admin-empty-books" class="admin-empty">
+                <p>Каталог пуст.</p>
+                <button class="btn-primary btn-sm" onclick="openAddBookTab()">+ Добавить первое издание</button>
               </div>
             </div>
 
-            <!-- Sub-tab 2: Add / Edit Book Form -->
+            <!-- Add / edit book -->
             <div id="adm-content-add" style="display: none;">
-              <form id="book-form" onsubmit="handleSaveBook(event)">
+              <h3 class="admin-subheading" id="book-form-heading">Новое издание</h3>
+              <div class="admin-hint">
+                <strong>Как добавить книгу из Google Drive:</strong> загрузите файл в Google Drive → «Поделиться» → «Все, у кого есть ссылка» (Читатель) → скопируйте ссылку и вставьте ниже. Для каждого языка — свой файл книги и свой аудиофайл. Заполните хотя бы один язык.
+              </div>
+              <form id="book-form" onsubmit="handleSaveBook(event)" novalidate>
                 <input type="hidden" id="form-book-id" value="">
 
                 <div class="form-row">
                   <div class="form-group">
-                    <label class="form-label" data-i18n="formTitle">Название *</label>
-                    <input type="text" class="form-input" id="form-title" required placeholder="Название издания">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label" data-i18n="formAuthor">Автор *</label>
-                    <input type="text" class="form-input" id="form-author" required placeholder="Автор">
-                  </div>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label" data-i18n="formGenre">Направление *</label>
+                    <label class="form-label" for="form-genre">Направление *</label>
                     <select class="form-select" id="form-genre" required></select>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Обложка издания (Файл)</label>
+                    <label class="form-label">Обложка</label>
                     <input type="hidden" id="form-cover-data" value="">
-                    <div class="cover-dropzone" id="cover-dropzone" onclick="document.getElementById('form-cover-file').click()">
+                    <div class="cover-dropzone" id="cover-dropzone" role="button" tabindex="0" onclick="document.getElementById('form-cover-file').click()">
                       <div id="cover-dropzone-empty" style="text-align: center; padding: 12px;">
-                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.75" style="margin: 0 auto 4px; display: block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                        <span style="font-size: 12px; font-weight: 600; color: var(--primary);">Выбрать изображение</span>
+                        <span style="font-size: 12px; font-weight: 600; color: var(--primary);">Загрузить изображение</span>
                       </div>
                       <div id="cover-dropzone-filled" style="display: none; align-items: center; gap: 14px; padding: 10px; width: 100%;">
-                        <img id="cover-preview-img" src="" alt="preview" style="width: 46px; height: 62px; object-fit: cover; border-radius: 6px;">
+                        <img id="cover-preview-img" src="" alt="" style="width: 46px; height: 62px; object-fit: cover; border-radius: 6px;">
                         <div>
                           <div style="font-size: 12px; font-weight: 600; color: var(--success);">Обложка готова</div>
                           <button type="button" class="btn-secondary btn-sm" style="margin-top: 6px;" onclick="event.stopPropagation(); clearUploadedCover()">Заменить</button>
                         </div>
                       </div>
                     </div>
-                    <input type="file" id="form-cover-file" accept="image/*" onchange="handleCoverFileSelected(event)" style="display: none;">
+                    <input type="file" id="form-cover-file" accept="image/jpeg,image/png,image/webp" onchange="handleCoverFileSelected(event)" style="display: none;">
+                    <input type="url" class="form-input" id="form-cover-url" style="margin-top: 8px;" placeholder="…или ссылка на картинку (Google Drive / https)" oninput="handleCoverUrlInput(this.value)">
                   </div>
                 </div>
 
-                <div class="form-group">
-                  <label class="form-label" data-i18n="formSynopsis">Аннотация</label>
-                  <input type="text" class="form-input" id="form-synopsis" placeholder="Краткое содержание">
+                <label class="checkbox-row"><input type="checkbox" id="form-published" checked> Опубликовано (видно всем читателям)</label>
+                <div class="admin-hint">
+                  У каждого языка 3 уровня сложности, у каждого уровня свой файл книги и своё аудио. Пустые уровни читателю не показываются.
+                  <div style="margin-top: 8px;"><button type="button" class="btn-secondary btn-sm" onclick="fillEmptyMediaFromFirst()">Заполнить пустые поля первой ссылкой (для теста)</button></div>
                 </div>
 
-                <div class="form-group">
-                  <label class="form-label" data-i18n="formAudioUrl">Аудиофайл (Google Drive)</label>
-                  <div style="display: flex; gap: 8px;">
-                    <input type="text" class="form-input" id="form-audio-url" placeholder="https://drive.google.com/file/d/.../view">
-                    <button type="button" class="btn-secondary" onclick="testAudioInput()">Проверить</button>
+                <fieldset class="lang-fieldset">
+                  <legend>Русский</legend>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label" for="form-title-ru">Название (RU)</label>
+                      <input type="text" class="form-input" id="form-title-ru" maxlength="200">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="form-author-ru">Автор (RU)</label>
+                      <input type="text" class="form-input" id="form-author-ru" maxlength="200">
+                    </div>
                   </div>
-                  <p id="audio-test-status" style="font-size: 12px; margin-top: 6px; font-weight: 600;"></p>
-                </div>
+                  <div class="form-group">
+                    <label class="form-label" for="form-synopsis-ru">Аннотация (RU)</label>
+                    <textarea class="form-textarea form-textarea-sm" id="form-synopsis-ru" maxlength="2000"></textarea>
+                  </div>
+                  <div class="level-block">
+                    <div class="level-block-title">Уровень 1 — Лёгкий</div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label" for="form-text-ru-1">Книга (Google Drive) — RU, ур. 1</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-text-ru-1" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-text-ru-1')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-text-ru-1-status"></p>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="form-audio-ru-1">Аудио (Google Drive) — RU, ур. 1</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-audio-ru-1" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-audio-ru-1')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-audio-ru-1-status"></p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="level-block">
+                    <div class="level-block-title">Уровень 2 — Средний</div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label" for="form-text-ru-2">Книга (Google Drive) — RU, ур. 2</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-text-ru-2" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-text-ru-2')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-text-ru-2-status"></p>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="form-audio-ru-2">Аудио (Google Drive) — RU, ур. 2</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-audio-ru-2" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-audio-ru-2')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-audio-ru-2-status"></p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="level-block">
+                    <div class="level-block-title">Уровень 3 — Сложный</div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label" for="form-text-ru-3">Книга (Google Drive) — RU, ур. 3</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-text-ru-3" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-text-ru-3')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-text-ru-3-status"></p>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="form-audio-ru-3">Аудио (Google Drive) — RU, ур. 3</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-audio-ru-3" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-audio-ru-3')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-audio-ru-3-status"></p>
+                      </div>
+                    </div>
+                  </div>
+                </fieldset>
+
+                <fieldset class="lang-fieldset">
+                  <legend>Тоҷикӣ</legend>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label" for="form-title-tg">Название (TG)</label>
+                      <input type="text" class="form-input" id="form-title-tg" maxlength="200">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="form-author-tg">Автор (TG)</label>
+                      <input type="text" class="form-input" id="form-author-tg" maxlength="200">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="form-synopsis-tg">Аннотация (TG)</label>
+                    <textarea class="form-textarea form-textarea-sm" id="form-synopsis-tg" maxlength="2000"></textarea>
+                  </div>
+                  <div class="level-block">
+                    <div class="level-block-title">Уровень 1 — Лёгкий</div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label" for="form-text-tg-1">Книга (Google Drive) — TG, ур. 1</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-text-tg-1" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-text-tg-1')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-text-tg-1-status"></p>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="form-audio-tg-1">Аудио (Google Drive) — TG, ур. 1</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-audio-tg-1" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-audio-tg-1')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-audio-tg-1-status"></p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="level-block">
+                    <div class="level-block-title">Уровень 2 — Средний</div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label" for="form-text-tg-2">Книга (Google Drive) — TG, ур. 2</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-text-tg-2" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-text-tg-2')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-text-tg-2-status"></p>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="form-audio-tg-2">Аудио (Google Drive) — TG, ур. 2</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-audio-tg-2" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-audio-tg-2')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-audio-tg-2-status"></p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="level-block">
+                    <div class="level-block-title">Уровень 3 — Сложный</div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label" for="form-text-tg-3">Книга (Google Drive) — TG, ур. 3</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-text-tg-3" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-text-tg-3')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-text-tg-3-status"></p>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="form-audio-tg-3">Аудио (Google Drive) — TG, ур. 3</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-audio-tg-3" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-audio-tg-3')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-audio-tg-3-status"></p>
+                      </div>
+                    </div>
+                  </div>
+                </fieldset>
+
+                <fieldset class="lang-fieldset">
+                  <legend>English</legend>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label" for="form-title-en">Название (EN)</label>
+                      <input type="text" class="form-input" id="form-title-en" maxlength="200">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="form-author-en">Автор (EN)</label>
+                      <input type="text" class="form-input" id="form-author-en" maxlength="200">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="form-synopsis-en">Аннотация (EN)</label>
+                    <textarea class="form-textarea form-textarea-sm" id="form-synopsis-en" maxlength="2000"></textarea>
+                  </div>
+                  <div class="level-block">
+                    <div class="level-block-title">Уровень 1 — Лёгкий</div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label" for="form-text-en-1">Книга (Google Drive) — EN, ур. 1</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-text-en-1" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-text-en-1')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-text-en-1-status"></p>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="form-audio-en-1">Аудио (Google Drive) — EN, ур. 1</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-audio-en-1" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-audio-en-1')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-audio-en-1-status"></p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="level-block">
+                    <div class="level-block-title">Уровень 2 — Средний</div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label" for="form-text-en-2">Книга (Google Drive) — EN, ур. 2</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-text-en-2" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-text-en-2')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-text-en-2-status"></p>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="form-audio-en-2">Аудио (Google Drive) — EN, ур. 2</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-audio-en-2" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-audio-en-2')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-audio-en-2-status"></p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="level-block">
+                    <div class="level-block-title">Уровень 3 — Сложный</div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label" for="form-text-en-3">Книга (Google Drive) — EN, ур. 3</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-text-en-3" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-text-en-3')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-text-en-3-status"></p>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="form-audio-en-3">Аудио (Google Drive) — EN, ур. 3</label>
+                        <div class="input-with-btn">
+                          <input type="url" class="form-input" id="form-audio-en-3" placeholder="https://drive.google.com/file/d/.../view">
+                          <button type="button" class="btn-secondary" onclick="testDriveLink('form-audio-en-3')">Проверить</button>
+                        </div>
+                        <p class="drive-test-status" id="form-audio-en-3-status"></p>
+                      </div>
+                    </div>
+                  </div>
+                </fieldset>
 
                 <div class="form-group">
-                  <label class="form-label" data-i18n="formText">Текст издания</label>
-                  <textarea class="form-textarea" id="form-text" placeholder="Полный текст..."></textarea>
+                  <label class="form-label" for="form-quiz-json">Вопросы аттестации (JSON). Правильные ответы хранятся на сервере и скрыты от читателей.</label>
+                  <textarea class="form-textarea" id="form-quiz-json" style="min-height: 140px; font-family: monospace; font-size: 12px;" placeholder='[
+  {"q": {"ru": "Вопрос?", "tg": "Савол?", "en": "Question?"},
+   "options": [{"ru": "Да", "tg": "Ҳа", "en": "Yes"}, {"ru": "Нет", "tg": "Не", "en": "No"}],
+   "correct": 0}
+]'></textarea>
                 </div>
 
-                <div class="form-group">
-                  <label class="form-label">Вопросы аттестации (JSON)</label>
-                  <textarea class="form-textarea" id="form-quiz-json" style="min-height: 90px; font-family: monospace; font-size: 12px;" placeholder='[{"q": "Вопрос?", "options": ["А", "Б", "В"], "correct": 0}]'></textarea>
-                </div>
-
-                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px;">
+                <div class="form-actions">
                   <button type="button" class="btn-secondary" onclick="switchAdminTab('books')">Отмена</button>
-                  <button type="submit" class="btn-primary">Сохранить</button>
+                  <button type="submit" class="btn-primary" id="book-save-btn">Сохранить</button>
                 </div>
               </form>
             </div>
 
-            <!-- Sub-tab 2b: Categories Management (Add / Edit Photo & Framing Position) -->
+            <!-- Categories -->
             <div id="adm-content-categories" style="display: none;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px;">
+              <div class="admin-section-head">
                 <div>
-                  <h4 style="font-size: 15px; font-weight: 700;">Направления и обложки категорий</h4>
-                  <p style="font-size: 12px; color: var(--text-muted);">Нажмите «Изменить фото и позицию» на любой категории, чтобы загрузить фото и настроить отображение объекта пальцем или мышью.</p>
+                  <h3 class="admin-subheading">Направления и обложки</h3>
+                  <p class="muted-text" style="font-size: 12px;">Нажмите ✎ на категории, чтобы загрузить фото и настроить его положение.</p>
                 </div>
                 <button class="btn-primary btn-sm" onclick="openCategoryEditorModal(null)">+ Добавить категорию</button>
               </div>
               <div class="categories-3d-grid" id="admin-categories-grid"></div>
             </div>
 
-            <!-- Sub-tab 3: Users -->
+            <!-- Users -->
             <div id="adm-content-users" style="display: none;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
-                <h4 style="font-size: 15px; font-weight: 600;">Пользователи</h4>
+              <div class="admin-section-head">
+                <h3 class="admin-subheading">Пользователи (<span id="admin-users-count">0</span>)</h3>
                 <button class="btn-primary btn-sm" onclick="openAdminCreateUserModal()">+ Создать</button>
               </div>
-              <div style="overflow-x: auto;">
+              <div class="table-scroll">
                 <table class="clean-table">
                   <thead>
                     <tr>
-                      <th>Профиль</th>
-                      <th>Email</th>
-                      <th>Роль</th>
-                      <th style="text-align: right;">Управление</th>
+                      <th scope="col">Имя</th>
+                      <th scope="col">Email</th>
+                      <th scope="col">Роль</th>
+                      <th scope="col">Создан</th>
+                      <th scope="col" style="text-align: right;">Управление</th>
                     </tr>
                   </thead>
                   <tbody id="admin-users-table-body"></tbody>
@@ -677,45 +954,71 @@
               </div>
             </div>
 
-            <!-- Sub-tab 4: Global Cloud Sync & Backup -->
-            <div id="adm-content-backup" style="display: none;">
-              <div class="liquid-glass-card" style="padding: 20px; border-radius: var(--radius-md); margin-bottom: 18px;">
-                <h4 style="font-size: 15px; font-weight: 700; margin-bottom: 6px;">Глобальная публикация на GitHub Pages (Для всех браузеров и телефонов)</h4>
-                <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 14px;">
-                  Чтобы добавленные вами книги и изменённые фотографии категорий сразу отображались по ссылке на всех других устройствах и в других браузерах, укажите ваш GitHub Token (один раз) и нажмите «Опубликовать на сайт».
-                </p>
-                <div class="form-row">
-                  <div class="form-group">
-                    <label class="form-label">GitHub репозитории</label>
-                    <input type="text" class="form-input" id="gh-sync-repo" value="Mehrovar1001/elibrary" placeholder="Mehrovar1001/elibrary">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">GitHub Personal Access Token (repo)</label>
-                    <input type="password" class="form-input" id="gh-sync-token" placeholder="ghp_..." oninput="saveGithubSyncConfig()">
-                  </div>
-                </div>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-                  <button type="button" class="btn-primary" onclick="publishCatalogToGitHub()">
-                    Опубликовать книги и категории на сайт
-                  </button>
-                  <button type="button" class="btn-secondary" onclick="forceRefreshFromServer()">
-                    Загрузить с сервера
-                  </button>
-                  <span id="gh-sync-status" style="font-size: 12px; font-weight: 600;"></span>
-                </div>
-              </div>
-
-              <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                <button class="btn-secondary" onclick="exportLibraryJson()">Скачать файл catalog.json</button>
-                <label class="btn-secondary" style="cursor: pointer;">
-                  Загрузить из JSON
-                  <input type="file" accept=".json" style="display: none;" onchange="importLibraryJson(event)">
-                </label>
-                <button class="btn-danger" onclick="clearAllBooksConfirm()">Очистить каталог</button>
-              </div>
+            <!-- Analytics -->
+            <div id="adm-content-analytics" style="display: none;">
+              <div id="admin-analytics-box"></div>
             </div>
 
+            <!-- Backup -->
+            <div id="adm-content-backup" style="display: none;">
+              <h3 class="admin-subheading">Резервная копия каталога</h3>
+              <p class="muted-text" style="font-size: 13px; margin-bottom: 14px;">Все изменения сохраняются на сервере сразу и видны на всех устройствах. Здесь можно скачать копию каталога в JSON на всякий случай.</p>
+              <button class="btn-secondary" onclick="exportLibraryJson()">Скачать резервную копию (JSON)</button>
+            </div>
           </div>
+        </div>
+      </section>
+
+      <!-- Page 10: CERTIFICATE VERIFICATION -->
+      <section class="screen" id="screen-verify">
+        <div class="page-container narrow-container">
+          <div class="screen-top-nav">
+            <button class="btn-back liquid-glass-btn" onclick="handleScreenBack()">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+              <span data-i18n="btnBack">Назад</span>
+            </button>
+            <h2 class="section-title" data-i18n="verifyTitle">Проверка сертификата</h2>
+          </div>
+          <div class="liquid-divider"></div>
+          <div class="settings-card soft-gradient-card">
+            <p class="muted-text" data-i18n="verifyDesc" style="margin-bottom: 14px;">Введите номер сертификата.</p>
+            <form class="verify-form" onsubmit="handleVerifySubmit(event)">
+              <label class="visually-hidden" for="verify-code-input" data-i18n="certCode">Номер</label>
+              <input type="text" class="form-input" id="verify-code-input" placeholder="EL-XXXXX-XXXXX" autocomplete="off" spellcheck="false" maxlength="20">
+              <button type="submit" class="btn-primary"><span data-i18n="verifyBtn">Проверить</span></button>
+            </form>
+            <div id="verify-result" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Page 11: ABOUT -->
+      <section class="screen" id="screen-about">
+        <div class="page-container narrow-container">
+          <div class="screen-top-nav">
+            <button class="btn-back liquid-glass-btn" onclick="handleScreenBack()">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+              <span data-i18n="btnBack">Назад</span>
+            </button>
+            <h2 class="section-title" data-i18n="aboutTitle">О проекте</h2>
+          </div>
+          <div class="liquid-divider"></div>
+          <article class="settings-card soft-gradient-card info-page" id="about-content"></article>
+        </div>
+      </section>
+
+      <!-- Page 12: PRIVACY -->
+      <section class="screen" id="screen-privacy">
+        <div class="page-container narrow-container">
+          <div class="screen-top-nav">
+            <button class="btn-back liquid-glass-btn" onclick="handleScreenBack()">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+              <span data-i18n="btnBack">Назад</span>
+            </button>
+            <h2 class="section-title" data-i18n="privacyTitle">Конфиденциальность</h2>
+          </div>
+          <div class="liquid-divider"></div>
+          <article class="settings-card soft-gradient-card info-page" id="privacy-content"></article>
         </div>
       </section>
 
@@ -726,23 +1029,26 @@
       <div class="mini-progress-top">
         <div class="mini-progress-fill" id="mini-progress-fill"></div>
       </div>
-      <div class="mini-thumb" id="mini-thumb" onclick="openFullPlayer()">
-        <img src="icons/icon-192.png" alt="cover">
+      <div class="mini-thumb" id="mini-thumb" role="button" tabindex="0" data-i18n-aria="miniPlayerOpen" aria-label="Открыть плеер" onclick="openFullPlayer()">
+        <img src="icons/icon-192.png" alt="">
       </div>
       <div class="mini-meta" onclick="openFullPlayer()">
         <div class="mini-title" id="mini-title">Аудиокнига</div>
         <div class="mini-author" id="mini-author">Автор</div>
       </div>
       <div class="mini-controls">
-        <button class="btn-icon liquid-glass-btn" onclick="openFullPlayer()" title="Плеер">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        <button class="btn-icon liquid-glass-btn" onclick="openFullPlayer()" data-i18n-aria="miniPlayerOpen" aria-label="Открыть плеер">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </button>
+        <button class="btn-icon liquid-glass-btn" onclick="closeMiniPlayer()" data-i18n-aria="miniPlayerClose" aria-label="Закрыть плеер">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
       </div>
     </div>
 
     <!-- ======================= FLOATING BOTTOM NAVIGATION (UltraReal Liquid Glass) ======================= -->
-    <nav class="mobile-bottom-nav liquid-glass-dock" id="bottom-nav">
-      <div class="dock-liquid-pill" id="dock-liquid-indicator"><span class="dock-pill-glass"></span></div>
+    <nav class="mobile-bottom-nav liquid-glass-dock" id="bottom-nav" aria-label="Main">
+      <div class="dock-liquid-pill" id="dock-liquid-indicator" aria-hidden="true"><span class="dock-pill-glass"></span></div>
 
       <button class="mob-nav-btn active" id="mob-home" data-index="0" onclick="navigate('home')">
         <span class="mob-icon">
@@ -784,10 +1090,10 @@
 
   <!-- ======================= INTERACTIVE CATEGORY PHOTO & TOUCH-DRAG FRAMING MODAL ======================= -->
   <div class="modal-backdrop" id="category-editor-modal">
-    <div class="modal-card liquid-glass-card" style="max-width: 520px; max-height: 92vh; overflow-y: auto;">
+    <div class="modal-card liquid-glass-card" role="dialog" aria-modal="true" aria-labelledby="cat-modal-heading" style="max-width: 520px; max-height: 92vh; overflow-y: auto;">
       <div class="modal-header">
         <h3 class="modal-title" id="cat-modal-heading">Настройка категории</h3>
-        <button class="modal-close" onclick="closeCategoryEditorModal()">✕</button>
+        <button class="modal-close" onclick="closeCategoryEditorModal()" data-i18n-aria="close" aria-label="Закрыть">✕</button>
       </div>
 
       <form id="category-editor-form" onsubmit="handleSaveCategory(event)">
@@ -880,7 +1186,7 @@
           <button type="button" class="btn-danger btn-sm" id="cat-delete-btn" onclick="handleDeleteCategory()" style="display: none;">Удалить</button>
           <div style="display: flex; gap: 10px; margin-left: auto;">
             <button type="button" class="btn-secondary" onclick="closeCategoryEditorModal()">Отмена</button>
-            <button type="submit" class="btn-primary">Сохранить категорию</button>
+            <button type="submit" class="btn-primary" id="cat-save-btn">Сохранить категорию</button>
           </div>
         </div>
       </form>
@@ -889,134 +1195,111 @@
 
   <div class="net-toast" id="net-toast" role="status" aria-live="polite"></div>
 
-  <!-- ======================= PROGRESS SAVE WARNING MODAL ======================= -->
-  <div class="modal-backdrop" id="progress-warning-modal">
-    <div class="modal-card liquid-glass-card" style="max-width: 380px; text-align: center;">
-      <div class="modal-icon-circle">
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-      </div>
-      <h3 class="modal-title" style="justify-content: center; margin-top: 10px;" data-i18n="saveWarningTitle">Сохранение прогресса</h3>
-      <div class="liquid-divider" style="margin: 12px auto; max-width: 140px;"></div>
-      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;" data-i18n="saveWarningDesc">
-        Ваш текущий прогресс чтения и тестирования автоматически сохранён. Выйти из раздела?
-      </p>
-      <div style="display: flex; gap: 10px;">
-        <button class="btn-secondary" style="flex: 1; justify-content: center;" onclick="closeProgressWarningModal()" data-i18n="btnStay">Остаться</button>
-        <button class="btn-primary" style="flex: 1; justify-content: center;" onclick="confirmExitAndSaveProgress()" data-i18n="btnSaveAndExit">Сохранить и выйти</button>
+  <!-- ======================= FIRST-VISIT LANGUAGE CHOOSER ======================= -->
+  <div class="modal-backdrop" id="welcome-lang-modal">
+    <div class="modal-card liquid-glass-card welcome-card" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+      <img src="icons/icon-192.png" alt="" class="welcome-logo">
+      <h2 class="modal-title welcome-title" id="welcome-title">Выберите язык · Забонро интихоб кунед · Choose language</h2>
+      <div class="welcome-lang-list">
+        <button type="button" class="welcome-lang-btn" onclick="chooseInitialLanguage('tg')"><strong>Тоҷикӣ</strong><span>TG</span></button>
+        <button type="button" class="welcome-lang-btn" onclick="chooseInitialLanguage('ru')"><strong>Русский</strong><span>RU</span></button>
+        <button type="button" class="welcome-lang-btn" onclick="chooseInitialLanguage('en')"><strong>English</strong><span>EN</span></button>
       </div>
     </div>
   </div>
 
-  <!-- ======================= AUTH MODAL ======================= -->
+  <!-- ======================= AUTH MODAL (Supabase) ======================= -->
   <div class="modal-backdrop" id="auth-modal">
-    <div class="modal-card liquid-glass-card">
+    <div class="modal-card liquid-glass-card" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
       <div class="modal-header">
-        <h3 class="modal-title" id="auth-modal-title">Авторизация</h3>
-        <button class="modal-close" onclick="closeAuthModal()">✕</button>
+        <h2 class="modal-title" id="auth-modal-title" data-i18n="authTitle">Вход в eLibrary</h2>
+        <button class="modal-close" onclick="closeAuthModal()" data-i18n-aria="close" aria-label="Закрыть">✕</button>
       </div>
 
-      <button type="button" class="btn-google" onclick="handleGoogleSignIn()">
-        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-        <span>Google ID</span>
-      </button>
+      <div class="auth-oauth-stack">
+        <button type="button" class="btn-google" onclick="handleGoogleSignIn()"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span data-i18n="continueGoogle">Продолжить с Google</span></button>
+        <button type="button" class="btn-apple" onclick="handleAppleSignIn()"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.28-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74s1.78.74 3 .72c1.24-.02 2.02-1.12 2.78-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.39-.92-2.41-3.69zM14.1 5.83c.63-.77 1.06-1.83.94-2.89-.91.04-2.02.61-2.67 1.37-.58.67-1.1 1.76-.96 2.8 1.02.08 2.06-.52 2.69-1.28z"/></svg><span data-i18n="continueApple">Продолжить с Apple</span></button>
+      </div>
 
-      <div class="auth-divider">или</div>
+      <div class="auth-divider" data-i18n="orEmail">или по email</div>
+
+      <div class="segmented-control auth-tabs" role="tablist">
+        <button type="button" class="seg-btn active" role="tab" id="auth-tab-login" aria-selected="true" onclick="setAuthMode('login')" data-i18n="authLoginTab">Вход</button>
+        <button type="button" class="seg-btn" role="tab" id="auth-tab-register" aria-selected="false" onclick="setAuthMode('register')" data-i18n="authRegisterTab">Регистрация</button>
+      </div>
 
       <form id="auth-form" onsubmit="handleEmailAuth(event)">
         <div class="form-group" id="auth-name-group" style="display: none;">
-          <label class="form-label">Имя</label>
-          <input type="text" class="form-input" id="auth-name" placeholder="Имя">
+          <label class="form-label" for="auth-name" data-i18n="authName">Имя</label>
+          <input type="text" class="form-input" id="auth-name" autocomplete="name" maxlength="80">
         </div>
         <div class="form-group">
-          <label class="form-label">Email *</label>
-          <input type="email" class="form-input" id="auth-email" required placeholder="user@example.com">
+          <label class="form-label" for="auth-email" data-i18n="authEmail">Email</label>
+          <input type="email" class="form-input" id="auth-email" required autocomplete="email" placeholder="user@example.com">
         </div>
         <div class="form-group">
-          <label class="form-label">Пароль *</label>
-          <input type="password" class="form-input" id="auth-password" required placeholder="••••••••">
+          <label class="form-label" for="auth-password" data-i18n="authPassword">Пароль</label>
+          <input type="password" class="form-input" id="auth-password" required minlength="8" autocomplete="current-password" aria-describedby="auth-pass-hint">
+          <small class="form-hint" id="auth-pass-hint" data-i18n="authPasswordHint">Минимум 8 символов</small>
         </div>
-
-        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 8px;">
-          Продолжить
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- ======================= GOOGLE ACCOUNT CHOOSER MODAL ======================= -->
-  <div class="modal-backdrop" id="google-chooser-modal">
-    <div class="modal-card liquid-glass-card" style="max-width: 400px;">
-      <div class="modal-header">
-        <h3 class="modal-title">
-          <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-          <span>Google ID</span>
-        </h3>
-        <button class="modal-close" onclick="closeGoogleChooser()">✕</button>
-      </div>
-      <div id="google-accounts-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;"></div>
-
-      <form onsubmit="submitCustomGoogleAccount(event)" style="border-top: 1px solid var(--border); padding-top: 14px;">
-        <div class="form-group">
-          <label class="form-label">Имя</label>
-          <input type="text" class="form-input" id="google-custom-name" required placeholder="Алишер">
+        <p class="auth-message" id="auth-message" role="alert"></p>
+        <button type="submit" class="btn-primary auth-submit"><span id="auth-submit-label">Войти</span></button>
+        <div class="auth-footer-row">
+          <button type="button" class="btn-link" id="auth-forgot-btn" onclick="handleForgotPassword()" data-i18n="forgotPassword">Забыли пароль?</button>
+          <a href="#/privacy" class="btn-link" onclick="closeAuthModal()" data-i18n="privacyTitle">Конфиденциальность</a>
         </div>
-        <div class="form-group">
-          <label class="form-label">Gmail</label>
-          <input type="email" class="form-input" id="google-custom-email" required placeholder="user@gmail.com">
-        </div>
-        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">Войти</button>
       </form>
     </div>
   </div>
 
   <!-- ======================= EDIT PROFILE MODAL ======================= -->
   <div class="modal-backdrop" id="profile-edit-modal">
-    <div class="modal-card liquid-glass-card">
+    <div class="modal-card liquid-glass-card" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title">
       <div class="modal-header">
-        <h3 class="modal-title">Профиль</h3>
-        <button class="modal-close" onclick="closeEditProfileModal()">✕</button>
+        <h2 class="modal-title" id="profile-modal-title" data-i18n="profileTitle">Профиль</h2>
+        <button class="modal-close" onclick="closeEditProfileModal()" data-i18n-aria="close" aria-label="Закрыть">✕</button>
       </div>
       <form onsubmit="handleSaveProfile(event)">
         <div class="form-group">
-          <label class="form-label">Аватар</label>
+          <label class="form-label" for="profile-avatar-input" data-i18n="avatarLabel">Аватар</label>
           <div class="avatar-picker-grid" id="avatar-picker"></div>
-          <input type="text" class="form-input" id="profile-avatar-input" placeholder="Инициалы или URL">
+          <input type="text" class="form-input" id="profile-avatar-input" placeholder="АБ / https://…">
         </div>
         <div class="form-group">
-          <label class="form-label">Имя *</label>
-          <input type="text" class="form-input" id="profile-name-input" required>
+          <label class="form-label" for="profile-name-input" data-i18n="authName">Имя</label>
+          <input type="text" class="form-input" id="profile-name-input" required maxlength="80" autocomplete="name">
         </div>
-        <div class="form-group">
-          <label class="form-label">Новый пароль</label>
-          <input type="password" class="form-input" id="profile-password-input" placeholder="Без изменений">
+        <div class="form-group" id="profile-password-group">
+          <label class="form-label" for="profile-password-input" data-i18n="newPassword">Новый пароль</label>
+          <input type="password" class="form-input" id="profile-password-input" minlength="8" autocomplete="new-password" data-i18n-placeholder="unchanged">
         </div>
-        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">Сохранить</button>
+        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;"><span data-i18n="save">Сохранить</span></button>
       </form>
     </div>
   </div>
 
   <!-- ======================= ADMIN CREATE USER MODAL ======================= -->
   <div class="modal-backdrop" id="admin-user-modal">
-    <div class="modal-card liquid-glass-card">
+    <div class="modal-card liquid-glass-card" role="dialog" aria-modal="true" aria-labelledby="admin-user-title">
       <div class="modal-header">
-        <h3 class="modal-title">Новый профиль</h3>
-        <button class="modal-close" onclick="closeAdminCreateUserModal()">✕</button>
+        <h2 class="modal-title" id="admin-user-title">Новый пользователь</h2>
+        <button class="modal-close" onclick="closeAdminCreateUserModal()" aria-label="Закрыть">✕</button>
       </div>
       <form onsubmit="handleAdminCreateUser(event)">
         <div class="form-group">
-          <label class="form-label">Имя *</label>
-          <input type="text" class="form-input" id="adm-user-name" required placeholder="Имя">
+          <label class="form-label" for="adm-user-name">Имя *</label>
+          <input type="text" class="form-input" id="adm-user-name" required maxlength="80">
         </div>
         <div class="form-group">
-          <label class="form-label">Email *</label>
-          <input type="email" class="form-input" id="adm-user-email" required placeholder="reader@elibrary.com">
+          <label class="form-label" for="adm-user-email">Email *</label>
+          <input type="email" class="form-input" id="adm-user-email" required>
         </div>
         <div class="form-group">
-          <label class="form-label">Пароль *</label>
-          <input type="text" class="form-input" id="adm-user-pass" required placeholder="123456">
+          <label class="form-label" for="adm-user-pass">Пароль * (минимум 8 символов)</label>
+          <input type="text" class="form-input" id="adm-user-pass" required minlength="8" autocomplete="off">
         </div>
         <div class="form-group">
-          <label class="form-label">Роль *</label>
+          <label class="form-label" for="adm-user-role">Роль *</label>
           <select class="form-select" id="adm-user-role">
             <option value="reader">Читатель</option>
             <option value="admin">Администратор</option>
@@ -1029,28 +1312,34 @@
 
   <!-- ======================= CERTIFICATE MODAL ======================= -->
   <div class="modal-backdrop" id="certificate-modal">
-    <div class="modal-card liquid-glass-card" style="max-width: 560px;">
+    <div class="modal-card liquid-glass-card" role="dialog" aria-modal="true" aria-labelledby="cert-modal-title" style="max-width: 600px;">
       <div class="modal-header">
-        <h3 class="modal-title">Сертификат</h3>
-        <button class="modal-close" onclick="closeCertificateModal()">✕</button>
+        <h2 class="modal-title" id="cert-modal-title" data-i18n="certTitle">Сертификат</h2>
+        <button class="modal-close" onclick="closeCertificateModal()" data-i18n-aria="close" aria-label="Закрыть">✕</button>
       </div>
       <div class="certificate-box soft-gradient-card" id="certificate-print-area">
-        <div class="cert-badge">АКАДЕМИЧЕСКИЙ СЕРТИФИКАТ</div>
-        <div class="cert-title">СЕРТИФИКАТ</div>
-        <p style="font-size: 12px; color: var(--text-muted);">Подтверждает успешную аттестацию:</p>
-        <div class="cert-user" id="cert-user-name">Имя</div>
-        <p style="font-size: 13px; color: var(--text-muted);">Издание:</p>
-        <div class="cert-book" id="cert-book-name">«Название»</div>
+        <div class="cert-badge">eLibrary</div>
+        <div class="cert-title" data-i18n="certTitle">Сертификат</div>
+        <div class="cert-user" id="cert-user-name"></div>
+        <p class="cert-confirms" data-i18n="certConfirms">Подтверждает успешную аттестацию по изданию</p>
+        <div class="cert-book" id="cert-book-name"></div>
         <div class="liquid-divider" style="margin: 16px auto;"></div>
         <div class="cert-footer">
-          <div>Дата: <strong id="cert-date"></strong></div>
-          <div>Результат: <strong>100%</strong></div>
-          <div>eLibrary</div>
+          <div><span data-i18n="certDate">Дата выдачи</span>: <strong id="cert-date"></strong></div>
+          <div><span data-i18n="certScore">Результат</span>: <strong id="cert-score">100%</strong></div>
+          <div><span data-i18n="certCode">Номер</span>: <strong id="cert-code"></strong></div>
+        </div>
+        <div class="cert-verify-row">
+          <div class="cert-qr" id="cert-qr"></div>
+          <div class="cert-verify-text">
+            <span data-i18n="certScanToVerify">Проверка подлинности:</span><br>
+            <a id="cert-verify-link" href="#/verify" target="_blank" rel="noopener"></a>
+          </div>
         </div>
       </div>
-      <div style="display: flex; gap: 10px; justify-content: center; margin-top: 16px;">
-        <button class="btn-primary" onclick="window.print()">Печать / PDF</button>
-        <button class="btn-secondary" onclick="closeCertificateModal()">Закрыть</button>
+      <div class="modal-actions">
+        <button class="btn-primary" onclick="printCertificate()"><span data-i18n="certPrint">Печать / PDF</span></button>
+        <button class="btn-secondary" onclick="closeCertificateModal()"><span data-i18n="close">Закрыть</span></button>
       </div>
     </div>
   </div>
@@ -1082,6 +1371,13 @@
       });
     }
   </script>
-  <script src="app.js?v=6"></script>
+  <script src="vendor/supabase-2.45.4.js"></script>
+  <script src="vendor/qrcode-1.4.4.js"></script>
+  <script src="js/config.js?v=7"></script>
+  <script src="js/i18n.js?v=7"></script>
+  <script src="js/api.js?v=7"></script>
+  <script src="js/render3d.js?v=7"></script>
+  <script src="js/category-editor.js?v=7"></script>
+  <script src="js/app.js?v=7"></script>
 </body>
 </html>

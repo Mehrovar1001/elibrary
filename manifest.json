@@ -1,8 +1,8 @@
 {
-  "name": "eLibrary — Цифровая библиотека",
+  "name": "eLibrary — Цифровая научная библиотека",
   "short_name": "eLibrary",
-  "description": "Электронная библиотека книг и аудиокниг с поддержкой Google Drive, адаптацией для Mac и мобильных устройств.",
-  "start_url": "./index.html",
+  "description": "Книги и аудиокниги на русском, таджикском и английском языках. Аттестация и сертификаты с QR-проверкой.",
+  "start_url": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#F4F0E6",
@@ -37,5 +37,6 @@
   "display_override": [
     "standalone",
     "minimal-ui"
-  ]
+  ],
+  "lang": "ru"
 }
