@@ -1,0 +1,10 @@
+{
+  "name": "elibrary",
+  "private": true,
+  "scripts": {
+    "test": "node tests/layout.test.js && node tests/animations.test.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0"
+  }
+}

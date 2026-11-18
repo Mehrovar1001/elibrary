@@ -2234,9 +2234,15 @@ function setupNetworkStatusToast() {
 }
 
 function setupOpticalLiquidScroll() {
+  let queued = false;
   window.addEventListener('scroll', () => {
-    const sy = window.scrollY || 0;
-    document.documentElement.style.setProperty('--scroll-refract', sy + 'px');
-    document.documentElement.style.setProperty('--scroll-angle', ((sy * 0.12) % 360) + 'deg');
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => { /* at most once per frame */
+      queued = false;
+      const sy = window.scrollY || 0;
+      document.documentElement.style.setProperty('--scroll-refract', sy + 'px');
+      document.documentElement.style.setProperty('--scroll-angle', ((sy * 0.12) % 360) + 'deg');
+    });
   }, { passive: true });
 }
